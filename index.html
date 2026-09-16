@@ -299,6 +299,105 @@ details.has-image > summary {
     box-shadow: var(--shadow);
   }
 
+/* ==========================================================
+   MODO DE EDIÇÃO
+   ========================================================== */
+
+.edit-mode-control {
+  position: absolute;
+
+  top: 14px;
+  right: 18px;
+
+  z-index: 2000;
+}
+
+.edit-switch {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 7px 11px;
+
+  background: rgba(255, 248, 228, .90);
+
+  border: 1px solid var(--line);
+  border-radius: 20px;
+
+  box-shadow:
+    0 3px 10px rgba(60, 40, 20, .12);
+
+  cursor: pointer;
+
+  user-select: none;
+}
+
+.edit-switch input {
+  display: none;
+}
+
+.edit-slider {
+  position: relative;
+
+  width: 34px;
+  height: 18px;
+
+  background: #aa9b83;
+
+  border-radius: 20px;
+
+  transition: .2s ease;
+}
+
+.edit-slider::after {
+  content: "";
+
+  position: absolute;
+
+  width: 14px;
+  height: 14px;
+
+  left: 2px;
+  top: 2px;
+
+  background: #fff8e8;
+
+  border-radius: 50%;
+
+  transition: .2s ease;
+}
+
+.edit-switch input:checked + .edit-slider {
+  background: var(--green);
+}
+
+.edit-switch input:checked + .edit-slider::after {
+  transform: translateX(16px);
+}
+
+.edit-mode-label {
+  font-size: 12px;
+  font-weight: bold;
+
+  color: var(--muted);
+}
+
+.sheet input:disabled,
+.sheet select:disabled,
+.sheet textarea:disabled {
+  opacity: 1;
+
+  color: inherit;
+  -webkit-text-fill-color: inherit;
+
+  cursor: default;
+}
+
+.sheet input[type="checkbox"]:disabled {
+  cursor: default;
+}
+
   /* ---------- TABS ---------- */
 
   .tabs {
@@ -1587,6 +1686,28 @@ details.has-image > summary {
 
 
 <div class="sheet">
+
+  <div class="edit-mode-control">
+
+  <label class="edit-switch">
+
+    <input
+      type="checkbox"
+      id="editModeToggle"
+    >
+
+    <span class="edit-slider"></span>
+
+    <span
+      id="editModeLabel"
+      class="edit-mode-label"
+    >
+      Visualização
+    </span>
+
+  </label>
+
+</div>
 
   <div class="tabs">
     <button class="tab-button active" data-tab="normal">Ficha</button>
@@ -2935,8 +3056,6 @@ function agendarSalvamento(elementId) {
 }
 </script>
 
-
-
 <script>
   /* ============================================================
      DADOS
@@ -3855,6 +3974,76 @@ document
     });
 
 /* ============================================================
+   MODO DE EDIÇÃO
+   ============================================================ */
+
+function setEditMode(enabled) {
+
+    document
+        .querySelectorAll(
+            ".tab-panel input, .tab-panel select, .tab-panel textarea"
+        )
+        .forEach(element => {
+
+            element.disabled = !enabled;
+
+        });
+
+
+    const label =
+        document.getElementById(
+            "editModeLabel"
+        );
+
+    label.textContent =
+        enabled
+            ? "Edição"
+            : "Visualização";
+
+
+    localStorage.setItem(
+        "rekno_edit_mode",
+        enabled ? "1" : "0"
+    );
+}
+
+
+function configurarModoEdicao() {
+
+    const toggle =
+        document.getElementById(
+            "editModeToggle"
+        );
+
+
+    const savedMode =
+        localStorage.getItem(
+            "rekno_edit_mode"
+        ) === "1";
+
+
+    toggle.checked =
+        savedMode;
+
+
+    setEditMode(
+        savedMode
+    );
+
+
+    toggle.addEventListener(
+        "change",
+        () => {
+
+            setEditMode(
+                toggle.checked
+            );
+
+        }
+    );
+}
+
+/* ============================================================
    EVENTOS DA FICHA
    ============================================================ */
 
@@ -4062,10 +4251,12 @@ function createFeatureImages() {
 
 }
 
-    async function iniciarFicha() {
+async function iniciarFicha() {
 
     createSkills();
     createAttacks();
+
+    configurarModoEdicao();
 
     configurarEventos();
 
