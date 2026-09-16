@@ -2286,6 +2286,7 @@ details.has-image > summary {
         <div class="equipment-item"><strong>Algemas</strong> — 2 kg</div>
         <div class="equipment-item"><strong>Manto</strong> — 1 kg</div>
         <div class="equipment-item"><strong>Tenda</strong> — 10 kg</div>
+        <div class="equipment-item"><strong>Escudo</strong> — 3 kg</div>
         <div class="equipment-item"><strong>Pacote de explorador</strong></div>
 
       </div>
@@ -3529,11 +3530,11 @@ function createAttacks() {
         const mode = document.getElementById("acMode").value;
 
         if (mode === "natural") {
-        return 13 + mods.dex;
+        return 13 + mods.dex + 2;
         }
 
         if (mode === "leather") {
-        return 11 + mods.dex;
+        return 11 + mods.dex + 2;
         }
 
         return num("manualCA");
