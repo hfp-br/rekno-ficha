@@ -29,7 +29,15 @@ details.has-image,
   object-fit: cover;
   object-position: center;
 
+  transform:
+    scale(
+      var(--feature-zoom, 1)
+    );
+
   filter:
+    blur(
+      var(--feature-blur, 0px)
+    )
     sepia(.08)
     saturate(.90)
     contrast(.96);
@@ -40,9 +48,19 @@ details.has-image,
 }
 
 .has-image:hover .feature-image img {
-  transform: scale(1.025);
+
+  transform:
+    scale(
+      calc(
+        var(--feature-zoom, 1)
+        + 0.025
+      )
+    );
 
   filter:
+    blur(
+      var(--feature-blur, 0px)
+    )
     sepia(.04)
     saturate(1)
     contrast(1);
@@ -1903,6 +1921,135 @@ body.editing .edit-only {
 
 }
 
+.feature-effects-editor {
+    display: grid;
+    gap: 8px;
+
+    padding-top: 10px;
+
+    border-top:
+        1px solid rgba(112,82,51,.18);
+}
+
+
+.feature-effects-header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.feature-effects-title {
+    color: var(--muted);
+
+    font-size: 11px;
+    font-weight: bold;
+
+    text-transform: uppercase;
+    letter-spacing: .07em;
+}
+
+
+.feature-effect-add {
+    border: 1px solid var(--sand-3);
+    border-radius: 6px;
+
+    background: var(--panel-strong);
+
+    cursor: pointer;
+
+    padding: 4px 8px;
+}
+
+
+.feature-effect-row {
+    display: grid;
+
+    grid-template-columns:
+        100px
+        minmax(0, 1fr)
+        180px
+        34px;
+
+    gap: 7px;
+
+    align-items: center;
+
+    padding: 8px;
+
+    background:
+        rgba(255,255,255,.20);
+
+    border: 1px solid var(--line);
+    border-radius: 7px;
+}
+
+
+.feature-effect-fields {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0, 1fr)
+        );
+
+    gap: 7px;
+}
+
+
+.feature-effect-fields input,
+.feature-effect-fields select {
+    width: 100%;
+    min-width: 0;
+}
+
+
+.feature-effect-row input,
+.feature-effect-row select {
+    width: 100%;
+
+    min-width: 0;
+
+    padding: 5px;
+
+    border: 0;
+    border-bottom:
+        1px solid var(--sand-3);
+
+    background: transparent;
+
+    color: var(--ink);
+}
+
+
+.feature-effect-delete {
+    border: 0;
+
+    background: transparent;
+
+    color: var(--red);
+
+    cursor: pointer;
+}
+
+@media (max-width: 750px) {
+
+    .feature-effect-row {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .feature-effect-fields {
+        grid-template-columns:
+            1fr;
+    }
+}
+
 /* ==========================================================
    EDITOR DE MAGIAS
    ========================================================== */
@@ -1991,6 +2138,89 @@ body.editing .edit-only {
         grid-template-columns: 1fr 1fr;
     }
 
+}
+
+.feature-image-options {
+    display: grid;
+
+    gap: 10px;
+
+    padding: 10px;
+
+    border: 1px solid var(--line);
+    border-radius: 8px;
+
+    background:
+        rgba(255,255,255,.22);
+}
+
+
+.feature-image-options[hidden] {
+    display: none;
+}
+
+
+.feature-image-preview {
+    position: relative;
+
+    width: 100%;
+    height: 140px;
+
+    overflow: hidden;
+
+    border-radius: 8px;
+
+    background: var(--sand-1);
+}
+
+
+.feature-image-preview img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    transform:
+        scale(
+            var(--preview-zoom, 1)
+        );
+
+    filter:
+        blur(
+            var(--preview-blur, 0px)
+        );
+
+    transition:
+        transform .15s ease,
+        filter .15s ease;
+}
+
+
+.feature-slider-row {
+    display: grid;
+
+    grid-template-columns:
+        55px
+        1fr
+        55px;
+
+    gap: 8px;
+
+    align-items: center;
+}
+
+
+.feature-slider-row input[type="range"] {
+    width: 100%;
+}
+
+
+.feature-slider-value {
+    color: var(--muted);
+
+    font-size: 11px;
+
+    text-align: right;
 }
 
 /* ==========================================================
@@ -2181,7 +2411,7 @@ body.editing .edit-only {
       id="editModeLabel"
       class="edit-mode-label"
     >
-      Visualização
+      Jogo
     </span>
 
   </label>
@@ -2320,6 +2550,7 @@ body.editing .edit-only {
         <div class="vital">
           <span class="label">PV Atual</span>
           <input
+            data-gameplay="true"
             id="hpCurrent"
             class="save"
             type="number"
@@ -2335,6 +2566,7 @@ body.editing .edit-only {
         <div class="vital">
           <span class="label">PV Temporário</span>
           <input
+          data-gameplay="true"
             id="hpTemp"
             class="save"
             type="number"
@@ -2365,8 +2597,8 @@ body.editing .edit-only {
           <span class="label">Cálculo da CA</span>
 
           <select id="acMode" class="editable save">
-            <option value="natural">Armadura Natural</option>
-            <option value="leather">Armadura de Couro</option>
+            <option value="natural">Natural</option>
+            <option value="leather">Armadura</option>
             <option value="manual">Manual</option>
           </select>
         </div>
@@ -2379,6 +2611,7 @@ body.editing .edit-only {
             class="editable save"
             type="number"
             value="15"
+            data-gameplay="true"
           >
         </div>
 
@@ -2660,6 +2893,7 @@ body.editing .edit-only {
         type="number"
         min="0"
         value="0"
+        data-gameplay="true"
       >
 
       <small>Platina</small>
@@ -2674,7 +2908,8 @@ body.editing .edit-only {
         class="save"
         type="number"
         min="0"
-        value="40"
+        value="0"
+        data-gameplay="true"
       >
 
       <small>Ouro</small>
@@ -2689,7 +2924,8 @@ body.editing .edit-only {
         class="save"
         type="number"
         min="0"
-        value="3"
+        value="0"
+        data-gameplay="true"
       >
 
       <small>Prata</small>
@@ -2705,6 +2941,7 @@ body.editing .edit-only {
         type="number"
         min="0"
         value="0"
+        data-gameplay="true"
       >
 
       <small>Cobre</small>
@@ -2723,6 +2960,7 @@ body.editing .edit-only {
         id="normalNotes"
         class="save"
         placeholder="Anotações da sessão..."
+        data-gameplay="true"
       ></textarea>
 
     </div>
@@ -2755,7 +2993,8 @@ body.editing .edit-only {
                 id="combatHP"
                 type="number"
                 min="0"
-                value="19"
+                value="0"
+                data-gameplay="true"
             >
 
             <span>/</span>
@@ -2767,7 +3006,7 @@ body.editing .edit-only {
 
         <div class="combat-chip">
           <span class="label">CA</span>
-          <strong id="combatAC">17</strong>
+          <strong id="combatAC">10</strong>
         </div>
 
         <div class="combat-chip">
@@ -2796,6 +3035,7 @@ body.editing .edit-only {
         <div
           id="combatToggleList"
           class="toggle-row"
+          data-gameplay="true"
         ></div>
 
 
@@ -2851,7 +3091,7 @@ body.editing .edit-only {
       <div>
 
         <div class="section-title">Recursos</div>
-        <div id="combatResourceList"></div>
+        <div id="combatResourceList" data-gameplay="true"></div>
 
         <div class="resource-block">
 
@@ -2866,8 +3106,9 @@ body.editing .edit-only {
               id="slot1"
               class="save"
               type="number"
-              value="2"
+              value="0"
               min="0"
+              data-gameplay="true"
             >
 
             <span>
@@ -2884,6 +3125,7 @@ body.editing .edit-only {
               type="number"
               value="0"
               min="0"
+              data-gameplay="true"
             >
 
             <span>
@@ -2900,6 +3142,7 @@ body.editing .edit-only {
               type="number"
               value="0"
               min="0"
+              data-gameplay="true"
             >
 
             <span>
@@ -2916,6 +3159,7 @@ body.editing .edit-only {
               type="number"
               value="0"
               min="0"
+              data-gameplay="true"
             >
 
             <span>
@@ -2932,6 +3176,7 @@ body.editing .edit-only {
               type="number"
               value="0"
               min="0"
+              data-gameplay="true"
             >
 
             <span>
@@ -2973,6 +3218,7 @@ body.editing .edit-only {
             type="number"
             value="0"
             style="width:80px;text-align:center"
+            data-gameplay="true"
           >
 
         </div>
@@ -2987,7 +3233,7 @@ body.editing .edit-only {
           <textarea
             id="combatNotes"
             class="save"
-            placeholder="Concentração, condições, inimigos marcados..."
+            data-gameplay="true"
           ></textarea>
 
         </div>
@@ -3058,10 +3304,17 @@ function atualizarPermissaoEdicao() {
         control.style.display = isOwner ? "" : "none";
     }
 
-    if (toggle && !isOwner) {
+    if (toggle) {
+
+    if (!isOwner) {
         toggle.checked = false;
-        setEditMode(false);
     }
+
+    setEditMode(
+        isOwner &&
+        toggle.checked
+    );
+}
 }
 
 async function verificarSessao() {
@@ -3318,20 +3571,26 @@ function adicionarCaracteristica(tipo) {
 
     conteudo[tipo].push({
 
-        id: criarId(),
+    id: criarId(),
 
-        name:
-            config.defaultName,
+    name:
+        config.defaultName,
 
-        subtitle: "",
+    subtitle: "",
 
-        description: "",
+    description: "",
 
-        image: "",
+    image: "",
 
-        open: false
+    imageBlur: 0,
 
-    });
+    imageZoom: 1,
+
+    effects: [],
+
+    open: false
+
+});
 
 
     renderizarCaracteristicas(
@@ -3409,8 +3668,11 @@ function renderizarTogglesCombate() {
                     toggle.active
                 );
 
+            input.dataset.gameplay =
+                "true";
+
             input.disabled =
-                !editando;
+                !isOwner;
 
 
             const text =
@@ -3602,13 +3864,6 @@ function renderizarRecursos() {
         combatContainer.innerHTML = "";
     }
 
-
-    const editando =
-        document.getElementById(
-            "editModeToggle"
-        )?.checked;
-
-
     conteudo.recursos.forEach(
         recurso => {
 
@@ -3653,8 +3908,11 @@ function renderizarRecursos() {
                             recurso.current ?? 0
                         );
 
+                    input.dataset.gameplay =
+                        "true";
+
                     input.disabled =
-                        !editando;
+                        !isOwner;
 
                     input.style.width =
                         "70px";
@@ -4059,7 +4317,7 @@ if (dados.raca_nome) {
         "#spellList, " +
         ".dynamic-feature-list, " +
         "#normalResourceList, " +
-        "#combatResourceList" +
+        "#combatResourceList, " +
         "#combatToggleList"
     );
 
@@ -4345,16 +4603,92 @@ const pericias = [
     return 2 + Math.floor((level - 1) / 4);
   }
 
-  function getMods() {
+  function getAttributeBonus(
+    stat
+) {
+
+    return getFeatureEffects(
+        "attribute"
+    )
+        .filter(
+            effect =>
+                effect.stat === stat
+        )
+        .reduce(
+            (total, effect) => {
+
+                return total +
+                    Number(
+                        effect.bonus || 0
+                    );
+
+            },
+            0
+        );
+}
+
+
+function getAttributeScore(
+    stat
+) {
+
+    return (
+        num(stat) +
+        getAttributeBonus(
+            stat
+        )
+    );
+}
+
+
+function getMods() {
+
     return {
-      str: mod(num("str")),
-      dex: mod(num("dex")),
-      con: mod(num("con")),
-      int: mod(num("int")),
-      wis: mod(num("wis")),
-      cha: mod(num("cha"))
+
+        str:
+            mod(
+                getAttributeScore(
+                    "str"
+                )
+            ),
+
+        dex:
+            mod(
+                getAttributeScore(
+                    "dex"
+                )
+            ),
+
+        con:
+            mod(
+                getAttributeScore(
+                    "con"
+                )
+            ),
+
+        int:
+            mod(
+                getAttributeScore(
+                    "int"
+                )
+            ),
+
+        wis:
+            mod(
+                getAttributeScore(
+                    "wis"
+                )
+            ),
+
+        cha:
+            mod(
+                getAttributeScore(
+                    "cha"
+                )
+            )
+
     };
-  }
+}
 
 /* ============================================================
     EFEITOS DE HABILIDADES
@@ -4362,43 +4696,100 @@ const pericias = [
 
 function getSkillEffects(skillName) {
 
-    return (
-        conteudo.efeitosPericia || []
-    ).filter(effect => {
-
-        const affectsSkill =
-            Array.isArray(
-                effect.skills
-            ) &&
-            effect.skills.includes(
-                skillName
-            );
+    const todosEfeitos = [
+        ...(
+            conteudo.efeitosPericia ||
+            []
+        )
+    ];
 
 
-        let isActive = true;
+    [
+        "antecedente",
+        "raca",
+        "classe",
+        "talentos"
+    ].forEach(tipo => {
+
+        (
+            conteudo[tipo] ||
+            []
+        ).forEach(feature => {
+
+            const effects =
+                Array.isArray(
+                    feature.effects
+                )
+                    ? feature.effects
+                    : [];
 
 
-        if (
-            effect.requiresToggle
-        ) {
+            effects.forEach(effect => {
 
-            const toggle =
-                document.getElementById(
-                    effect.requiresToggle
-                );
-
-            isActive =
-                Boolean(
-                    toggle?.checked
-                );
-        }
+                if (
+                    effect.type !==
+                    "skill"
+                ) {
+                    return;
+                }
 
 
-        return (
-            affectsSkill &&
-            isActive
-        );
+                todosEfeitos.push({
+
+                    ...effect,
+
+                    source:
+                        effect.source ||
+                        feature.name ||
+                        "Característica"
+
+                });
+
+            });
+
+        });
+
     });
+
+
+    return todosEfeitos.filter(
+        effect => {
+
+            const affectsSkill =
+                Array.isArray(
+                    effect.skills
+                )
+                    ? effect.skills.includes(
+                        skillName
+                    )
+                    : effect.skill ===
+                        skillName;
+
+
+            if (!affectsSkill) {
+                return false;
+            }
+
+
+            if (
+                effect.requiresToggle
+            ) {
+
+                const toggle =
+                    document.getElementById(
+                        effect.requiresToggle
+                    );
+
+
+                if (!toggle?.checked) {
+                    return false;
+                }
+            }
+
+
+            return true;
+        }
+    );
 }
 
 function renderizarAtaques() {
@@ -4543,7 +4934,7 @@ function renderizarAtaques() {
 }
 
 
-conteudo.efeitosAtaque
+getAttackEffectDefinitions()
     .forEach(effect => {
 
         const label =
@@ -5053,6 +5444,25 @@ conteudo.efeitosAtaque
     return Math.floor(level / 2);
     }
 
+function getSpellEffectBonuses() {
+
+    return {
+
+        dc:
+            somarEfeitos(
+                "spell",
+                "dcBonus"
+            ),
+
+        attack:
+            somarEfeitos(
+                "spell",
+                "attackBonus"
+            )
+
+    };
+}
+
 function formatarTextoMagia(texto) {
 
     const mods =
@@ -5072,11 +5482,20 @@ function formatarTextoMagia(texto) {
             atributoConjuracao
         ] ?? 0;
 
-    const spellDC =
-        8 + spellMod + pb;
+    const spellEffects =
+    getSpellEffectBonuses();
 
-    const spellAttack =
-        spellMod + pb;
+    const spellDC =
+    8 +
+    spellMod +
+    pb +
+    spellEffects.dc;
+
+
+const spellAttack =
+    spellMod +
+    pb +
+    spellEffects.attack;
 
 
     return String(texto || "")
@@ -5730,18 +6149,56 @@ if (addSpellButton) {
 
     function calculateAC(mods) {
 
-        const mode = document.getElementById("acMode").value;
+    const mode =
+        document.getElementById(
+            "acMode"
+        ).value;
 
-        if (mode === "natural") {
-        return 13 + mods.dex + 2;
-        }
 
-        if (mode === "leather") {
-        return 11 + mods.dex + 2;
-        }
+    let baseAC;
 
-        return num("manualCA");
+
+    if (mode === "natural") {
+
+        baseAC =
+            13 +
+            mods.dex +
+            2;
+
     }
+
+    else if (
+        mode === "leather"
+    ) {
+
+        baseAC =
+            11 +
+            mods.dex +
+            2;
+
+    }
+
+    else {
+
+        baseAC =
+            num(
+                "manualCA"
+            );
+
+    }
+
+
+    const bonusAC =
+        somarEfeitos(
+            "ac"
+        );
+
+
+    return (
+        baseAC +
+        bonusAC
+    );
+}
 
 /* ============================================================
    HP
@@ -5752,7 +6209,7 @@ function calculateMaxHP(
     conMod
 ) {
 
-    return (
+    const baseHP =
         pvBaseNivel1 +
         conMod +
         (
@@ -5761,7 +6218,18 @@ function calculateMaxHP(
                 pvPorNivel +
                 conMod
             )
-        )
+        );
+
+
+    const bonusHP =
+        somarEfeitos(
+            "maxHp"
+        );
+
+
+    return (
+        baseHP +
+        bonusHP
     );
 }
 
@@ -5921,9 +6389,8 @@ function getAttackEffects(attack) {
             : [];
 
 
-    return (
-        conteudo.efeitosAtaque || []
-    ).filter(effect => {
+    return getAttackEffectDefinitions()
+    .filter(effect => {
 
         if (
             !ids.includes(
@@ -6200,25 +6667,20 @@ document
 
     /* percepção passiva */
 
-    const perceptionRow =
-      [...document.querySelectorAll(".skill")]
-      .find(row => row.dataset.name === "Percepção");
-
-    const perceptionProf =
-      perceptionRow
-        .querySelector(".skill-prof")
-        .checked;
-
-    const perceptionBonus =
-    mods.wis +
-    halfLevelBonus(level) +
-    skillProgressionBonus(
-        level,
-        perceptionProf
+    const perceptionResult =
+    getSkillResult(
+        "Percepção",
+        mods,
+        level
     );
 
+
     const passive =
-    10 + perceptionBonus;
+        10 +
+        (
+            perceptionResult?.total ??
+            0
+        );
 
 
     document.getElementById("passivePerception").textContent =
@@ -6231,13 +6693,21 @@ document
         atributoConjuracao
     ] ?? 0;
 
+    const spellEffects =
+    getSpellEffectBonuses();
+
 
 const spellDC =
-    8 + spellMod + pb;
+    8 +
+    spellMod +
+    pb +
+    spellEffects.dc;
 
 
 const spellAttack =
-    spellMod + pb;
+    spellMod +
+    pb +
+    spellEffects.attack;
 
     document.getElementById("spellDC").textContent =
       spellDC;
@@ -6254,7 +6724,11 @@ const spellAttack =
     /* carga */
 
     const kg =
-      num("str") * 15 * 0.453592;
+    getAttributeScore(
+        "str"
+    ) *
+    15 *
+    0.453592;
 
     document.getElementById("carryCapacity").textContent =
       `${kg.toFixed(1)} kg`;
@@ -6333,18 +6807,36 @@ const spellAttack =
    ============================================================ */
 
 function setEditMode(enabled) {
-  document.body.classList.toggle(
-    "editing",
-    enabled
-);
+
+    document.body.classList.toggle(
+        "editing",
+        enabled
+    );
+
 
     document
         .querySelectorAll(
-            ".tab-panel input, .tab-panel select, .tab-panel textarea"
+            ".tab-panel input, " +
+            ".tab-panel select, " +
+            ".tab-panel textarea"
         )
         .forEach(element => {
 
-            element.disabled = !enabled;
+            const gameplay =
+                element.dataset.gameplay ===
+                "true";
+
+
+            const podeEditar =
+                isOwner &&
+                (
+                    enabled ||
+                    gameplay
+                );
+
+
+            element.disabled =
+                !podeEditar;
 
         });
 
@@ -6357,7 +6849,7 @@ function setEditMode(enabled) {
     label.textContent =
         enabled
             ? "Edição"
-            : "Visualização";
+            : "Jogo";
 
 
     localStorage.setItem(
@@ -6645,6 +7137,1108 @@ const FEATURE_CONFIG = {
 
 };
 
+function coletarEfeitosCaracteristicas(
+    tipoEfeito
+) {
+
+    const resultado = [];
+
+
+    [
+        "antecedente",
+        "raca",
+        "classe",
+        "talentos"
+    ].forEach(tipo => {
+
+        (
+            conteudo[tipo] || []
+        ).forEach(feature => {
+
+            const effects =
+                Array.isArray(
+                    feature.effects
+                )
+                    ? feature.effects
+                    : [];
+
+
+            effects.forEach(effect => {
+
+                if (
+                    effect.type !==
+                    tipoEfeito
+                ) {
+                    return;
+                }
+
+
+                resultado.push({
+
+                    ...effect,
+
+                    source:
+                        effect.source ||
+                        feature.name ||
+                        "Característica"
+
+                });
+
+            });
+
+        });
+
+    });
+
+
+    return resultado;
+}
+
+
+function efeitoEstaAtivo(effect) {
+
+    if (
+        !effect.requiresToggle
+    ) {
+        return true;
+    }
+
+
+    const toggle =
+        document.getElementById(
+            effect.requiresToggle
+        );
+
+
+    return Boolean(
+        toggle?.checked
+    );
+}
+
+
+function getFeatureEffects(
+    tipoEfeito
+) {
+
+    return coletarEfeitosCaracteristicas(
+        tipoEfeito
+    ).filter(
+        efeitoEstaAtivo
+    );
+}
+
+
+function somarEfeitos(
+    tipoEfeito,
+    campo = "bonus"
+) {
+
+    return getFeatureEffects(
+        tipoEfeito
+    ).reduce(
+        (total, effect) => {
+
+            return total +
+                Number(
+                    effect[campo] || 0
+                );
+
+        },
+        0
+    );
+}
+
+function getAttackEffectDefinitions() {
+
+    return [
+
+        ...(
+            conteudo.efeitosAtaque ||
+            []
+        ),
+
+        ...coletarEfeitosCaracteristicas(
+            "attack"
+        )
+
+    ];
+}
+
+function criarEditorEfeitosCaracteristica(
+    feature,
+    tipo
+) {
+
+    if (
+        !Array.isArray(
+            feature.effects
+        )
+    ) {
+        feature.effects = [];
+    }
+
+
+    const wrapper =
+        document.createElement(
+            "div"
+        );
+
+    wrapper.className =
+        "feature-effects-editor";
+
+
+    const header =
+        document.createElement(
+            "div"
+        );
+
+    header.className =
+        "feature-effects-header";
+
+
+    const title =
+        document.createElement(
+            "span"
+        );
+
+    title.className =
+        "feature-effects-title";
+
+    title.textContent =
+        "Efeitos mecânicos";
+
+
+    const add =
+        document.createElement(
+            "button"
+        );
+
+    add.type =
+        "button";
+
+    add.className =
+        "feature-effect-add";
+
+    add.textContent =
+        "+ Efeito";
+
+
+    add.addEventListener(
+        "click",
+        () => {
+
+            feature.effects.push({
+
+                id: criarId(),
+
+                type: "skill",
+
+                skill: "Iniciativa",
+
+                bonus: 0,
+
+                text: "",
+
+                requiresToggle: ""
+
+            });
+
+
+            renderizarCaracteristicas(
+                tipo
+            );
+
+            renderizarAtaques();
+
+            agendarSalvamentoConteudo();
+
+        }
+    );
+
+
+    header.appendChild(
+        title
+    );
+
+    header.appendChild(
+        add
+    );
+
+    wrapper.appendChild(
+        header
+    );
+
+
+    feature.effects.forEach(
+        effect => {
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+            row.className =
+                "feature-effect-row";
+
+
+            /* tipo */
+
+            const effectType =
+                document.createElement(
+                    "select"
+                );
+
+
+            [
+                [
+    [
+        "skill",
+        "Perícia"
+    ],
+
+    [
+        "attack",
+        "Ataque"
+    ],
+
+    [
+        "ac",
+        "CA"
+    ],
+
+    [
+        "maxHp",
+        "PV Máximo"
+    ],
+
+    [
+        "attribute",
+        "Atributo"
+    ],
+
+    [
+        "spell",
+        "Conjuração"
+    ]
+]
+            ].forEach(
+                ([value, label]) => {
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+                    option.value =
+                        value;
+
+                    option.textContent =
+                        label;
+
+                    effectType.appendChild(
+                        option
+                    );
+
+                }
+            );
+
+
+            effectType.value =
+                effect.type ||
+                "skill";
+
+
+            /* campos específicos */
+
+            const fields =
+                document.createElement(
+                    "div"
+                );
+
+            fields.className =
+                "feature-effect-fields";
+
+
+            /* condição */
+
+            const condition =
+                document.createElement(
+                    "select"
+                );
+
+
+            const always =
+                document.createElement(
+                    "option"
+                );
+
+            always.value =
+                "";
+
+            always.textContent =
+                "Sempre ativo";
+
+            condition.appendChild(
+                always
+            );
+
+
+            (
+                conteudo.togglesCombate ||
+                []
+            ).forEach(toggle => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value =
+                    toggle.id;
+
+                option.textContent =
+                    toggle.name;
+
+                condition.appendChild(
+                    option
+                );
+
+            });
+
+
+            condition.value =
+                effect.requiresToggle ||
+                "";
+
+
+            /* excluir */
+
+            const excluir =
+                document.createElement(
+                    "button"
+                );
+
+            excluir.type =
+                "button";
+
+            excluir.className =
+                "feature-effect-delete";
+
+            excluir.textContent =
+                "🗑";
+
+
+            /* renderiza campos conforme tipo */
+
+            const renderizarCampos =
+                () => {
+
+                    fields.innerHTML =
+                        "";
+
+
+                    /* =====================
+                       PERÍCIA
+                       ===================== */
+
+                    if (
+                        effect.type ===
+                        "skill"
+                    ) {
+
+                        const skill =
+                            document.createElement(
+                                "select"
+                            );
+
+
+                        pericias.forEach(
+                            ([nome]) => {
+
+                                const option =
+                                    document.createElement(
+                                        "option"
+                                    );
+
+                                option.value =
+                                    nome;
+
+                                option.textContent =
+                                    nome;
+
+                                skill.appendChild(
+                                    option
+                                );
+
+                            }
+                        );
+
+
+                        skill.value =
+                            effect.skill ||
+                            "Iniciativa";
+
+
+                        const bonus =
+                            document.createElement(
+                                "input"
+                            );
+
+                        bonus.type =
+                            "number";
+
+                        bonus.value =
+                            Number(
+                                effect.bonus || 0
+                            );
+
+                        bonus.placeholder =
+                            "Bônus";
+
+                        bonus.title =
+                            "Bônus";
+
+
+                        const text =
+                            document.createElement(
+                                "input"
+                            );
+
+                        text.type =
+                            "text";
+
+                        text.placeholder =
+                            "Descrição do efeito";
+
+                        text.value =
+                            effect.text ||
+                            "";
+
+
+                        skill.addEventListener(
+                            "change",
+                            () => {
+
+                                effect.skill =
+                                    skill.value;
+
+                                agendarSalvamentoConteudo();
+
+                                updateSheet();
+
+                            }
+                        );
+
+
+                        bonus.addEventListener(
+                            "input",
+                            () => {
+
+                                effect.bonus =
+                                    Number(
+                                        bonus.value || 0
+                                    );
+
+                                agendarSalvamentoConteudo();
+
+                                updateSheet();
+
+                            }
+                        );
+
+
+                        text.addEventListener(
+                            "input",
+                            () => {
+
+                                effect.text =
+                                    text.value;
+
+                                agendarSalvamentoConteudo();
+
+                            }
+                        );
+
+
+                        fields.appendChild(
+                            skill
+                        );
+
+                        fields.appendChild(
+                            bonus
+                        );
+
+                        fields.appendChild(
+                            text
+                        );
+
+                    }
+
+
+                    /* =====================
+                       ATAQUE
+                       ===================== */
+
+                    else if (
+                        effect.type ===
+                        "attack"
+                    ) {
+
+                        const hit =
+                            document.createElement(
+                                "input"
+                            );
+
+                        hit.type =
+                            "number";
+
+                        hit.placeholder =
+                            "Acerto";
+
+                        hit.title =
+                            "Bônus de acerto";
+
+                        hit.value =
+                            Number(
+                                effect.bonusHit || 0
+                            );
+
+
+                        const damage =
+                            document.createElement(
+                                "input"
+                            );
+
+                        damage.type =
+                            "text";
+
+                        damage.placeholder =
+                            "Dano: +2 ou +1d6";
+
+                        damage.title =
+                            "Bônus de dano";
+
+                        damage.value =
+                            effect.bonusDamage ||
+                            "";
+
+
+                        hit.addEventListener(
+                            "input",
+                            () => {
+
+                                effect.bonusHit =
+                                    Number(
+                                        hit.value || 0
+                                    );
+
+                                agendarSalvamentoConteudo();
+
+                                updateSheet();
+
+                            }
+                        );
+
+
+                        damage.addEventListener(
+                            "input",
+                            () => {
+
+                                effect.bonusDamage =
+                                    damage.value;
+
+                                agendarSalvamentoConteudo();
+
+                                updateSheet();
+
+                            }
+                        );
+
+
+                        fields.appendChild(
+                            hit
+                        );
+
+                        fields.appendChild(
+                            damage
+                        );
+
+                    }
+
+                    /*=======================
+                    CA
+                    =========================*/
+
+                    else if (
+                        effect.type ===
+                        "ac"
+                    ) {
+
+                        const bonus =
+                            document.createElement(
+                                "input"
+                            );
+
+                        bonus.type =
+                            "number";
+
+                        bonus.placeholder =
+                            "Bônus de CA";
+
+                        bonus.value =
+                            Number(
+                                effect.bonus || 0
+                            );
+
+
+                        bonus.addEventListener(
+                            "input",
+                            () => {
+
+                                effect.bonus =
+                                    Number(
+                                        bonus.value || 0
+                                    );
+
+                                agendarSalvamentoConteudo();
+
+                                updateSheet();
+
+                            }
+                        );
+
+
+                        fields.appendChild(
+                            bonus
+                        );
+
+                    }
+
+                    /*===================
+                    VIDA
+                    =====================*/
+                    else if (
+                        effect.type ===
+                        "maxHp"
+                    ) {
+
+                        const bonus =
+                            document.createElement(
+                                "input"
+                            );
+
+                        bonus.type =
+                            "number";
+
+                        bonus.placeholder =
+                            "PV máximo";
+
+                        bonus.value =
+                            Number(
+                                effect.bonus || 0
+                            );
+
+
+                        bonus.addEventListener(
+                            "input",
+                            () => {
+
+                                effect.bonus =
+                                    Number(
+                                        bonus.value || 0
+                                    );
+
+                                agendarSalvamentoConteudo();
+
+                                updateSheet();
+
+                            }
+                        );
+
+
+                        fields.appendChild(
+                            bonus
+                        );
+
+                    }
+                    /*=================
+                    ATRIBUTO
+                    ===================*/
+                    else if (
+                        effect.type ===
+                        "attribute"
+                    ) {
+
+                        const stat =
+                            document.createElement(
+                                "select"
+                            );
+
+
+                        Object.entries(
+                            nomeAtributos
+                        ).forEach(
+                            ([value, label]) => {
+
+                                const option =
+                                    document.createElement(
+                                        "option"
+                                    );
+
+                                option.value =
+                                    value;
+
+                                option.textContent =
+                                    label;
+
+                                stat.appendChild(
+                                    option
+                                );
+
+                            }
+                        );
+
+
+                        stat.value =
+                            effect.stat ||
+                            "str";
+
+
+                        const bonus =
+                            document.createElement(
+                                "input"
+                            );
+
+                        bonus.type =
+                            "number";
+
+                        bonus.placeholder =
+                            "Bônus";
+
+                        bonus.value =
+                            Number(
+                                effect.bonus || 0
+                            );
+
+
+                        stat.addEventListener(
+                            "change",
+                            () => {
+
+                                effect.stat =
+                                    stat.value;
+
+                                agendarSalvamentoConteudo();
+
+                                updateSheet();
+
+                            }
+                        );
+
+
+                        bonus.addEventListener(
+                            "input",
+                            () => {
+
+                                effect.bonus =
+                                    Number(
+                                        bonus.value || 0
+                                    );
+
+                                agendarSalvamentoConteudo();
+
+                                updateSheet();
+
+                            }
+                        );
+
+
+                        fields.appendChild(
+                            stat
+                        );
+
+                        fields.appendChild(
+                            bonus
+                        );
+
+                    }
+
+                    /*====================
+                    MAGIA
+                    ======================*/
+                    else if (
+                        effect.type ===
+                        "spell"
+                    ) {
+
+                        const dc =
+                            document.createElement(
+                                "input"
+                            );
+
+                        dc.type =
+                            "number";
+
+                        dc.placeholder =
+                            "Bônus CD";
+
+                        dc.value =
+                            Number(
+                                effect.dcBonus || 0
+                            );
+
+
+                        const attack =
+                            document.createElement(
+                                "input"
+                            );
+
+                        attack.type =
+                            "number";
+
+                        attack.placeholder =
+                            "Bônus ataque";
+
+                        attack.value =
+                            Number(
+                                effect.attackBonus || 0
+                            );
+
+
+                        dc.addEventListener(
+                            "input",
+                            () => {
+
+                                effect.dcBonus =
+                                    Number(
+                                        dc.value || 0
+                                    );
+
+                                agendarSalvamentoConteudo();
+
+                                updateSheet();
+
+                            }
+                        );
+
+
+                        attack.addEventListener(
+                            "input",
+                            () => {
+
+                                effect.attackBonus =
+                                    Number(
+                                        attack.value || 0
+                                    );
+
+                                agendarSalvamentoConteudo();
+
+                                updateSheet();
+
+                            }
+                        );
+
+
+                        fields.appendChild(
+                            dc
+                        );
+
+                        fields.appendChild(
+                            attack
+                        );
+
+                    }
+                };
+
+
+            renderizarCampos();
+
+
+            /* eventos gerais */
+
+            effectType.addEventListener(
+                "change",
+                () => {
+
+                    effect.type =
+                        effectType.value;
+
+
+                    if (
+                        effect.type ===
+                        "skill"
+                    ) {
+
+                        effect.skill =
+                            effect.skill ||
+                            "Iniciativa";
+
+                        effect.bonus =
+                            Number(
+                                effect.bonus || 0
+                            );
+
+                    }
+
+
+                    else if (
+                        effect.type ===
+                        "attack"
+                    ) {
+
+                        effect.bonusHit =
+                            Number(
+                                effect.bonusHit || 0
+                            );
+
+                        effect.bonusDamage =
+                            effect.bonusDamage ||
+                            "";
+
+                    }
+
+                    else if (
+                        effect.type ===
+                        "ac"
+                    ) {
+
+                        effect.bonus =
+                            Number(
+                                effect.bonus || 0
+                            );
+
+                    }
+
+
+                    else if (
+                        effect.type ===
+                        "maxHp"
+                    ) {
+
+                        effect.bonus =
+                            Number(
+                                effect.bonus || 0
+                            );
+
+                    }
+
+
+                    else if (
+                        effect.type ===
+                        "attribute"
+                    ) {
+
+                        effect.stat =
+                            effect.stat ||
+                            "str";
+
+                        effect.bonus =
+                            Number(
+                                effect.bonus || 0
+                            );
+
+                    }
+
+
+                    else if (
+                        effect.type ===
+                        "spell"
+                    ) {
+
+                        effect.dcBonus =
+                            Number(
+                                effect.dcBonus || 0
+                            );
+
+                        effect.attackBonus =
+                            Number(
+                                effect.attackBonus || 0
+                            );
+
+                    }
+
+
+                    renderizarCampos();
+
+                    renderizarAtaques();
+
+                    agendarSalvamentoConteudo();
+
+                    updateSheet();
+
+                }
+            );
+
+
+            condition.addEventListener(
+                "change",
+                () => {
+
+                    effect.requiresToggle =
+                        condition.value;
+
+                    agendarSalvamentoConteudo();
+
+                    updateSheet();
+
+                }
+            );
+
+
+            excluir.addEventListener(
+                "click",
+                () => {
+
+                    feature.effects =
+                        feature.effects.filter(
+                            item =>
+                                item.id !==
+                                effect.id
+                        );
+
+
+                    renderizarCaracteristicas(
+                        tipo
+                    );
+
+                    renderizarAtaques();
+
+                    agendarSalvamentoConteudo();
+
+                    updateSheet();
+
+                }
+            );
+
+
+            row.appendChild(
+                effectType
+            );
+
+            row.appendChild(
+                fields
+            );
+
+            row.appendChild(
+                condition
+            );
+
+            row.appendChild(
+                excluir
+            );
+
+
+            wrapper.appendChild(
+                row
+            );
+
+        }
+    );
+
+
+    return wrapper;
+}
+
 function renderizarCaracteristicas(tipo) {
 
     const config =
@@ -6725,7 +8319,74 @@ function renderizarCaracteristicas(tipo) {
                     type="text"
                     placeholder="URL da imagem opcional"
                 >
+                <div
+    class="feature-image-options"
+    hidden
+>
 
+    <div
+        class="feature-image-preview"
+    >
+        <img
+            class="feature-image-preview-img"
+            src=""
+            alt=""
+        >
+    </div>
+
+
+    <label
+        class="feature-slider-row"
+    >
+        <span>
+            Blur
+        </span>
+
+        <input
+            class="feature-edit-blur"
+            type="range"
+            min="0"
+            max="12"
+            step="0.5"
+            value="0"
+        >
+
+        <span
+            class="feature-slider-value feature-blur-value"
+        >
+            0px
+        </span>
+    </label>
+
+
+    <label
+        class="feature-slider-row"
+    >
+        <span>
+            Zoom
+        </span>
+
+        <input
+            class="feature-edit-zoom"
+            type="range"
+            min="1"
+            max="1.6"
+            step="0.01"
+            value="1"
+        >
+
+        <span
+            class="feature-slider-value feature-zoom-value"
+        >
+            1.00×
+        </span>
+    </label>
+
+</div>
+
+<div
+    class="feature-effects-slot"
+></div>
 
                 <div class="feature-editor-bottom">
 
@@ -6770,6 +8431,36 @@ function renderizarCaracteristicas(tipo) {
                     ".feature-edit-image"
                 );
 
+            const imageOptions =
+                editor.querySelector(
+                    ".feature-image-options"
+                );
+
+            const preview =
+                editor.querySelector(
+                    ".feature-image-preview-img"
+                );
+
+            const blur =
+                editor.querySelector(
+                    ".feature-edit-blur"
+                );
+
+            const zoom =
+                editor.querySelector(
+                    ".feature-edit-zoom"
+                );
+
+            const blurValue =
+                editor.querySelector(
+                    ".feature-blur-value"
+                );
+
+            const zoomValue =
+                editor.querySelector(
+                    ".feature-zoom-value"
+                );
+
             const open =
                 editor.querySelector(
                     ".feature-edit-open"
@@ -6779,6 +8470,19 @@ function renderizarCaracteristicas(tipo) {
                 editor.querySelector(
                     ".feature-delete"
                 );
+
+            const effectsSlot =
+                  editor.querySelector(
+                      ".feature-effects-slot"
+                  );
+
+
+              effectsSlot.appendChild(
+                  criarEditorEfeitosCaracteristica(
+                      feature,
+                      tipo
+                  )
+              );
 
 
             name.value =
@@ -6793,10 +8497,76 @@ function renderizarCaracteristicas(tipo) {
             image.value =
                 feature.image ?? "";
 
+
+            blur.value =
+                Number(
+                    feature.imageBlur ?? 0
+                );
+
+            zoom.value =
+                Number(
+                    feature.imageZoom ?? 1
+                );
+
             open.checked =
                 Boolean(
                     feature.open
                 );
+
+            const atualizarControlesImagem =
+    () => {
+
+        const src =
+            image.value.trim();
+
+
+        const temImagem =
+            Boolean(src);
+
+
+        imageOptions.hidden =
+            !temImagem;
+
+
+        if (!temImagem) {
+            return;
+        }
+
+
+        preview.src =
+            src;
+
+
+        const blurAtual =
+            Number(
+                blur.value || 0
+            );
+
+        const zoomAtual =
+            Number(
+                zoom.value || 1
+            );
+
+
+        preview.style.setProperty(
+            "--preview-blur",
+            `${blurAtual}px`
+        );
+
+        preview.style.setProperty(
+            "--preview-zoom",
+            zoomAtual
+        );
+
+
+        blurValue.textContent =
+            `${blurAtual}px`;
+
+        zoomValue.textContent =
+            `${zoomAtual.toFixed(2)}×`;
+    };
+
+atualizarControlesImagem();
 
 
             name.addEventListener(
@@ -6839,16 +8609,51 @@ function renderizarCaracteristicas(tipo) {
 
 
             image.addEventListener(
-                "input",
-                () => {
+              "input",
+              () => {
 
-                    feature.image =
-                        image.value;
+                  feature.image =
+                      image.value;
 
-                    agendarSalvamentoConteudo();
+                  atualizarControlesImagem();
 
-                }
+                  agendarSalvamentoConteudo();
+
+              }
+          );
+
+          blur.addEventListener(
+    "input",
+    () => {
+
+        feature.imageBlur =
+            Number(
+                blur.value || 0
             );
+
+        atualizarControlesImagem();
+
+        agendarSalvamentoConteudo();
+
+    }
+);
+
+
+zoom.addEventListener(
+    "input",
+    () => {
+
+        feature.imageZoom =
+            Number(
+                zoom.value || 1
+            );
+
+        atualizarControlesImagem();
+
+        agendarSalvamentoConteudo();
+
+    }
+);
 
 
             open.addEventListener(
@@ -6901,7 +8706,6 @@ if (feature.open) {
     details.open = true;
 }
 
-
 /* summary primeiro */
 
 const summary =
@@ -6935,6 +8739,20 @@ if (feature.image) {
 
     imageContainer.className =
         "feature-image";
+
+        imageContainer.style.setProperty(
+    "--feature-blur",
+    `${Number(
+        feature.imageBlur ?? 0
+    )}px`
+);
+
+imageContainer.style.setProperty(
+    "--feature-zoom",
+    Number(
+        feature.imageZoom ?? 1
+    )
+);
 
     const img =
         document.createElement(
