@@ -82,10 +82,12 @@ details.has-image > .feature-image {
 
 details.has-image > summary {
   position: relative;
-
-  margin-top: -25px;
-
   z-index: 2;
+  margin-top: 0;
+}
+
+details.has-image:not([open]) > .feature-image {
+  display: none;
 }
 
 
@@ -1452,10 +1454,6 @@ details.has-image > summary {
   );
 }
 
-/* ==========================================================
-   DESTINO / PONTOS DE AÇÃO
-   ========================================================== */
-
 .action-points-box {
   display: flex;
   align-items: center;
@@ -1682,12 +1680,493 @@ details.has-image > summary {
 
   outline: none;
 }
+
+/* ==========================================================
+   CONTEÚDO DINÂMICO
+   ========================================================== */
+
+.edit-only {
+    display: none;
+}
+
+body.editing .edit-only {
+    display: inline-flex;
+}
+
+
+.add-button {
+    width: 31px;
+    height: 31px;
+
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--sand-3);
+    border-radius: 50%;
+
+    background: var(--panel-strong);
+    color: var(--sand-5);
+
+    font-size: 22px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: .15s ease;
+}
+
+.add-button:hover {
+    background: var(--sand-1);
+    transform: scale(1.07);
+}
+
+
+.inventory-header {
+    display: flex;
+    justify-content: flex-end;
+
+    margin-bottom: 8px;
+}
+
+
+.inventory-item {
+    display: grid;
+
+    grid-template-columns:
+        minmax(160px, 1fr)
+        85px
+        85px
+        38px;
+
+    gap: 10px;
+    align-items: center;
+
+    padding: 8px 0;
+
+    border-bottom:
+        1px dashed rgba(112,82,51,.25);
+}
+
+
+.inventory-item:last-child {
+    border-bottom: none;
+}
+
+
+.inventory-item input {
+    width: 100%;
+
+    padding: 5px;
+
+    border: 0;
+    border-bottom: 1px solid var(--sand-3);
+
+    color: var(--ink);
+    background: transparent;
+
+    outline: none;
+}
+
+
+.inventory-delete {
+    border: none;
+    background: transparent;
+
+    color: var(--red);
+
+    font-size: 17px;
+
+    cursor: pointer;
+}
+
+
+.inventory-view {
+    display: flex;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 7px 0;
+
+    border-bottom:
+        1px dashed rgba(112,82,51,.25);
+}
+
+
+.inventory-view:last-child {
+    border-bottom: none;
+}
+
+
+.inventory-weight {
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+
+@media (max-width: 600px) {
+
+    .inventory-item {
+        grid-template-columns:
+            1fr 60px 65px 32px;
+    }
+
+}
+
+/* ==========================================================
+   EDITOR DE ATAQUES
+   ========================================================== */
+
+.attack-editor-header {
+    display: flex;
+    justify-content: flex-end;
+
+    margin-bottom: 8px;
+}
+
+
+.attack-editor {
+    display: grid;
+
+    grid-template-columns:
+        1.4fr
+        1fr
+        1fr
+        .8fr
+        .8fr
+        .8fr
+        38px;
+
+    gap: 8px;
+    align-items: center;
+
+    padding: 10px 12px;
+
+    background: var(--panel);
+
+    border-left: 4px solid var(--sand-3);
+    border-radius: 8px;
+}
+
+
+.attack-editor input,
+.attack-editor select {
+    width: 100%;
+
+    padding: 5px 4px;
+
+    border: 0;
+    border-bottom: 1px solid var(--sand-3);
+
+    background: transparent;
+    color: var(--ink);
+
+    outline: none;
+}
+
+
+.attack-editor-options {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+
+    font-size: 10px;
+}
+
+
+.attack-editor-options label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+
+.attack-delete {
+    border: none;
+    background: transparent;
+
+    color: var(--red);
+
+    cursor: pointer;
+
+    font-size: 17px;
+}
+
+
+@media (max-width: 850px) {
+
+    .attack-editor {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+}
+
+/* ==========================================================
+   EDITOR DE MAGIAS
+   ========================================================== */
+
+.spell-editor-header {
+    display: flex;
+    justify-content: flex-end;
+
+    margin: 10px 0 8px;
+}
+
+.spell-editor {
+    padding: 14px;
+
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+
+    display: grid;
+    gap: 10px;
+}
+
+.spell-editor-grid {
+    display: grid;
+
+    grid-template-columns:
+        1.3fr
+        .55fr
+        1fr
+        1fr;
+
+    gap: 8px;
+}
+
+.spell-editor input,
+.spell-editor select,
+.spell-editor textarea {
+    width: 100%;
+
+    padding: 6px;
+
+    border: 0;
+    border-bottom: 1px solid var(--sand-3);
+
+    background: transparent;
+    color: var(--ink);
+
+    outline: none;
+}
+
+.spell-editor textarea {
+    min-height: 80px;
+
+    border: 1px solid var(--line);
+}
+
+.spell-editor-options {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.spell-editor-options label {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.spell-delete {
+    margin-left: auto;
+
+    border: none;
+    background: transparent;
+
+    color: var(--red);
+
+    cursor: pointer;
+
+    font-size: 18px;
+}
+
+@media (max-width: 700px) {
+
+    .spell-editor-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+}
+
+/* ==========================================================
+   CARACTERÍSTICAS DINÂMICAS
+   ========================================================== */
+
+.feature-editor-header {
+    display: flex;
+    justify-content: flex-end;
+
+    margin-bottom: 8px;
+}
+
+
+.dynamic-feature-list {
+    display: grid;
+    gap: 9px;
+}
+
+
+.dynamic-feature-description {
+    white-space: pre-line;
+}
+
+
+.feature-editor {
+    padding: 14px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--line);
+    border-radius: 9px;
+
+    display: grid;
+
+    gap: 9px;
+}
+
+
+.feature-editor-top {
+    display: grid;
+
+    grid-template-columns:
+        1.3fr
+        1fr;
+
+    gap: 9px;
+}
+
+
+.feature-editor input,
+.feature-editor textarea {
+    width: 100%;
+
+    padding: 6px;
+
+    color: var(--ink);
+    background: transparent;
+
+    border: 0;
+    border-bottom: 1px solid var(--sand-3);
+
+    outline: none;
+}
+
+
+.feature-editor textarea {
+    min-height: 100px;
+
+    border: 1px solid var(--line);
+
+    resize: vertical;
+}
+
+
+.feature-editor-bottom {
+    display: flex;
+
+    gap: 12px;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+}
+
+
+.feature-editor-bottom label {
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+}
+
+
+.feature-delete {
+    margin-left: auto;
+
+    border: 0;
+
+    background: transparent;
+
+    color: var(--red);
+
+    cursor: pointer;
+
+    font-size: 18px;
+}
+
+
+@media (max-width: 600px) {
+
+    .feature-editor-top {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+/* ==========================================================
+   LOGIN
+   ========================================================== */
+
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(50, 38, 25, .55);
+}
+
+.login-box {
+  width: 280px;
+  padding: 24px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  background: var(--sand-0);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+
+.login-box h2 {
+  margin: 0 0 4px;
+}
+
+.login-box input {
+  padding: 8px;
+  border: 1px solid var(--sand-3);
+  border-radius: 6px;
+  background: rgba(255,255,255,.5);
+}
+
+.login-box button {
+  padding: 9px;
+  border: 1px solid var(--sand-3);
+  border-radius: 8px;
+  background: var(--panel-strong);
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.login-error {
+  min-height: 16px;
+  color: var(--red);
+  font-size: 12px;
+}
 </style>
 
-
-<div class="sheet">
-
-  <div class="edit-mode-control">
+<div class="edit-mode-control">
 
   <label class="edit-switch">
 
@@ -1709,6 +2188,27 @@ details.has-image > summary {
 
 </div>
 
+<div class="sheet">
+
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-box">
+      <h2>Entrar</h2>
+
+      <input
+  id="loginUsername"
+  class="editable"
+  type="text"
+  placeholder="Nome de usuário"
+  autocomplete="username"
+>
+      <input id="loginPassword" class="editable" type="password" placeholder="Senha">
+
+      <button id="loginButton" type="button">Entrar</button>
+
+      <div id="loginError" class="login-error"></div>
+    </div>
+  </div>
+
   <div class="tabs">
     <button class="tab-button active" data-tab="normal">Ficha</button>
     <button class="tab-button" data-tab="combat">Combate</button>
@@ -1721,10 +2221,9 @@ details.has-image > summary {
 
   <section id="normal" class="tab-panel active">
     <div class="header">
-      <div class="name">
-        <h1>Rek'No Çöl</h1>
-        <div class="subtitle">
-          Patrulheiro • Tsoliin Dagal • Homem-Lagarto
+            <div class="name">
+        <h1 id="charName"></h1>
+        <div class="subtitle" id="charSubtitle">
         </div>
       </div>
 
@@ -1732,14 +2231,16 @@ details.has-image > summary {
 
     <div class="ficha-background">
   <img
-    class="ficha-background-base"
-    src="https://i.pinimg.com/736x/78/b3/36/78b336160dcedc3e26b4ec27ef6fb833.jpg"
-  >
+  id="backgroundImageBase"
+  class="ficha-background-base"
+  src=""
+>
 
-  <img
-    class="ficha-background-blur"
-    src="https://i.pinimg.com/736x/78/b3/36/78b336160dcedc3e26b4ec27ef6fb833.jpg"
-  >
+<img
+  id="backgroundImageBlur"
+  class="ficha-background-blur"
+  src=""
+>
 </div>
 
 
@@ -1762,9 +2263,9 @@ details.has-image > summary {
     </div>
 
 
-    <div class="info-item">
+        <div class="info-item">
       <span class="label">Antecedente</span>
-      <strong>Forasteiro</strong>
+      <strong id="charBackgroundName"></strong>
     </div>
 
 
@@ -1803,11 +2304,12 @@ details.has-image > summary {
   "
 >
   <img
-    src="https://i.pinimg.com/1200x/fa/55/5e/fa555e94035d2aa68b76f3007cb9a3c3.jpg"
-    alt="Rek'No Çöl"
-  >
+  id="characterPortraitImage"
+  src=""
+  alt=""
+>
 </div>
-
+</div>
 
     <div class="section">
 
@@ -1966,344 +2468,173 @@ details.has-image > summary {
 
         <div class="panel">
           <span class="label">Atributo</span>
-          <strong style="font-size:20px">Sabedoria</strong>
+          <strong
+  id="spellcastingAttribute"
+  style="font-size:20px"
+>
+</strong>
         </div>
 
       </div>
 
-      <div class="grid-2" style="margin-top:12px">
+      <div
+  class="spell-editor-header"
+  style="margin-top:12px"
+>
 
-        <div class="spell">
-          <strong>Curar Ferimentos</strong>
+  <button
+    id="addSpell"
+    class="add-button edit-only"
+    type="button"
+    title="Adicionar magia"
+  >
+    +
+  </button>
 
-          <div class="spell-meta">
-            1º nível • Evocação • 1 ação • Toque
-          </div>
+</div>
 
-          Uma criatura tocada recupera
-          <strong id="cureWounds">1d8+3</strong> PV.
-        </div>
-
-        <div class="spell">
-          <strong>Marca do Caçador</strong>
-
-          <div class="spell-meta">
-            1º nível • Adivinhação • Ação bônus • Concentração
-          </div>
-
-          Seus ataques contra a presa marcada causam
-          <strong>+1d6</strong> de dano.
-        </div>
-
-      </div>
+<div
+  id="spellList"
+  class="grid-2"
+></div>
 
     </div>
-
-
     <div class="section">
 
       <div class="section-title">Antecedente</div>
 
-      <details open>
-        <summary>Forasteiro — Andarilho</summary>
+      <div class="section">
 
-        <div class="details-body">
-
-          <p>
-            <strong>Perícias:</strong>
-            Atletismo e Sobrevivência.
-          </p>
-
-          <p>
-            <strong>Ferramenta:</strong>
-            instrumento musical.
-          </p>
-
-          <p>
-            <strong>Recurso — Andarilho:</strong>
-            Rek'No possui excelente memória para mapas e geografia,
-            e consegue encontrar alimento e água para até seis pessoas
-            quando o ambiente oferece recursos suficientes.
-          </p>
-
+        <div class="feature-editor-header">
+          <button
+            id="addBackgroundFeature"
+            class="add-button edit-only"
+            type="button"
+          >
+            +
+          </button>
         </div>
-      </details>
+
+        <div
+          id="backgroundFeatureList"
+          class="dynamic-feature-list"
+        ></div>
+
+      </div>
 
     </div>
 
 
     <div class="section">
 
-      <div class="section-title">Raça</div>
+  <div
+  class="section-title"
+  id="raceSectionTitle"
+>
+  Raça
+</div>
 
-      <details>
-        <summary>Conhecimento de Caçador</summary>
-        <div class="details-body">
-          Proficiência em Natureza e Percepção.
-        </div>
-      </details>
+  <div class="feature-editor-header">
 
-      <details>
-        <summary>Armadura Natural</summary>
-        <div class="details-body">
-          Quando não usa armadura, sua CA é
-          <strong>13 + modificador de Destreza</strong>.
-        </div>
-      </details>
-
-      <details>
-        <summary>Mordida</summary>
-        <div class="details-body">
-          Ataque natural que causa
-          <strong>1d6 + Força</strong>
-          de dano perfurante.
-        </div>
-      </details>
-
-      <details>
-        <summary>Tubarão Faminto</summary>
-        <div class="details-body">
-          Como ação bônus, Rek'No realiza um ataque especial de mordida.
-          Ao acertar, recebe PV temporários iguais ao modificador de Constituição.
-          Recupera após descanso curto ou longo.
-        </div>
-      </details>
-
-      <details>
-        <summary>Artesão Habilidoso</summary>
-        <div class="details-body">
-          Durante um descanso curto, pode utilizar couro e ossos de certas
-          criaturas abatidas para produzir equipamentos simples.
-        </div>
-      </details>
-
-      <details>
-        <summary>Segurar Respiração</summary>
-        <div class="details-body">
-          Rek'No consegue permanecer sem respirar por até 15 minutos.
-        </div>
-      </details>
-
-    </div>
-
-
-    <div class="section">
-
-      <div class="section-title">Patrulheiro</div>
-
-      <details open>
-        <summary>Explorador Natural</summary>
-
-        <div class="details-body"    data-image="https://i.pinimg.com/736x/59/66/14/596614ca16f0a46007f8e4ce982fe4fa.jpg"
-
-            data-image-fade
-            data-image-fade-start="1"
-            data-image-fade-end="80"
-            data-image-fade-intensity=".14"
-
-            data-image-blur="0"
-            data-image-zoom="1"
-            data-image-position="center 44%">
-          <p>Ignora terreno difícil.</p>
-          <p>Possui vantagem em iniciativa.</p>
-          <p>
-            No primeiro turno de combate, possui vantagem contra criaturas
-            que ainda não tenham agido.
-          </p>
-          <p>
-            Durante viagens prolongadas, o grupo não se perde por meios
-            não mágicos e Rek'No é especialmente eficiente ao rastrear e
-            forragear.
-          </p>
-        </div>
-
-      </details>
-
-      <details>
-        <summary>Inimigo Favorito — Bestas / Animais</summary>
-
-        <div class="details-body">
-          +2 de dano em ataques com arma contra criaturas do tipo escolhido,
-          vantagem para rastreá-las e maior facilidade para recordar
-          informações sobre elas.
-        </div>
-
-      </details>
-    </div>
-
-
-    <div class="section">
-
-      <div class="section-title">Talentos</div>
-
-        <details class="feature">
-            <summary>Atacante Bestial</summary>
-
-        <div class="details-body">
-            Uma vez por turno, quando você rolar o dano para um ataque corpo-a-corpo
-            com arma, você pode jogar novamente o dado de dano da arma.
-        </div>
-        </details>
-
-      <details class="feature">
-        <summary>Alerta</summary>
-        <div class="details-body">
-        <p>
-          Sempre a espera de perigo, você ganha os seguintes benefícios: </p>
-            <p>
-                - Você recebe +5 de bônus em iniciativa. 
-            </p>
-            <p>
-                - Você não pode ser surpreso enquanto estiver consciente. 
-            </p>
-            <p>
-                - Outras criaturas não ganham vantagem nas jogadas de ataque contra você por estarem escondidas de você.
-            </p>
-        </div>
-      </details>
-      <details class="feature">
-  <summary>Destino</summary>
-
-  <div class="details-body">
-
-    <div class="action-points-box">
-      <span class="label">Pontos de Ação Atuais</span>
-
-      <input
-        id="actionPointsCurrent"
-        class="save action-points-input"
-        type="number"
-        min="0"
-        value="0"
-      >
-    </div>
-
-
-    <p>
-      <strong>Usando Pontos de Ação</strong>
-    </p>
-
-    <p>
-      Gastar um ponto de ação é uma <strong>reação</strong> que não consome
-      tempo algum, a menos que outra regra diga o contrário.
-    </p>
-
-    <p>
-      Você pode gastar quantos pontos de ação possuir, mas apenas
-      <strong>um ponto para cada benefício por rodada</strong>.
-    </p>
-
-
-    <p>
-      <strong>Adicionar um dado a uma jogada ou teste.</strong><br>
-      Você deve gastar o ponto de ação depois de realizar a rolagem,
-      mas antes do mestre informar se foi bem-sucedido ou não.
-    </p>
-
-    <p>
-      <strong>Adicionar um dado à Classe de Armadura.</strong><br>
-      O bônus permanece até o início do seu próximo turno.
-    </p>
-
-    <p>
-      <strong>Realizar um segundo teste de resistência.</strong><br>
-      Você pode fazer um novo teste contra algum efeito nocivo que ainda
-      esteja afetando você, como <em>Dominar Pessoa</em>.
-      Isso não pode ser usado contra efeitos instantâneos, como
-      <em>Bola de Fogo</em>, embora seja possível adicionar um dado
-      ao teste de resistência original.
-    </p>
-
-    <p>
-      <strong>Realizar uma ação adicional.</strong><br>
-      Você recebe uma ação padrão ou uma ação de movimento adicional
-      naquela rodada. Isso permite, por exemplo, realizar uma ação completa
-      e uma ação padrão, ou uma ação padrão e duas ações de movimento.
-    </p>
-
-    <p>
-      <strong>Recuperar Pontos de Vida.</strong><br>
-      Ao gastar um ponto de ação, você pode recuperar PV de acordo
-      com seu nível:
-    </p>
-
-
-    <table class="destiny-heal-table">
-      <thead>
-        <tr>
-          <th>Nível</th>
-          <th>PV Recuperados</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <tr>
-          <td>1º – 4º</td>
-          <td><strong>2d8 + 2</strong></td>
-        </tr>
-
-        <tr>
-          <td>5º – 8º</td>
-          <td><strong>4d8 + 6</strong></td>
-        </tr>
-
-        <tr>
-          <td>9º – 12º</td>
-          <td><strong>6d8 + 10</strong></td>
-        </tr>
-
-        <tr>
-          <td>13º – 16º</td>
-          <td><strong>8d8 + 14</strong></td>
-        </tr>
-
-        <tr>
-          <td>17º – 20º</td>
-          <td><strong>10d8 + 18</strong></td>
-        </tr>
-      </tbody>
-    </table>
+    <button
+      id="addRaceFeature"
+      class="add-button edit-only"
+      type="button"
+    >
+      +
+    </button>
 
   </div>
-</details>
+
+  <div
+    id="raceFeatureList"
+    class="dynamic-feature-list"
+  ></div>
+
+</div>
+
+
+    <div class="section">
+
+      <div
+  class="section-title"
+  id="classSectionTitle"
+>
+  Classe
+</div>
+
+      <div class="feature-editor-header">
+        <button
+          id="addClassFeature"
+          class="add-button edit-only"
+          type="button"
+        >
+          +
+        </button>
+      </div>
+
+      <div
+        id="classFeatureList"
+        class="dynamic-feature-list"
+      ></div>
+
     </div>
 
+
+    <div class="section">
+
+  <div class="section-title">Talentos</div>
+
+  <div class="feature-editor-header">
+    <button
+      id="addFeatFeature"
+      class="add-button edit-only"
+      type="button"
+    >
+      +
+    </button>
+  </div>
+
+  <div
+    id="featFeatureList"
+    class="dynamic-feature-list"
+  ></div>
+  <div
+  id="normalResourceList"
+  style="margin-top:12px"
+></div>
+</div>
 
     <div class="section">
 
       <div class="section-title">Equipamento</div>
 
-      <div class="panel equipment-columns">
+      <div class="inventory-header">
 
-        <div class="equipment-item"><strong>Cimitarra</strong> — 1,5 kg</div>
-        <div class="equipment-item"><strong>Arco longo</strong> — 1 kg</div>
-        <div class="equipment-item"><strong>20 flechas</strong> — 0,5 kg</div>
-        <div class="equipment-item"><strong>Adaga</strong> — 0,5 kg</div>
-        <div class="equipment-item"><strong>Foice curta</strong> — 1 kg</div>
-        <div class="equipment-item"><strong>Armadura de couro</strong> — 5 kg</div>
-        <div class="equipment-item"><strong>Armadilha de caçador</strong> — 12,5 kg</div>
-        <div class="equipment-item"><strong>Morin khuur de ossos</strong> — 3 kg</div>
-        <div class="equipment-item"><strong>Algemas</strong> — 2 kg</div>
-        <div class="equipment-item"><strong>Manto</strong> — 1 kg</div>
-        <div class="equipment-item"><strong>Tenda</strong> — 10 kg</div>
-        <div class="equipment-item"><strong>Escudo</strong> — 3 kg</div>
-        <div class="equipment-item"><strong>Pacote de explorador</strong></div>
+      <button
+        id="addInventoryItem"
+        class="add-button edit-only"
+        type="button"
+        title="Adicionar item"
+      >
+        +
+      </button>
 
-      </div>
+    </div>
+
+    <div
+      id="inventoryList"
+      class="panel"
+    ></div>
 
       <div class="grid-2" style="margin-top:12px">
 
   <div class="panel">
     <span class="label">Peso atual</span>
 
-    <input
-      id="currentWeight"
-      class="editable save"
-      type="number"
-      value="43.5"
-      step=".1"
-    >
-    kg
+    <strong id="currentWeightDisplay">
+      0 kg
+    </strong>
   </div>
 
   <div class="panel">
@@ -2408,10 +2739,9 @@ details.has-image > summary {
 
     <div class="combat-header">
 
-      <div class="combat-name">
-        <h1>Rek'No Çöl</h1>
-        <div class="subtitle">
-          Caçador dos Tsoliin Dagal
+            <div class="combat-name">
+        <h1 id="combatCharName"></h1>
+        <div class="subtitle" id="combatCharSubtitle">
         </div>
       </div>
 
@@ -2463,65 +2793,41 @@ details.has-image > summary {
 
         <div class="section-title">Modificadores de combate</div>
 
-        <div class="toggle-row">
-
-          <label class="toggle">
-            <input
-              id="favoredEnemy"
-              class="save"
-              type="checkbox"
-            >
-            Alvo é Besta / Animal
-          </label>
-
-          <label class="toggle">
-            <input
-              id="huntersMark"
-              class="save"
-              type="checkbox"
-            >
-            Marca do Caçador ativa
-          </label>
-
-        </div>
+        <div
+          id="combatToggleList"
+          class="toggle-row"
+        ></div>
 
 
-        <div class="section-title">Ataques</div>
+      <div class="section-title">Ataques</div>
 
-<div
-  id="attacks"
-  class="attacks"
-></div>
+      <div class="attack-editor-header">
+
+        <button
+          id="addAttack"
+          class="add-button edit-only"
+          type="button"
+          title="Adicionar ataque"
+        >
+          +
+        </button>
+
+      </div>
+
+      <div
+        id="attacks"
+        class="attacks"
+      ></div>
 
 
         <div class="section">
 
           <div class="section-title">Magias rápidas</div>
 
-          <div class="grid-2">
-
-            <div class="spell">
-              <strong>Curar Ferimentos</strong>
-
-              <div class="spell-meta">
-                Ação • Toque
-              </div>
-
-              Cura:
-              <strong id="combatCure">1d8+3</strong>
-            </div>
-
-            <div class="spell">
-              <strong>Marca do Caçador</strong>
-
-              <div class="spell-meta">
-                Ação bônus • 27 m • Concentração
-              </div>
-
-              +1d6 de dano por ataque contra a presa marcada.
-            </div>
-
-          </div>
+          <div
+          id="quickSpellList"
+          class="grid-2"
+        ></div>
 
         </div>
 
@@ -2530,21 +2836,10 @@ details.has-image > summary {
 
           <div class="section-title">Lembretes</div>
 
-          <div class="panel">
-
-            <span class="action-tag">
-              Vantagem em Iniciativa
-            </span>
-
-            <span class="action-tag">
-              Vantagem no 1º turno contra quem ainda não agiu
-            </span>
-
-            <span class="action-tag">
-              Ignora terreno difícil
-            </span>
-
-          </div>
+          <div
+            id="combatReminderList"
+            class="panel"
+          ></div>
 
         </div>
 
@@ -2556,6 +2851,7 @@ details.has-image > summary {
       <div>
 
         <div class="section-title">Recursos</div>
+        <div id="combatResourceList"></div>
 
         <div class="resource-block">
 
@@ -2645,40 +2941,7 @@ details.has-image > summary {
 
         </div>
 
-
-        <div class="resource-block">
-
-          <div class="resource-title">
-            Ação bônus
-          </div>
-
-          <span class="action-tag">
-            Marca do Caçador
-          </span>
-
-          <span class="action-tag">
-            Tubarão Faminto
-          </span>
-
-        </div>
-
-
-        <div class="resource-block">
-
-          <div class="resource-title">
-            Reação
-          </div>
-
-          <span class="action-tag">
-            Ataque de oportunidade
-          </span>
-
-          <span class="action-tag">
-            Duelista Defensivo
-          </span>
-
-        </div>
-
+        <div id="combatActionList"></div>
 
         <div class="resource-block">
 
@@ -2755,7 +3018,154 @@ const sb = supabase.createClient(
     SUPABASE_KEY
 );
 
-const FICHA_ID = "rekno";
+let FICHA_ID = null;
+let atributoConjuracao = "int";
+let conteudo = {
+    inventario: [],
+    ataques: [],
+    magias: [],
+    talentos: [],
+    classe: [],
+    antecedente: [],
+    raca: [],
+
+    recursos: [],
+    lembretesCombate: [],
+    acoesCombate: [],
+    efeitosPericia: [],
+    togglesCombate: [],
+    efeitosAtaque: []
+};
+
+let currentUser = null;
+let pvBaseNivel1 = 5;
+let pvPorNivel = 5;
+let currentFichaOwnerId = null;
+let isOwner = false;
+
+function atualizarPermissaoEdicao() {
+
+    isOwner = Boolean(
+        currentUser &&
+        currentFichaOwnerId &&
+        currentUser.id === currentFichaOwnerId
+    );
+
+    const toggle = document.getElementById("editModeToggle");
+    const control = document.querySelector(".edit-mode-control");
+
+    if (control) {
+        control.style.display = isOwner ? "" : "none";
+    }
+
+    if (toggle && !isOwner) {
+        toggle.checked = false;
+        setEditMode(false);
+    }
+}
+
+async function verificarSessao() {
+
+    const { data: { session } } = await sb.auth.getSession();
+
+    currentUser = session?.user ?? null;
+
+    if (currentUser) {
+        document.getElementById("loginOverlay").style.display = "none";
+    }
+
+    atualizarPermissaoEdicao();
+}
+
+async function fazerLogin() {
+
+    const username =
+        document
+            .getElementById(
+                "loginUsername"
+            )
+            .value
+            .trim()
+            .toLowerCase();
+
+    const password =
+        document
+            .getElementById(
+                "loginPassword"
+            )
+            .value;
+
+    const errorBox =
+        document.getElementById(
+            "loginError"
+        );
+
+
+    errorBox.textContent = "";
+
+
+    if (!username || !password) {
+
+        errorBox.textContent =
+            "Preencha usuário e senha.";
+
+        return;
+    }
+
+
+    const emailInterno =
+        `${username}@players.rpg`;
+
+
+    const { data, error } =
+        await sb.auth.signInWithPassword({
+            email: emailInterno,
+            password
+        });
+
+
+    if (error) {
+
+        console.error(
+            "Erro de login:",
+            error
+        );
+
+        errorBox.textContent =
+            "Usuário ou senha inválidos.";
+
+        return;
+    }
+
+
+    currentUser =
+        data.user;
+
+
+    await carregarFicha();
+
+
+    document
+        .getElementById(
+            "loginOverlay"
+        )
+        .style.display =
+        "none";
+
+
+    iniciarRealtime();
+}
+
+function configurarLogin() {
+
+    document.getElementById("loginButton")
+        ?.addEventListener("click", fazerLogin);
+
+    document.getElementById("loginSkip")
+        ?.addEventListener("click", () => {
+            document.getElementById("loginOverlay").style.display = "none";
+        });
+}
 
 const FIELD_MAP = {
     level: "nivel",
@@ -2774,19 +3184,12 @@ const FIELD_MAP = {
     wis: "sabedoria",
     cha: "carisma",
 
-    actionPointsCurrent: "pontos_acao",
-
-    currentWeight: "peso_atual",
-
     moneyPL: "dinheiro_pl",
     moneyPO: "dinheiro_po",
     moneyPP: "dinheiro_pp",
     moneyPC: "dinheiro_pc",
 
     normalNotes: "notas",
-
-    favoredEnemy: "inimigo_favorito_ativo",
-    huntersMark: "marca_cacador_ativa",
 
     slot1: "slot_1",
     slot2: "slot_2",
@@ -2797,6 +3200,660 @@ const FIELD_MAP = {
     combatNotes: "notas_combate"
 };
 
+function normalizarConteudo(dados) {
+
+    return {
+        inventario:
+            Array.isArray(dados?.inventario)
+                ? dados.inventario
+                : [],
+
+        ataques:
+            Array.isArray(dados?.ataques)
+                ? dados.ataques
+                : [],
+
+        magias:
+            Array.isArray(dados?.magias)
+                ? dados.magias
+                : [],
+
+        talentos:
+            Array.isArray(dados?.talentos)
+                ? dados.talentos
+                : [],
+
+        classe:
+            Array.isArray(dados?.classe)
+                ? dados.classe
+                : [],
+
+        antecedente:
+            Array.isArray(dados?.antecedente)
+                ? dados.antecedente
+                : [],
+
+        raca:
+          Array.isArray(dados?.raca)
+              ? dados.raca
+              : [],
+
+        recursos:
+            Array.isArray(dados?.recursos)
+                ? dados.recursos
+                : [],
+
+        lembretesCombate:
+            Array.isArray(
+                dados?.lembretesCombate
+            )
+                ? dados.lembretesCombate
+                : [],
+
+        acoesCombate:
+            Array.isArray(
+                dados?.acoesCombate
+            )
+                ? dados.acoesCombate
+                : [],
+        efeitosPericia:
+            Array.isArray(
+                dados?.efeitosPericia
+            )
+                ? dados.efeitosPericia
+                : [],
+
+        togglesCombate:
+            Array.isArray(
+                dados?.togglesCombate
+            )
+                ? dados.togglesCombate
+                : [],
+
+        efeitosAtaque:
+            Array.isArray(
+                dados?.efeitosAtaque
+            )
+                ? dados.efeitosAtaque
+                : []
+    };
+}
+
+
+async function salvarConteudo() {
+  if (!isOwner) {
+    return;
+}
+
+    const { error } = await sb
+        .from("fichas")
+        .update({
+            conteudo_dinamico: conteudo,
+            updated_at: new Date().toISOString()
+        })
+        .eq("id", FICHA_ID);
+
+    if (error) {
+        console.error(
+            "Erro ao salvar conteúdo:",
+            error
+        );
+    }
+}
+
+function adicionarCaracteristica(tipo) {
+
+    const config =
+        FEATURE_CONFIG[tipo];
+
+    if (
+        !config ||
+        !Array.isArray(
+            conteudo[tipo]
+        )
+    ) {
+        return;
+    }
+
+
+    conteudo[tipo].push({
+
+        id: criarId(),
+
+        name:
+            config.defaultName,
+
+        subtitle: "",
+
+        description: "",
+
+        image: "",
+
+        open: false
+
+    });
+
+
+    renderizarCaracteristicas(
+        tipo
+    );
+
+    salvarConteudo();
+
+
+    setTimeout(() => {
+
+        const container =
+            document.getElementById(
+                config.containerId
+            );
+
+        const inputs =
+            container?.querySelectorAll(
+                ".feature-edit-name"
+            );
+
+        inputs?.[
+            inputs.length - 1
+        ]?.focus();
+
+    }, 0);
+}
+
+function renderizarTogglesCombate() {
+
+    const container =
+        document.getElementById(
+            "combatToggleList"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = "";
+
+
+    const editando =
+        document.getElementById(
+            "editModeToggle"
+        )?.checked;
+
+
+    conteudo.togglesCombate
+        .forEach(toggle => {
+
+            const label =
+                document.createElement(
+                    "label"
+                );
+
+            label.className =
+                "toggle";
+
+
+            const input =
+                document.createElement(
+                    "input"
+                );
+
+            input.type =
+                "checkbox";
+
+            input.id =
+                toggle.id;
+
+            input.checked =
+                Boolean(
+                    toggle.active
+                );
+
+            input.disabled =
+                !editando;
+
+
+            const text =
+                document.createTextNode(
+                    toggle.name ||
+                    "Modificador"
+                );
+
+
+            input.addEventListener(
+                "change",
+                () => {
+
+                    toggle.active =
+                        input.checked;
+
+                    agendarSalvamentoConteudo();
+
+                    updateSheet();
+
+                }
+            );
+
+
+            label.appendChild(
+                input
+            );
+
+            label.appendChild(
+                text
+            );
+
+
+            container.appendChild(
+                label
+            );
+
+        });
+}
+
+function renderizarAcoesCombate() {
+
+    const container =
+        document.getElementById(
+            "combatActionList"
+        );
+
+    if (!container) {
+        return;
+    }
+
+    container.innerHTML = "";
+
+    const grupos = {};
+
+    conteudo.acoesCombate
+        .forEach(acao => {
+
+            const tipo =
+                acao.type ||
+                "Outros";
+
+            if (!grupos[tipo]) {
+                grupos[tipo] = [];
+            }
+
+            grupos[tipo].push(
+                acao
+            );
+
+        });
+
+
+    Object.entries(grupos)
+        .forEach(
+            ([tipo, acoes]) => {
+
+                const block =
+                    document.createElement(
+                        "div"
+                    );
+
+                block.className =
+                    "resource-block";
+
+
+                const title =
+                    document.createElement(
+                        "div"
+                    );
+
+                title.className =
+                    "resource-title";
+
+                title.textContent =
+                    tipo;
+
+                block.appendChild(
+                    title
+                );
+
+
+                acoes.forEach(
+                    acao => {
+
+                        const tag =
+                            document.createElement(
+                                "span"
+                            );
+
+                        tag.className =
+                            "action-tag";
+
+                        tag.textContent =
+                            acao.name ||
+                            "Ação";
+
+                        block.appendChild(
+                            tag
+                        );
+
+                    }
+                );
+
+
+                container.appendChild(
+                    block
+                );
+
+            }
+        );
+}
+
+
+function renderizarLembretesCombate() {
+
+    const container =
+        document.getElementById(
+            "combatReminderList"
+        );
+
+    if (!container) {
+        return;
+    }
+
+    container.innerHTML = "";
+
+
+    conteudo.lembretesCombate
+        .forEach(lembrete => {
+
+            const tag =
+                document.createElement(
+                    "span"
+                );
+
+            tag.className =
+                "action-tag";
+
+            tag.textContent =
+                lembrete.text || "";
+
+            container.appendChild(
+                tag
+            );
+
+        });
+}
+
+
+function renderizarRecursos() {
+
+    const normalContainer =
+        document.getElementById(
+            "normalResourceList"
+        );
+
+    const combatContainer =
+        document.getElementById(
+            "combatResourceList"
+        );
+
+
+    if (normalContainer) {
+        normalContainer.innerHTML = "";
+    }
+
+    if (combatContainer) {
+        combatContainer.innerHTML = "";
+    }
+
+
+    const editando =
+        document.getElementById(
+            "editModeToggle"
+        )?.checked;
+
+
+    conteudo.recursos.forEach(
+        recurso => {
+
+            const criarElemento =
+                () => {
+
+                    const block =
+                        document.createElement(
+                            "div"
+                        );
+
+                    block.className =
+                        "resource-block";
+
+
+                    const title =
+                        document.createElement(
+                            "div"
+                        );
+
+                    title.className =
+                        "resource-title";
+
+                    title.textContent =
+                        recurso.name ||
+                        "Recurso";
+
+
+                    const input =
+                        document.createElement(
+                            "input"
+                        );
+
+                    input.type =
+                        "number";
+
+                    input.min =
+                        "0";
+
+                    input.value =
+                        Number(
+                            recurso.current ?? 0
+                        );
+
+                    input.disabled =
+                        !editando;
+
+                    input.style.width =
+                        "70px";
+
+                    input.style.textAlign =
+                        "center";
+
+
+                    block.appendChild(
+                        title
+                    );
+
+                    block.appendChild(
+                        input
+                    );
+
+
+                    if (
+                        recurso.max !== null &&
+                        recurso.max !== undefined
+                    ) {
+
+                        const max =
+                            document.createElement(
+                                "span"
+                            );
+
+                        max.textContent =
+                            ` / ${recurso.max}`;
+
+                        block.appendChild(
+                            max
+                        );
+
+                    }
+
+
+                    input.addEventListener(
+                        "input",
+                        () => {
+
+                            recurso.current =
+                                Number(
+                                    input.value || 0
+                                );
+
+                            agendarSalvamentoConteudo();
+
+                        }
+                    );
+
+
+                    return block;
+                };
+
+
+            if (
+                recurso.showNormal !== false &&
+                normalContainer
+            ) {
+
+                normalContainer.appendChild(
+                    criarElemento()
+                );
+            }
+
+
+            if (
+                recurso.showCombat !== false &&
+                combatContainer
+            ) {
+
+                combatContainer.appendChild(
+                    criarElemento()
+                );
+            }
+
+        }
+    );
+}
+
+function adicionarItemInventario() {
+
+    conteudo.inventario.push({
+
+        id: criarId(),
+
+        nome: "",
+
+        quantidade: 1,
+
+        peso: 0,
+
+        descricao: ""
+
+    });
+
+
+    renderizarInventario();
+
+    salvarConteudo();
+
+
+    setTimeout(() => {
+
+        const inputs =
+            document.querySelectorAll(
+                ".inventory-name"
+            );
+
+        const ultimo =
+            inputs[inputs.length - 1];
+
+        ultimo?.focus();
+
+    }, 0);
+}
+
+async function excluirCaracteristica(
+    tipo,
+    id
+) {
+
+    if (
+        !Array.isArray(
+            conteudo[tipo]
+        )
+    ) {
+        return;
+    }
+
+
+    conteudo[tipo] =
+        conteudo[tipo].filter(
+            feature =>
+                feature.id !== id
+        );
+
+
+    renderizarCaracteristicas(
+        tipo
+    );
+
+
+    await salvarConteudo();
+}
+async function excluirItemInventario(id) {
+
+    conteudo.inventario =
+        conteudo.inventario.filter(
+            item => item.id !== id
+        );
+
+
+    renderizarInventario();
+
+    await salvarConteudo();
+}
+function atualizarPesoInventario() {
+
+    const peso =
+        calcularPesoInventario();
+
+
+    const display =
+        document.getElementById(
+            "currentWeightDisplay"
+        );
+
+
+    if (display) {
+
+        display.textContent =
+            `${peso.toFixed(2)} kg`;
+
+    }
+}
+
+let conteudoSaveTimer = null;
+
+
+function agendarSalvamentoConteudo() {
+
+    clearTimeout(
+        conteudoSaveTimer
+    );
+
+
+    conteudoSaveTimer =
+        setTimeout(
+            () => {
+
+                salvarConteudo();
+
+            },
+            400
+        );
+}
+
 /* ============================================================
    SINCRONIZAÇÃO COM SUPABASE
    ============================================================ */
@@ -2805,7 +3862,9 @@ const FIELD_MAP = {
   function iniciarRealtime() {
 
     return sb
-        .channel("ficha-rekno")
+        .channel(
+    `ficha-${FICHA_ID}`
+)
         .on(
             "postgres_changes",
             {
@@ -2863,10 +3922,17 @@ function setElementValue(element, value) {
 
 async function carregarFicha() {
 
+    if (!currentUser) {
+        return;
+    }
+
     const { data, error } = await sb
         .from("fichas")
         .select("*")
-        .eq("id", FICHA_ID)
+        .eq(
+            "owner_id",
+            currentUser.id
+        )
         .single();
 
     if (error) {
@@ -2878,11 +3944,150 @@ async function carregarFicha() {
         return;
     }
 
-    aplicarDadosSupabase(data);
+    FICHA_ID =
+        data.id;
+
+    currentFichaOwnerId =
+        data.owner_id;
+
+    atualizarPermissaoEdicao();
+
+    aplicarDadosSupabase(
+        data
+    );
 }
 
 
 function aplicarDadosSupabase(dados) {
+    atributoConjuracao =
+        dados.atributo_conjuracao ||
+        "int";
+
+    pvBaseNivel1 =
+        Number(
+            dados.pv_base_nivel_1 ?? 5
+        );
+
+    pvPorNivel =
+        Number(
+            dados.pv_por_nivel ?? 5
+        );
+
+    if (dados.retrato_url) {
+
+    const portrait =
+        document.getElementById(
+            "characterPortraitImage"
+        );
+
+    portrait.src =
+        dados.retrato_url;
+
+    portrait.alt =
+        dados.nome_personagem || "";
+}
+
+
+if (dados.fundo_url) {
+
+    document
+        .getElementById(
+            "backgroundImageBase"
+        )
+        .src =
+        dados.fundo_url;
+
+    document
+        .getElementById(
+            "backgroundImageBlur"
+        )
+        .src =
+        dados.fundo_url;
+}
+
+    if (dados.classe_nome) {
+
+    document
+        .getElementById(
+            "classSectionTitle"
+        )
+        .textContent =
+        dados.classe_nome;
+}
+
+
+if (dados.raca_nome) {
+
+    document
+        .getElementById(
+            "raceSectionTitle"
+        )
+        .textContent =
+        dados.raca_nome;
+}
+
+    if (dados.nome_personagem) {
+        document.getElementById("charName").textContent = dados.nome_personagem;
+        document.getElementById("combatCharName").textContent = dados.nome_personagem;
+    }
+
+    if (dados.subtitulo) {
+        document.getElementById("charSubtitle").textContent = dados.subtitulo;
+    }
+
+    if (dados.subtitulo_combate) {
+        document.getElementById("combatCharSubtitle").textContent = dados.subtitulo_combate;
+    }
+
+    if (dados.antecedente_nome) {
+        document.getElementById("charBackgroundName").textContent = dados.antecedente_nome;
+    }
+
+    
+
+    if (dados.conteudo_dinamico) {
+
+    const focoAtual =
+        document.activeElement;
+
+
+    const editandoConteudo =
+    focoAtual &&
+    focoAtual.closest?.(
+        "#inventoryList, " +
+        "#attacks, " +
+        "#spellList, " +
+        ".dynamic-feature-list, " +
+        "#normalResourceList, " +
+        "#combatResourceList" +
+        "#combatToggleList"
+    );
+
+
+    if (!editandoConteudo) {
+
+        conteudo =
+            normalizarConteudo(
+                dados.conteudo_dinamico
+            );
+
+        renderizarInventario();
+
+        renderizarAtaques();
+
+        renderizarMagias();
+
+        renderizarTodasCaracteristicas();
+
+        renderizarRecursos();
+
+        renderizarLembretesCombate();
+
+        renderizarAcoesCombate();
+
+        renderizarTogglesCombate();
+    }
+}
 
     Object.entries(FIELD_MAP)
         .forEach(([elementId, databaseField]) => {
@@ -2952,7 +4157,9 @@ function aplicarDadosSupabase(dados) {
 }
 
 async function salvarCampo(elementId) {
-
+if (!isOwner) {
+    return;
+}
     const element =
         document.getElementById(elementId);
 
@@ -2986,7 +4193,9 @@ async function salvarCampo(elementId) {
 }
 
 async function salvarPericias() {
-
+if (!isOwner) {
+    return;
+}
     const treinadas =
         [...document.querySelectorAll(
             ".skill"
@@ -3023,6 +4232,10 @@ const saveTimers = new Map();
 
 
 function agendarSalvamento(elementId) {
+
+    if (!isOwner) {
+        return;
+    }
 
     if (
         !FIELD_MAP[elementId]
@@ -3062,37 +4275,37 @@ function agendarSalvamento(elementId) {
      DADOS
      ============================================================ */
 
-  const pericias = [
+const pericias = [
     ["Acrobacia", "dex", false],
-    ["Adestramento", "cha", true],
-    ["Atletismo", "str", true],
+    ["Adestramento", "cha", false],
+    ["Atletismo", "str", false],
     ["Atuação", "cha", false],
     ["Cavalgar", "dex", false],
-    ["Conhecimento", "int", true],
+    ["Conhecimento", "int", false],
     ["Cura", "wis", false],
     ["Diplomacia", "cha", false],
     ["Enganação", "cha", false],
     ["Fortitude", "con", false],
-    ["Furtividade", "dex", true],
+    ["Furtividade", "dex", false],
     ["Guerra", "int", false],
     ["Iniciativa", "dex", false],
     ["Intimidação", "cha", false],
-    ["Intuição", "wis", true],
+    ["Intuição", "wis", false],
     ["Investigação", "int", false],
     ["Jogatina", "cha", false],
     ["Ladinagem", "dex", false],
-    ["Luta", "str", true],
+    ["Luta", "str", false],
     ["Misticismo", "int", false],
     ["Nobreza", "int", false],
     ["Ofício", "int", false],
-    ["Percepção", "wis", true],
+    ["Percepção", "wis", false],
     ["Pilotagem", "dex", false],
-    ["Pontaria", "dex", true],
+    ["Pontaria", "dex", false],
     ["Reflexos", "dex", false],
     ["Religião", "wis", false],
-    ["Sobrevivência", "wis", true],
+    ["Sobrevivência", "wis", false],
     ["Vontade", "wis", false]
-    ];
+];
 
   const statNames = {
     str: "FOR",
@@ -3103,67 +4316,14 @@ function agendarSalvamento(elementId) {
     cha: "CAR"
   };
 
-  const attacks = [
-  {
-    id: "scimitar",
-    name: "Cimitarra",
-    subtitle: "Acuidade",
-    skill: "Luta",
-    stat: "dex",
-    die: "1d6",
-    type: "Corte",
-    favoredEnemy: true,
-    huntersMark: true
-  },
-
-  {
-    id: "bow",
-    name: "Arco Longo",
-    subtitle: "Distância",
-    skill: "Pontaria",
-    stat: "dex",
-    die: "1d8",
-    type: "Perf.",
-    favoredEnemy: true,
-    huntersMark: true
-  },
-
-  {
-    id: "bite",
-    name: "Mordida",
-    subtitle: "Arma natural",
-    skill: "Luta",
-    stat: "str",
-    die: "1d6",
-    type: "Perf.",
-    favoredEnemy: false,
-    huntersMark: true
-  },
-
-  {
-    id: "dagger",
-    name: "Adaga",
-    subtitle: "Acuidade",
-    skill: "Luta",
-    stat: "dex",
-    die: "1d4",
-    type: "Perf.",
-    favoredEnemy: true,
-    huntersMark: true
-  },
-
-  {
-    id: "sickle",
-    name: "Foice Curta",
-    subtitle: "Corpo a corpo",
-    skill: "Luta",
-    stat: "str",
-    die: "1d4",
-    type: "Corte",
-    favoredEnemy: true,
-    huntersMark: true
-  }
-];
+  const nomeAtributos = {
+    str: "Força",
+    dex: "Destreza",
+    con: "Constituição",
+    int: "Inteligência",
+    wis: "Sabedoria",
+    cha: "Carisma"
+};
 
   /* ============================================================
      FUNÇÕES BÁSICAS
@@ -3202,90 +4362,519 @@ function agendarSalvamento(elementId) {
 
 function getSkillEffects(skillName) {
 
-  return skillEffects.filter(effect => {
+    return (
+        conteudo.efeitosPericia || []
+    ).filter(effect => {
 
-    const affectsSkill =
-      effect.skills.includes(skillName);
+        const affectsSkill =
+            Array.isArray(
+                effect.skills
+            ) &&
+            effect.skills.includes(
+                skillName
+            );
 
-    const isActive =
-      !effect.active ||
-      effect.active();
 
-    return affectsSkill && isActive;
+        let isActive = true;
 
-  });
+
+        if (
+            effect.requiresToggle
+        ) {
+
+            const toggle =
+                document.getElementById(
+                    effect.requiresToggle
+                );
+
+            isActive =
+                Boolean(
+                    toggle?.checked
+                );
+        }
+
+
+        return (
+            affectsSkill &&
+            isActive
+        );
+    });
+}
+
+function renderizarAtaques() {
+
+    const container =
+        document.getElementById(
+            "attacks"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    const editando =
+        document.getElementById(
+            "editModeToggle"
+        )?.checked;
+
+
+    container.innerHTML = "";
+
+
+    conteudo.ataques.forEach(attack => {
+
+        const element =
+            document.createElement("div");
+
+        element.dataset.attackId =
+            attack.id;
+
+
+        /* =====================================================
+           MODO EDIÇÃO
+           ===================================================== */
+
+        if (editando) {
+
+            element.className =
+                "attack-editor";
+
+
+            element.innerHTML = `
+
+                <input
+                    class="attack-edit-name"
+                    type="text"
+                    placeholder="Nome"
+                >
+
+                <input
+                    class="attack-edit-subtitle"
+                    type="text"
+                    placeholder="Descrição curta"
+                >
+
+                <select
+                    class="attack-edit-skill"
+                ></select>
+
+                <select
+                    class="attack-edit-stat"
+                >
+                    <option value="str">FOR</option>
+                    <option value="dex">DES</option>
+                    <option value="con">CON</option>
+                    <option value="int">INT</option>
+                    <option value="wis">SAB</option>
+                    <option value="cha">CAR</option>
+                </select>
+
+                <input
+                    class="attack-edit-die"
+                    type="text"
+                    placeholder="1d6"
+                >
+
+                <input
+                    class="attack-edit-type"
+                    type="text"
+                    placeholder="Corte"
+                >
+
+                <button
+                    class="attack-delete"
+                    type="button"
+                    title="Excluir"
+                >
+                    🗑
+                </button>
+
+                <div
+                    class="attack-editor-options attack-effect-options"
+                ></div>
+            `;
+
+
+            const name =
+                element.querySelector(
+                    ".attack-edit-name"
+                );
+
+            const subtitle =
+                element.querySelector(
+                    ".attack-edit-subtitle"
+                );
+
+            const skill =
+                element.querySelector(
+                    ".attack-edit-skill"
+                );
+
+            const stat =
+                element.querySelector(
+                    ".attack-edit-stat"
+                );
+
+            const die =
+                element.querySelector(
+                    ".attack-edit-die"
+                );
+
+            const type =
+                element.querySelector(
+                    ".attack-edit-type"
+                );
+
+            const effectsContainer =
+                element.querySelector(
+                    ".attack-effect-options"
+                );
+
+            const excluir =
+                element.querySelector(
+                    ".attack-delete"
+                );
+            
+            if (!Array.isArray(
+    attack.effects
+)) {
+    attack.effects = [];
 }
 
 
-  const skillEffects = [
+conteudo.efeitosAtaque
+    .forEach(effect => {
 
-  {
-    source: "Explorador Natural",
-    skills: ["Iniciativa"],
-    bonus: 0,
-    text: "Vantagem no teste de Iniciativa."
-  },
+        const label =
+            document.createElement(
+                "label"
+            );
 
-  {
-    source: "Inimigo Favorito",
-    skills: ["Sobrevivência"],
-    bonus: 0,
-    text: "Vantagem para rastrear Bestas/Animais.",
 
-    active: () =>
-      document.getElementById("favoredEnemy")?.checked
-  },
-  {
-  source: "Alerta",
-  skills: ["Iniciativa"],
-  bonus: 5,
-  text: "Você recebe +5 em Iniciativa."
-}
+        const input =
+            document.createElement(
+                "input"
+            );
 
-];
+        input.type =
+            "checkbox";
 
-function createAttacks() {
+        input.checked =
+            attack.effects.includes(
+                effect.id
+            );
 
-  const container =
-    document.getElementById("attacks");
 
-  container.innerHTML = "";
+        const text =
+            document.createTextNode(
+                effect.source ||
+                effect.name ||
+                "Efeito"
+            );
 
-  attacks.forEach(attack => {
 
-    const element =
-      document.createElement("div");
+        input.addEventListener(
+            "change",
+            () => {
 
-    element.className = "attack";
+                if (input.checked) {
 
-    element.dataset.attackId =
-      attack.id;
+                    if (
+                        !attack.effects.includes(
+                            effect.id
+                        )
+                    ) {
 
-    element.innerHTML = `
-      <div class="attack-name">
-        <strong>${attack.name}</strong>
-        <small>${attack.subtitle}</small>
-      </div>
+                        attack.effects.push(
+                            effect.id
+                        );
+                    }
 
-      <div class="attack-data">
-        <span class="label">Acerto</span>
-        <strong class="attack-hit">+0</strong>
-      </div>
+                }
 
-      <div class="attack-data">
-        <span class="label">Dano</span>
-        <strong class="attack-damage">${attack.die}</strong>
-      </div>
+                else {
 
-      <div class="attack-data">
-        <span class="label">Tipo</span>
-        <strong>${attack.type}</strong>
-      </div>
-    `;
+                    attack.effects =
+                        attack.effects.filter(
+                            id =>
+                                id !== effect.id
+                        );
+                }
 
-    container.appendChild(element);
 
-  });
+                agendarSalvamentoConteudo();
+
+            }
+        );
+
+
+        label.appendChild(
+            input
+        );
+
+        label.appendChild(
+            text
+        );
+
+
+        effectsContainer.appendChild(
+            label
+        );
+
+    });
+
+            pericias.forEach(([nome]) => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value = nome;
+
+                option.textContent = nome;
+
+                skill.appendChild(
+                    option
+                );
+
+            });
+
+
+            /* carrega os valores */
+
+            name.value =
+                attack.name ?? "";
+
+            subtitle.value =
+                attack.subtitle ?? "";
+
+            skill.value =
+                attack.skill ?? "Luta";
+
+            stat.value =
+                attack.stat ?? "str";
+
+            die.value =
+                attack.die ?? "1d6";
+
+            type.value =
+                attack.type ?? "";
+
+
+            /* ======================
+               EVENTOS
+               ====================== */
+
+            name.addEventListener(
+                "input",
+                () => {
+
+                    attack.name =
+                        name.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            subtitle.addEventListener(
+                "input",
+                () => {
+
+                    attack.subtitle =
+                        subtitle.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            skill.addEventListener(
+                "change",
+                () => {
+
+                    attack.skill =
+                        skill.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            stat.addEventListener(
+                "change",
+                () => {
+
+                    attack.stat =
+                        stat.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            die.addEventListener(
+                "input",
+                () => {
+
+                    attack.die =
+                        die.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            type.addEventListener(
+                "input",
+                () => {
+
+                    attack.type =
+                        type.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            excluir.addEventListener(
+                "click",
+                () => {
+
+                    excluirAtaque(
+                        attack.id
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           VISUALIZAÇÃO
+           ===================================================== */
+
+        else {
+
+            element.className =
+                "attack";
+
+
+            element.innerHTML = `
+
+                <div class="attack-name">
+
+                    <strong></strong>
+
+                    <small></small>
+
+                </div>
+
+
+                <div class="attack-data">
+
+                    <span class="label">
+                        Acerto
+                    </span>
+
+                    <strong
+                        class="attack-hit"
+                    >
+                        +0
+                    </strong>
+
+                </div>
+
+
+                <div class="attack-data">
+
+                    <span class="label">
+                        Dano
+                    </span>
+
+                    <strong
+                        class="attack-damage"
+                    ></strong>
+
+                </div>
+
+
+                <div class="attack-data">
+
+                    <span class="label">
+                        Tipo
+                    </span>
+
+                    <strong
+                        class="attack-type"
+                    ></strong>
+
+                </div>
+            `;
+
+
+            element
+                .querySelector(
+                    ".attack-name strong"
+                )
+                .textContent =
+                attack.name ||
+                "Ataque";
+
+
+            element
+                .querySelector(
+                    ".attack-name small"
+                )
+                .textContent =
+                attack.subtitle || "";
+
+
+            element
+                .querySelector(
+                    ".attack-damage"
+                )
+                .textContent =
+                attack.die || "—";
+
+
+            element
+                .querySelector(
+                    ".attack-type"
+                )
+                .textContent =
+                attack.type || "—";
+
+        }
+
+
+        container.appendChild(
+            element
+        );
+
+    });
+
+
+    if (!editando) {
+
+        updateAttacks(
+            getMods(),
+            Math.max(
+                1,
+                num("level")
+            )
+        );
+
+    }
 }
 
   /* ============================================================
@@ -3464,6 +5053,620 @@ function createAttacks() {
     return Math.floor(level / 2);
     }
 
+function formatarTextoMagia(texto) {
+
+    const mods =
+        getMods();
+
+    const level =
+        Math.max(
+            1,
+            num("level")
+        );
+
+    const pb =
+        proficiency(level);
+
+    const spellMod =
+        mods[
+            atributoConjuracao
+        ] ?? 0;
+
+    const spellDC =
+        8 + spellMod + pb;
+
+    const spellAttack =
+        spellMod + pb;
+
+
+    return String(texto || "")
+        .replaceAll(
+            "{wis}",
+            mods.wis
+        )
+        .replaceAll(
+            "{pb}",
+            pb
+        )
+        .replaceAll(
+            "{spellDC}",
+            spellDC
+        )
+        .replaceAll(
+            "{spellAttack}",
+            fmt(spellAttack)
+        );
+}
+
+function renderizarMagias() {
+
+    const container =
+        document.getElementById(
+            "spellList"
+        );
+
+    const quickContainer =
+        document.getElementById(
+            "quickSpellList"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const editando =
+        document.getElementById(
+            "editModeToggle"
+        )?.checked;
+
+
+    container.innerHTML = "";
+
+    if (quickContainer) {
+        quickContainer.innerHTML = "";
+    }
+
+
+    conteudo.magias.forEach(spell => {
+
+        const element =
+            document.createElement("div");
+
+
+        /* =========================================
+           EDIÇÃO
+           ========================================= */
+
+        if (editando) {
+
+            element.className =
+                "spell-editor";
+
+
+            element.innerHTML = `
+
+                <div class="spell-editor-grid">
+
+                    <input
+                        class="spell-edit-name"
+                        type="text"
+                        placeholder="Nome"
+                    >
+
+                    <input
+                        class="spell-edit-level"
+                        type="number"
+                        min="0"
+                        placeholder="Nível"
+                    >
+
+                    <input
+                        class="spell-edit-school"
+                        type="text"
+                        placeholder="Escola"
+                    >
+
+                    <input
+                        class="spell-edit-time"
+                        type="text"
+                        placeholder="Tempo"
+                    >
+
+                    <input
+                        class="spell-edit-range"
+                        type="text"
+                        placeholder="Alcance"
+                    >
+
+                    <input
+                        class="spell-edit-duration"
+                        type="text"
+                        placeholder="Duração"
+                    >
+
+                </div>
+
+
+                <textarea
+                    class="spell-edit-description"
+                    placeholder="Descrição"
+                ></textarea>
+
+
+                <input
+                    class="spell-edit-quick-text"
+                    type="text"
+                    placeholder="Resumo para combate"
+                >
+
+
+                <div class="spell-editor-options">
+
+                    <label>
+                        <input
+                            class="spell-edit-concentration"
+                            type="checkbox"
+                        >
+                        Concentração
+                    </label>
+
+
+                    <label>
+                        <input
+                            class="spell-edit-quick"
+                            type="checkbox"
+                        >
+                        Mostrar no combate
+                    </label>
+
+
+                    <button
+                        class="spell-delete"
+                        type="button"
+                    >
+                        🗑
+                    </button>
+
+                </div>
+            `;
+
+
+            const name =
+                element.querySelector(
+                    ".spell-edit-name"
+                );
+
+            const level =
+                element.querySelector(
+                    ".spell-edit-level"
+                );
+
+            const school =
+                element.querySelector(
+                    ".spell-edit-school"
+                );
+
+            const time =
+                element.querySelector(
+                    ".spell-edit-time"
+                );
+
+            const range =
+                element.querySelector(
+                    ".spell-edit-range"
+                );
+
+            const duration =
+                element.querySelector(
+                    ".spell-edit-duration"
+                );
+
+            const description =
+                element.querySelector(
+                    ".spell-edit-description"
+                );
+
+            const concentration =
+                element.querySelector(
+                    ".spell-edit-concentration"
+                );
+
+            const quick =
+                element.querySelector(
+                    ".spell-edit-quick"
+                );
+
+            const quickText =
+                element.querySelector(
+                    ".spell-edit-quick-text"
+                );
+
+            const excluir =
+                element.querySelector(
+                    ".spell-delete"
+                );
+
+
+            name.value =
+                spell.name ?? "";
+
+            level.value =
+                spell.level ?? 1;
+
+            school.value =
+                spell.school ?? "";
+
+            time.value =
+                spell.castingTime ?? "";
+
+            range.value =
+                spell.range ?? "";
+
+            duration.value =
+                spell.duration ?? "";
+
+            description.value =
+                spell.description ?? "";
+
+            concentration.checked =
+                Boolean(
+                    spell.concentration
+                );
+
+            quick.checked =
+                Boolean(
+                    spell.quick
+                );
+
+            quickText.value =
+                spell.quickText ?? "";
+
+
+            name.addEventListener(
+                "input",
+                () => {
+
+                    spell.name =
+                        name.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            level.addEventListener(
+                "input",
+                () => {
+
+                    spell.level =
+                        Number(
+                            level.value || 0
+                        );
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            school.addEventListener(
+                "input",
+                () => {
+
+                    spell.school =
+                        school.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            time.addEventListener(
+                "input",
+                () => {
+
+                    spell.castingTime =
+                        time.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            range.addEventListener(
+                "input",
+                () => {
+
+                    spell.range =
+                        range.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            duration.addEventListener(
+                "input",
+                () => {
+
+                    spell.duration =
+                        duration.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            description.addEventListener(
+                "input",
+                () => {
+
+                    spell.description =
+                        description.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            concentration.addEventListener(
+                "change",
+                () => {
+
+                    spell.concentration =
+                        concentration.checked;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            quick.addEventListener(
+                "change",
+                () => {
+
+                    spell.quick =
+                        quick.checked;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            quickText.addEventListener(
+                "input",
+                () => {
+
+                    spell.quickText =
+                        quickText.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            excluir.addEventListener(
+                "click",
+                () => {
+
+                    excluirMagia(
+                        spell.id
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =========================================
+           VISUALIZAÇÃO
+           ========================================= */
+
+        else {
+
+            element.className =
+                "spell";
+
+
+            const concentrationText =
+                spell.concentration
+                    ? " • Concentração"
+                    : "";
+
+
+            element.innerHTML = `
+
+                <strong class="spell-name"></strong>
+
+                <div class="spell-meta"></div>
+
+                <div class="spell-description"></div>
+
+            `;
+
+
+            element.querySelector(
+                ".spell-name"
+            ).textContent =
+                spell.name ||
+                "Magia";
+
+
+            element.querySelector(
+                ".spell-meta"
+            ).textContent =
+                `${spell.level || 0}º nível • ${spell.school || "—"} • ${spell.castingTime || "—"} • ${spell.range || "—"}${concentrationText}`;
+
+
+            element.querySelector(
+                ".spell-description"
+            ).textContent =
+                formatarTextoMagia(
+                    spell.description
+                );
+
+        }
+
+
+        container.appendChild(
+            element
+        );
+
+
+        /* =========================================
+           MAGIA RÁPIDA
+           ========================================= */
+
+        if (
+            !editando &&
+            spell.quick &&
+            quickContainer
+        ) {
+
+            const quickElement =
+                document.createElement(
+                    "div"
+                );
+
+            quickElement.className =
+                "spell";
+
+
+            quickElement.innerHTML = `
+
+                <strong></strong>
+
+                <div class="spell-meta"></div>
+
+                <div class="quick-effect"></div>
+
+            `;
+
+
+            quickElement
+                .querySelector("strong")
+                .textContent =
+                spell.name;
+
+
+            quickElement
+                .querySelector(
+                    ".spell-meta"
+                )
+                .textContent =
+                `${spell.castingTime || "—"} • ${spell.range || "—"}`;
+
+
+            quickElement
+                .querySelector(
+                    ".quick-effect"
+                )
+                .textContent =
+                formatarTextoMagia(
+                    spell.quickText
+                );
+
+
+            quickContainer.appendChild(
+                quickElement
+            );
+
+        }
+
+    });
+}
+
+function adicionarMagia() {
+
+    conteudo.magias.push({
+
+        id: criarId(),
+
+        name: "",
+
+        level: 1,
+
+        school: "",
+
+        castingTime: "",
+
+        range: "",
+
+        duration: "",
+
+        concentration: false,
+
+        description: "",
+
+        quick: false,
+
+        quickText: ""
+
+    });
+
+
+    renderizarMagias();
+
+    salvarConteudo();
+
+
+    setTimeout(() => {
+
+        const inputs =
+            document.querySelectorAll(
+                ".spell-edit-name"
+            );
+
+        inputs[
+            inputs.length - 1
+        ]?.focus();
+
+    }, 0);
+}
+
+
+async function excluirMagia(id) {
+
+    conteudo.magias =
+        conteudo.magias.filter(
+            spell =>
+                spell.id !== id
+        );
+
+
+    renderizarMagias();
+
+    await salvarConteudo();
+}
+
+const addSpellButton =
+    document.getElementById(
+        "addSpell"
+    );
+
+
+if (addSpellButton) {
+
+    addSpellButton.addEventListener(
+        "click",
+        adicionarMagia
+    );
+
+}
+
+
   function createSkills() {
     const container = document.getElementById("skills");
 
@@ -3540,25 +5743,91 @@ function createAttacks() {
         return num("manualCA");
     }
 
+/* ============================================================
+   HP
+   ============================================================ */
 
-  /* ============================================================
-     HP
-     ============================================================ */
-
-  function calculateMaxHP(level, conMod) {
+function calculateMaxHP(
+    level,
+    conMod
+) {
 
     return (
-      10 +
-      conMod +
-      ((level - 1) * (6 + conMod))
+        pvBaseNivel1 +
+        conMod +
+        (
+            (level - 1) *
+            (
+                pvPorNivel +
+                conMod
+            )
+        )
     );
-
-  }
+}
 
 
   /* ============================================================
      ATAQUES
      ============================================================ */
+
+     function adicionarAtaque() {
+
+    conteudo.ataques.push({
+
+        id: criarId(),
+
+        name: "",
+
+        subtitle: "",
+
+        skill: "Luta",
+
+        stat: "str",
+
+        die: "1d6",
+
+        type: "",
+
+        effects: []
+    });
+
+
+    renderizarAtaques();
+
+    salvarConteudo();
+
+
+    setTimeout(() => {
+
+        const inputs =
+            document.querySelectorAll(
+                ".attack-edit-name"
+            );
+
+        const ultimo =
+            inputs[
+                inputs.length - 1
+            ];
+
+        ultimo?.focus();
+
+    }, 0);
+}
+
+
+async function excluirAtaque(id) {
+
+    conteudo.ataques =
+        conteudo.ataques.filter(
+            attack =>
+                attack.id !== id
+        );
+
+
+    renderizarAtaques();
+
+    await salvarConteudo();
+}
 
     function getAttackSkillBonus(
   skillName,
@@ -3622,7 +5891,7 @@ function createAttacks() {
   );
 }
 
-  function damageString(die, baseBonus, favored, marked) {
+  function damageString(die, baseBonus) {
 
     let text = die;
 
@@ -3634,13 +5903,7 @@ function createAttacks() {
       text += `${baseBonus}`;
     }
 
-    if (favored) {
-      text += "+2";
-    }
 
-    if (marked) {
-      text += "+1d6";
-    }
 
     return text;
   }
@@ -3648,17 +5911,53 @@ function createAttacks() {
   /* ============================================================
      UPDATE PRINCIPAL
      ============================================================ */
+function getAttackEffects(attack) {
+
+    const ids =
+        Array.isArray(
+            attack.effects
+        )
+            ? attack.effects
+            : [];
+
+
+    return (
+        conteudo.efeitosAtaque || []
+    ).filter(effect => {
+
+        if (
+            !ids.includes(
+                effect.id
+            )
+        ) {
+            return false;
+        }
+
+
+        if (
+            effect.requiresToggle
+        ) {
+
+            const toggle =
+                document.getElementById(
+                    effect.requiresToggle
+                );
+
+            if (!toggle?.checked) {
+                return false;
+            }
+        }
+
+
+        return true;
+    });
+}
+
 
 function updateAttacks(mods, level) {
 
-  const favoredActive =
-    document.getElementById("favoredEnemy").checked;
 
-  const markActive =
-    document.getElementById("huntersMark").checked;
-
-
-  attacks.forEach(attack => {
+  conteudo.ataques.forEach(attack => {
 
     const element =
       document.querySelector(
@@ -3673,13 +5972,29 @@ function updateAttacks(mods, level) {
     const statMod =
       mods[attack.stat];
 
-    const hit =
-      getAttackSkillBonus(
+    let hit =
+    getAttackSkillBonus(
         attack.skill,
         attack.stat,
         mods,
         level
-      );
+    );
+
+
+      const effects =
+          getAttackEffects(
+              attack
+          );
+
+
+      effects.forEach(effect => {
+
+          hit +=
+              Number(
+                  effect.bonusHit || 0
+              );
+
+      });
 
 
     /* dano */
@@ -3695,42 +6010,78 @@ function updateAttacks(mods, level) {
       damage += `${statMod}`;
     }
 
+    effects.forEach(effect => {
 
-    /* inimigo favorito */
+    const bonus =
+        String(
+            effect.bonusDamage || ""
+        ).trim();
 
-    if (
-      favoredActive &&
-      attack.favoredEnemy
-    ) {
-      damage += "+2";
+
+    if (!bonus) {
+        return;
     }
 
 
-    /* marca do caçador */
-
     if (
-      markActive &&
-      attack.huntersMark
+        bonus.startsWith("+") ||
+        bonus.startsWith("-")
     ) {
-      damage += "+1d6";
+        damage += bonus;
     }
 
+    else {
+        damage += `+${bonus}`;
+    }
 
-    element
-      .querySelector(".attack-hit")
-      .textContent =
-      fmt(hit);
+});
+
+    const hitElement =
+    element.querySelector(
+        ".attack-hit"
+    );
+
+const damageElement =
+    element.querySelector(
+        ".attack-damage"
+    );
 
 
-    element
-      .querySelector(".attack-damage")
-      .textContent =
-      damage;
+if (hitElement) {
+
+    hitElement.textContent =
+        fmt(hit);
+
+}
+
+
+if (damageElement) {
+
+    damageElement.textContent =
+        damage;
+
+}
 
   });
 }
 
   function updateSheet() {
+    if (
+    !document.getElementById(
+        "editModeToggle"
+    )?.checked
+) {
+    renderizarMagias();
+}
+
+document
+    .getElementById(
+        "spellcastingAttribute"
+    )
+    .textContent =
+    nomeAtributos[
+        atributoConjuracao
+    ] || "—";
 
     const level = Math.max(1, num("level"));
 
@@ -3756,15 +6107,25 @@ function updateAttacks(mods, level) {
 
     /* HP */
 
-    const maxHP = calculateMaxHP(level, mods.con);
+const maxHP =
+    calculateMaxHP(
+        level,
+        mods.con
+    );
 
-    document.getElementById("hpMax").textContent = maxHP;
+document
+    .getElementById(
+        "hpMax"
+    )
+    .textContent =
+    maxHP;
 
-    document.getElementById("combatHP").value =
-      num("hpCurrent");
-
-    document.getElementById("combatHPMax").textContent =
-      maxHP;
+document
+    .getElementById(
+        "combatHPMax"
+    )
+    .textContent =
+    maxHP;
 
     /* CA */
 
@@ -3865,11 +6226,18 @@ document
 
     /* conjuração */
 
-    const spellDC =
-      8 + mods.wis + pb;
+    const spellMod =
+    mods[
+        atributoConjuracao
+    ] ?? 0;
 
-    const spellAttack =
-      mods.wis + pb;
+
+const spellDC =
+    8 + spellMod + pb;
+
+
+const spellAttack =
+    spellMod + pb;
 
     document.getElementById("spellDC").textContent =
       spellDC;
@@ -3882,15 +6250,6 @@ document
 
     document.getElementById("combatSpellAttack").textContent =
       fmt(spellAttack);
-
-    const cure =
-      `1d8${mods.wis >= 0 ? "+" : ""}${mods.wis}`;
-
-    document.getElementById("cureWounds").textContent =
-      cure;
-
-    document.getElementById("combatCure").textContent =
-      cure;
 
     /* carga */
 
@@ -3905,11 +6264,6 @@ document
 
     /* combate */
 
-    const favored =
-      document.getElementById("favoredEnemy").checked;
-
-    const marked =
-      document.getElementById("huntersMark").checked;
 
     /* slots */
 
@@ -3979,6 +6333,10 @@ document
    ============================================================ */
 
 function setEditMode(enabled) {
+  document.body.classList.toggle(
+    "editing",
+    enabled
+);
 
     document
         .querySelectorAll(
@@ -4003,7 +6361,7 @@ function setEditMode(enabled) {
 
 
     localStorage.setItem(
-        "rekno_edit_mode",
+        "personagem_sheet_edit_mode",
         enabled ? "1" : "0"
     );
 }
@@ -4019,7 +6377,7 @@ function configurarModoEdicao() {
 
     const savedMode =
         localStorage.getItem(
-            "rekno_edit_mode"
+            "personagem_sheet_edit_mode"
         ) === "1";
 
 
@@ -4033,15 +6391,30 @@ function configurarModoEdicao() {
 
 
     toggle.addEventListener(
-        "change",
-        () => {
+      "change",
+      () => {
 
-            setEditMode(
-                toggle.checked
-            );
+          setEditMode(
+              toggle.checked
+          );
 
-        }
-    );
+          renderizarInventario();
+
+          renderizarAtaques();
+
+          renderizarMagias();
+
+          renderizarTodasCaracteristicas();
+
+          renderizarRecursos();
+
+          renderizarLembretesCombate();
+
+          renderizarAcoesCombate();
+
+          renderizarTogglesCombate();
+      }
+  );
 }
 
 /* ============================================================
@@ -4049,7 +6422,34 @@ function configurarModoEdicao() {
    ============================================================ */
 
 function configurarEventos() {
+const addInventoryButton =
+    document.getElementById(
+        "addInventoryItem"
+    );
 
+const addAttackButton =
+    document.getElementById(
+        "addAttack"
+    );
+
+
+if (addAttackButton) {
+
+    addAttackButton.addEventListener(
+        "click",
+        adicionarAtaque
+    );
+
+}
+
+if (addInventoryButton) {
+
+    addInventoryButton.addEventListener(
+        "click",
+        adicionarItemInventario
+    );
+
+}
     document
         .querySelectorAll(
             "input, select, textarea"
@@ -4142,6 +6542,696 @@ function configurarEventos() {
             );
 
         });
+        Object.entries(
+    FEATURE_CONFIG
+).forEach(
+    ([tipo, config]) => {
+
+        const button =
+            document.getElementById(
+                config.buttonId
+            );
+
+
+        if (button) {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    adicionarCaracteristica(
+                        tipo
+                    );
+
+                }
+            );
+
+        }
+
+    }
+);
+}
+
+function criarId() {
+
+    return crypto.randomUUID();
+}
+
+
+function calcularPesoInventario() {
+
+    return conteudo.inventario.reduce(
+        (total, item) => {
+
+            const quantidade =
+                Number(item.quantidade || 0);
+
+            const peso =
+                Number(item.peso || 0);
+
+            return total +
+                quantidade * peso;
+
+        },
+        0
+    );
+}
+
+const FEATURE_CONFIG = {
+
+    antecedente: {
+        containerId:
+            "backgroundFeatureList",
+
+        buttonId:
+            "addBackgroundFeature",
+
+        defaultName:
+            "Nova característica de antecedente"
+    },
+
+    raca: {
+        containerId:
+            "raceFeatureList",
+
+        buttonId:
+            "addRaceFeature",
+
+        defaultName:
+            "Nova característica racial"
+    },
+
+    classe: {
+        containerId:
+            "classFeatureList",
+
+        buttonId:
+            "addClassFeature",
+
+        defaultName:
+            "Nova habilidade de classe"
+    },
+
+    talentos: {
+        containerId:
+            "featFeatureList",
+
+        buttonId:
+            "addFeatFeature",
+
+        defaultName:
+            "Novo talento"
+    }
+
+};
+
+function renderizarCaracteristicas(tipo) {
+
+    const config =
+        FEATURE_CONFIG[tipo];
+
+    if (!config) {
+        return;
+    }
+
+
+    const container =
+        document.getElementById(
+            config.containerId
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    const editando =
+        document.getElementById(
+            "editModeToggle"
+        )?.checked;
+
+
+    container.innerHTML = "";
+
+
+    const lista =
+        conteudo[tipo] || [];
+
+
+    lista.forEach(feature => {
+
+        /* =====================================================
+           EDIÇÃO
+           ===================================================== */
+
+        if (editando) {
+
+            const editor =
+                document.createElement(
+                    "div"
+                );
+
+            editor.className =
+                "feature-editor";
+
+
+            editor.innerHTML = `
+
+                <div class="feature-editor-top">
+
+                    <input
+                        class="feature-edit-name"
+                        type="text"
+                        placeholder="Nome"
+                    >
+
+                    <input
+                        class="feature-edit-subtitle"
+                        type="text"
+                        placeholder="Subtítulo / nível / origem"
+                    >
+
+                </div>
+
+
+                <textarea
+                    class="feature-edit-description"
+                    placeholder="Descrição"
+                ></textarea>
+
+
+                <input
+                    class="feature-edit-image"
+                    type="text"
+                    placeholder="URL da imagem opcional"
+                >
+
+
+                <div class="feature-editor-bottom">
+
+                    <label>
+                        <input
+                            class="feature-edit-open"
+                            type="checkbox"
+                        >
+                        Abrir por padrão
+                    </label>
+
+
+                    <button
+                        class="feature-delete"
+                        type="button"
+                        title="Excluir"
+                    >
+                        🗑
+                    </button>
+
+                </div>
+            `;
+
+
+            const name =
+                editor.querySelector(
+                    ".feature-edit-name"
+                );
+
+            const subtitle =
+                editor.querySelector(
+                    ".feature-edit-subtitle"
+                );
+
+            const description =
+                editor.querySelector(
+                    ".feature-edit-description"
+                );
+
+            const image =
+                editor.querySelector(
+                    ".feature-edit-image"
+                );
+
+            const open =
+                editor.querySelector(
+                    ".feature-edit-open"
+                );
+
+            const excluir =
+                editor.querySelector(
+                    ".feature-delete"
+                );
+
+
+            name.value =
+                feature.name ?? "";
+
+            subtitle.value =
+                feature.subtitle ?? "";
+
+            description.value =
+                feature.description ?? "";
+
+            image.value =
+                feature.image ?? "";
+
+            open.checked =
+                Boolean(
+                    feature.open
+                );
+
+
+            name.addEventListener(
+                "input",
+                () => {
+
+                    feature.name =
+                        name.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            subtitle.addEventListener(
+                "input",
+                () => {
+
+                    feature.subtitle =
+                        subtitle.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            description.addEventListener(
+                "input",
+                () => {
+
+                    feature.description =
+                        description.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            image.addEventListener(
+                "input",
+                () => {
+
+                    feature.image =
+                        image.value;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            open.addEventListener(
+                "change",
+                () => {
+
+                    feature.open =
+                        open.checked;
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            excluir.addEventListener(
+                "click",
+                () => {
+
+                    excluirCaracteristica(
+                        tipo,
+                        feature.id
+                    );
+
+                }
+            );
+
+
+            container.appendChild(
+                editor
+            );
+
+            return;
+        }
+
+
+        /* =====================================================
+           VISUALIZAÇÃO
+           ===================================================== */
+        const details =
+    document.createElement(
+        "details"
+    );
+
+details.className =
+    "feature";
+
+
+if (feature.open) {
+    details.open = true;
+}
+
+
+/* summary primeiro */
+
+const summary =
+    document.createElement(
+        "summary"
+    );
+
+summary.textContent =
+    feature.subtitle
+        ? `${feature.name} — ${feature.subtitle}`
+        : feature.name ||
+          "Característica";
+
+details.appendChild(
+    summary
+);
+
+
+/* imagem depois */
+
+if (feature.image) {
+
+    details.classList.add(
+        "has-image"
+    );
+
+    const imageContainer =
+        document.createElement(
+            "div"
+        );
+
+    imageContainer.className =
+        "feature-image";
+
+    const img =
+        document.createElement(
+            "img"
+        );
+
+    img.src =
+        feature.image;
+
+    img.alt =
+        feature.name || "";
+
+    imageContainer.appendChild(
+        img
+    );
+
+    details.appendChild(
+        imageContainer
+    );
+}
+
+
+/* descrição */
+
+const body =
+    document.createElement(
+        "div"
+    );
+
+body.className =
+    "details-body dynamic-feature-description";
+
+body.textContent =
+    feature.description || "";
+
+details.appendChild(
+    body
+);
+
+container.appendChild(
+    details
+);
+    });
+}
+
+function renderizarTodasCaracteristicas() {
+
+    Object.keys(
+        FEATURE_CONFIG
+    ).forEach(tipo => {
+
+        renderizarCaracteristicas(
+            tipo
+        );
+
+    });
+}
+
+function renderizarInventario() {
+
+    const container =
+        document.getElementById(
+            "inventoryList"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    const editando =
+        document.getElementById(
+            "editModeToggle"
+        )?.checked;
+
+
+    container.innerHTML = "";
+
+
+    conteudo.inventario
+        .forEach(item => {
+
+            const elemento =
+                document.createElement("div");
+
+
+            /* =====================
+               MODO EDIÇÃO
+               ===================== */
+
+            if (editando) {
+
+                elemento.className =
+                    "inventory-item";
+
+
+                elemento.innerHTML = `
+
+                    <input
+                        class="inventory-name"
+                        type="text"
+                        value=""
+                        placeholder="Nome do item"
+                    >
+
+                    <input
+                        class="inventory-quantity"
+                        type="number"
+                        min="0"
+                        value="1"
+                        title="Quantidade"
+                    >
+
+                    <input
+                        class="inventory-item-weight"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value="0"
+                        title="Peso unitário em kg"
+                    >
+
+                    <button
+                        class="inventory-delete"
+                        type="button"
+                        title="Excluir"
+                    >
+                        🗑
+                    </button>
+                `;
+
+
+                const nome =
+                    elemento.querySelector(
+                        ".inventory-name"
+                    );
+
+                const quantidade =
+                    elemento.querySelector(
+                        ".inventory-quantity"
+                    );
+
+                const peso =
+                    elemento.querySelector(
+                        ".inventory-item-weight"
+                    );
+
+                const excluir =
+                    elemento.querySelector(
+                        ".inventory-delete"
+                    );
+
+
+                nome.value =
+                    item.nome ?? "";
+
+                quantidade.value =
+                    item.quantidade ?? 1;
+
+                peso.value =
+                    item.peso ?? 0;
+
+
+                nome.addEventListener(
+                    "input",
+                    () => {
+
+                        item.nome =
+                            nome.value;
+
+                        agendarSalvamentoConteudo();
+
+                    }
+                );
+
+
+                quantidade.addEventListener(
+                    "input",
+                    () => {
+
+                        item.quantidade =
+                            Number(
+                                quantidade.value || 0
+                            );
+
+                        atualizarPesoInventario();
+
+                        agendarSalvamentoConteudo();
+
+                    }
+                );
+
+
+                peso.addEventListener(
+                    "input",
+                    () => {
+
+                        item.peso =
+                            Number(
+                                peso.value || 0
+                            );
+
+                        atualizarPesoInventario();
+
+                        agendarSalvamentoConteudo();
+
+                    }
+                );
+
+
+                excluir.addEventListener(
+                    "click",
+                    () => {
+
+                        excluirItemInventario(
+                            item.id
+                        );
+
+                    }
+                );
+
+            }
+
+
+            
+            /* =====================
+               MODO VISUALIZAÇÃO
+               ===================== */
+
+            else {
+
+                elemento.className =
+                    "inventory-view";
+
+
+                const quantidade =
+                    Number(
+                        item.quantidade || 0
+                    );
+
+                const pesoUnitario =
+                    Number(
+                        item.peso || 0
+                    );
+
+                const pesoTotal =
+                    quantidade *
+                    pesoUnitario;
+
+
+                elemento.innerHTML = `
+
+                    <span>
+                        <strong></strong>
+                        <span class="item-quantity"></span>
+                    </span>
+
+                    <span class="inventory-weight"></span>
+
+                `;
+
+
+                elemento
+                    .querySelector("strong")
+                    .textContent =
+                    item.nome ||
+                    "Item sem nome";
+
+
+                elemento
+                    .querySelector(
+                        ".item-quantity"
+                    )
+                    .textContent =
+                    quantidade > 1
+                        ? ` ×${quantidade}`
+                        : "";
+
+
+                elemento
+                    .querySelector(
+                        ".inventory-weight"
+                    )
+                    .textContent =
+                    `${pesoTotal.toFixed(2)} kg`;
+
+            }
+
+
+            container.appendChild(
+                elemento
+            );
+
+        });
+
+
+    atualizarPesoInventario();
 }
   
   /* ============================================================
@@ -4255,13 +7345,15 @@ function createFeatureImages() {
 async function iniciarFicha() {
 
     createSkills();
-    createAttacks();
 
     configurarModoEdicao();
 
     configurarEventos();
 
     createFeatureImages();
+
+    configurarLogin();
+
 
     const savedTab =
         localStorage.getItem(
@@ -4272,9 +7364,18 @@ async function iniciarFicha() {
         openTab(savedTab);
     }
 
-    await carregarFicha();
 
-    iniciarRealtime();
+    await verificarSessao();
+
+
+    if (currentUser) {
+
+        await carregarFicha();
+
+        iniciarRealtime();
+
+    }
+
 
     updateSheet();
 }
