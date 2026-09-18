@@ -3057,6 +3057,69 @@ body.editing
   color: var(--red);
   font-size: 12px;
 }
+
+
+/* ==========================================================
+   DETALHAMENTO DO CÁLCULO DE PV
+   ========================================================== */
+.hp-max-value {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+  outline: none;
+}
+
+.hp-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+
+  min-width: 290px;
+  max-width: 380px;
+
+  padding: 12px 14px;
+
+  background: #392b1e;
+  color: #f6edd7;
+
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 8px;
+
+  box-shadow: 0 8px 22px rgba(40,25,10,.28);
+
+  text-align: left;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 1.5;
+  white-space: pre-line;
+
+  opacity: 0;
+  visibility: hidden;
+
+  transform: translate(-50%, 5px);
+
+  transition:
+    opacity .15s ease,
+    transform .15s ease,
+    visibility .15s ease;
+
+  pointer-events: none;
+  z-index: 3000;
+}
+
+.hp-max-value:hover .hp-tooltip,
+.hp-max-value:focus .hp-tooltip,
+.hp-max-value:focus-within .hp-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+.combat-hp .hp-max-value {
+  display: inline-flex;
+  align-items: center;
+}
+
 </style>
 
 <div class="edit-mode-control">
@@ -3467,7 +3530,10 @@ body.editing
 
         <div class="vital">
           <span class="label">PV Máximo</span>
-          <span id="hpMax" class="big">19</span>
+          <div class="hp-max-value" tabindex="0">
+            <span id="hpMax" class="big">19</span>
+            <div id="hpMaxTooltip" class="hp-tooltip"></div>
+          </div>
         </div>
 
         <div class="vital">
@@ -3939,7 +4005,10 @@ body.editing
 
             <span>/</span>
 
-            <strong id="combatHPMax">19</strong>
+            <span class="hp-max-value" tabindex="0">
+              <strong id="combatHPMax">19</strong>
+              <span id="combatHPMaxTooltip" class="hp-tooltip"></span>
+            </span>
             </div>
           </strong>
         </div>
@@ -11004,40 +11073,172 @@ function calculateAC(mods) {
    HP
    ============================================================ */
 
-function calculateMaxHP(
+function getHpBreakdown(
     level,
     conMod
 ) {
 
-    const bonusPorNivel =
-        somarEfeitos(
-            "hpPerLevel"
+    const nivel =
+        Math.max(
+            1,
+            Number(level || 1)
         );
 
+    const niveisExtras =
+        Math.max(
+            0,
+            nivel - 1
+        );
 
-    const baseHP =
-        pvBaseNivel1 +
-        conMod +
-        (
-            (level - 1) *
-            (
-                pvPorNivel +
-                conMod +
-                bonusPorNivel
+    const efeitosPorNivel =
+        typeof getFeatureEffects === "function"
+            ? getFeatureEffects(
+                "hpPerLevel"
             )
-        );
+            : [];
 
+    const efeitosMaximos =
+        typeof getFeatureEffects === "function"
+            ? getFeatureEffects(
+                "maxHp"
+            )
+            : [];
+
+    const bonusPorNivel =
+        efeitosPorNivel.reduce(
+            (total, effect) =>
+                total +
+                Number(
+                    effect.bonus || 0
+                ),
+            0
+        );
 
     const bonusHP =
-        somarEfeitos(
-            "maxHp"
+        efeitosMaximos.reduce(
+            (total, effect) =>
+                total +
+                Number(
+                    effect.bonus || 0
+                ),
+            0
         );
 
+    /*
+       Fallback para versões antigas da ficha que ainda não
+       possuem pvBaseNivel1 / pvPorNivel configuráveis.
+    */
+    const vidaInicial =
+        typeof pvBaseNivel1 !== "undefined"
+            ? Number(
+                pvBaseNivel1 || 0
+            )
+            : 10;
 
-    return (
-        baseHP +
-        bonusHP
-    );
+    const vidaPorNivel =
+        typeof pvPorNivel !== "undefined"
+            ? Number(
+                pvPorNivel || 0
+            )
+            : 6;
+
+    const primeiroNivel =
+        vidaInicial +
+        Number(conMod || 0);
+
+    const ganhoPorNivel =
+        vidaPorNivel +
+        Number(conMod || 0) +
+        bonusPorNivel;
+
+    const progressao =
+        niveisExtras *
+        ganhoPorNivel;
+
+    const total =
+        primeiroNivel +
+        progressao +
+        bonusHP;
+
+    const lines = [
+        "PV Máximo",
+        "",
+        `Nível 1: ${vidaInicial} + CON ${fmt(Number(conMod || 0))} = ${primeiroNivel}`
+    ];
+
+    if (niveisExtras > 0) {
+        let formulaNivel =
+            `${niveisExtras} × (${vidaPorNivel} + CON ${fmt(Number(conMod || 0))}`;
+
+        if (bonusPorNivel !== 0) {
+            formulaNivel +=
+                ` + bônus ${fmt(bonusPorNivel)}`;
+        }
+
+        formulaNivel +=
+            `) = ${progressao}`;
+
+        lines.push(
+            `Níveis 2–${nivel}: ${formulaNivel}`
+        );
+    }
+
+    if (efeitosPorNivel.length > 0) {
+        lines.push("");
+        lines.push(
+            "Bônus de PV por nível ativos:"
+        );
+
+        efeitosPorNivel.forEach(
+            effect => {
+                lines.push(
+                    `• ${effect.source || "Característica"}: ${fmt(Number(effect.bonus || 0))} por nível após o 1º`
+                );
+            }
+        );
+    }
+
+    if (efeitosMaximos.length > 0) {
+        lines.push("");
+        lines.push(
+            "Bônus de PV máximo ativos:"
+        );
+
+        efeitosMaximos.forEach(
+            effect => {
+                lines.push(
+                    `• ${effect.source || "Característica"}: ${fmt(Number(effect.bonus || 0))}`
+                );
+            }
+        );
+    }
+
+    lines.push("");
+    lines.push("────────────");
+    lines.push(`Total: ${total} PV`);
+
+    return {
+        total,
+        tooltip:
+            lines.join("\\n"),
+        vidaInicial,
+        vidaPorNivel,
+        primeiroNivel,
+        niveisExtras,
+        bonusPorNivel,
+        bonusHP,
+        progressao
+    };
+}
+
+function calculateMaxHP(
+    level,
+    conMod
+) {
+    return getHpBreakdown(
+        level,
+        conMod
+    ).total;
 }
 
   /* ============================================================
@@ -11643,6 +11844,32 @@ document
     )
     .textContent =
     maxHP;
+
+const hpBreakdown =
+    getHpBreakdown(
+        level,
+        mods.con
+    );
+
+const hpMaxTooltip =
+    document.getElementById(
+        "hpMaxTooltip"
+    );
+
+if (hpMaxTooltip) {
+    hpMaxTooltip.textContent =
+        hpBreakdown.tooltip;
+}
+
+const combatHPMaxTooltip =
+    document.getElementById(
+        "combatHPMaxTooltip"
+    );
+
+if (combatHPMaxTooltip) {
+    combatHPMaxTooltip.textContent =
+        hpBreakdown.tooltip;
+}
 
     /* CA */
 
