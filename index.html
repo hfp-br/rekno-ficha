@@ -4181,6 +4181,70 @@ armor: {
 }
 };
 
+const FICHA_PREVIEW_LOGIN = {
+    nome_personagem: "Ficha de Personagem",
+    subtitulo: "Faça login para carregar sua ficha",
+    subtitulo_combate: "Pré-visualização",
+    antecedente_nome: "—",
+    classe_nome: "Classe",
+    raca_nome: "Raça",
+
+    nivel: 1,
+    xp: 0,
+
+    forca: 10,
+    destreza: 10,
+    constituicao: 10,
+    inteligencia: 10,
+    sabedoria: 10,
+    carisma: 10,
+
+    vida_atual: 4,
+    vida_temp: 0,
+
+    modo_ca: "natural",
+    ca_manual: 10,
+
+    slot_1: 0,
+    slot_2: 0,
+    slot_3: 0,
+    slot_4: 0,
+    slot_5: 0,
+
+    dinheiro_pl: 0,
+    dinheiro_po: 0,
+    dinheiro_pp: 0,
+    dinheiro_pc: 0,
+
+    notas: "",
+    notas_combate: "",
+
+    proficiencias: [],
+
+    atributo_conjuracao: "int",
+    pv_base_nivel_1: 4,
+    pv_por_nivel: 4,
+
+    retrato_url: "",
+    fundo_url: "",
+
+    conteudo_dinamico: {
+        inventario: [],
+        ataques: [],
+        magias: [],
+        talentos: [],
+        classe: [],
+        antecedente: [],
+        raca: [],
+        recursos: [],
+        lembretesCombate: [],
+        acoesCombate: [],
+        efeitosPericia: [],
+        togglesCombate: [],
+        efeitosAtaque: []
+    }
+};
+
 let currentUser = null;
 let pvBaseNivel1 = 5;
 let pvPorNivel = 5;
@@ -7057,58 +7121,46 @@ function aplicarDadosSupabase(dados) {
             dados.pv_por_nivel ?? 5
         );
 
-    if (dados.retrato_url) {
-
+    {
     const portrait =
         document.getElementById(
             "characterPortraitImage"
         );
 
     portrait.src =
-        dados.retrato_url;
+        dados.retrato_url || "";
 
     portrait.alt =
         dados.nome_personagem || "";
 }
 
+document
+    .getElementById(
+        "backgroundImageBase"
+    )
+    .src =
+    dados.fundo_url || "";
 
-if (dados.fundo_url) {
+document
+    .getElementById(
+        "backgroundImageBlur"
+    )
+    .src =
+    dados.fundo_url || "";
 
-    document
-        .getElementById(
-            "backgroundImageBase"
-        )
-        .src =
-        dados.fundo_url;
+  document
+    .getElementById(
+        "classSectionTitle"
+    )
+    .textContent =
+    dados.classe_nome || "Classe";
 
-    document
-        .getElementById(
-            "backgroundImageBlur"
-        )
-        .src =
-        dados.fundo_url;
-}
-
-    if (dados.classe_nome) {
-
-    document
-        .getElementById(
-            "classSectionTitle"
-        )
-        .textContent =
-        dados.classe_nome;
-}
-
-
-if (dados.raca_nome) {
-
-    document
-        .getElementById(
-            "raceSectionTitle"
-        )
-        .textContent =
-        dados.raca_nome;
-}
+document
+    .getElementById(
+        "raceSectionTitle"
+    )
+    .textContent =
+    dados.raca_nome || "Raça";
 
     if (dados.nome_personagem) {
         document.getElementById("charName").textContent = dados.nome_personagem;
@@ -10957,6 +11009,12 @@ function calculateMaxHP(
     conMod
 ) {
 
+    const bonusPorNivel =
+        somarEfeitos(
+            "hpPerLevel"
+        );
+
+
     const baseHP =
         pvBaseNivel1 +
         conMod +
@@ -10964,7 +11022,8 @@ function calculateMaxHP(
             (level - 1) *
             (
                 pvPorNivel +
-                conMod
+                conMod +
+                bonusPorNivel
             )
         );
 
@@ -10980,7 +11039,6 @@ function calculateMaxHP(
         bonusHP
     );
 }
-
 
   /* ============================================================
      ATAQUES
@@ -12699,6 +12757,11 @@ renderizarFonteEfeito(
                   ],
 
                   [
+    "hpPerLevel",
+    "PV por nível"
+],
+
+                  [
                       "attribute",
                       "Atributo"
                   ],
@@ -13151,6 +13214,51 @@ renderizarFonteEfeito(
                         );
 
                     }
+
+                    else if (
+    effect.type ===
+    "hpPerLevel"
+) {
+
+    const bonus =
+        document.createElement(
+            "input"
+        );
+
+    bonus.type =
+        "number";
+
+    bonus.placeholder =
+        "PV por nível";
+
+    bonus.value =
+        Number(
+            effect.bonus || 0
+        );
+
+
+    bonus.addEventListener(
+        "input",
+        () => {
+
+            effect.bonus =
+                Number(
+                    bonus.value || 0
+                );
+
+            agendarSalvamentoConteudo();
+
+            updateSheet();
+
+        }
+    );
+
+
+    fields.appendChild(
+        bonus
+    );
+
+}
                     /*=================
                     ATRIBUTO
                     ===================*/
@@ -13477,6 +13585,18 @@ renderizarFonteEfeito(
                             );
 
                     }
+
+                    else if (
+    effect.type ===
+    "hpPerLevel"
+) {
+
+    effect.bonus =
+        Number(
+            effect.bonus || 0
+        );
+
+}
 
 
                     else if (
@@ -14530,27 +14650,26 @@ async function iniciarFicha() {
 
     configurarLogin();
 
-    await verificarSessao();
+    const savedTab =
+        localStorage.getItem(
+            "personagem_sheet_activeTab"
+        );
 
-
-    if (currentUser) {
-
-    const carregou =
-        await carregarFicha();
-
-
-    if (carregou) {
-
-        iniciarRealtime();
-
+    if (savedTab) {
+        openTab(savedTab);
     }
 
-}
+    aplicarDadosSupabase(
+        FICHA_PREVIEW_LOGIN
+    );
 
+    await verificarSessao();
+
+    if (currentUser) {
+        await carregarFicha();
+        iniciarRealtime();
+    }
 
     updateSheet();
 }
-
-
-iniciarFicha();
 </script>
