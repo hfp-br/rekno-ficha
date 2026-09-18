@@ -11073,10 +11073,7 @@ function calculateAC(mods) {
    HP
    ============================================================ */
 
-function getHpBreakdown(
-    level,
-    conMod
-) {
+function getHpBreakdown(level) {
 
     const nivel =
         Math.max(
@@ -11084,11 +11081,13 @@ function getHpBreakdown(
             Number(level || 1)
         );
 
+
     const niveisExtras =
         Math.max(
             0,
             nivel - 1
         );
+
 
     const efeitosPorNivel =
         typeof getFeatureEffects === "function"
@@ -11097,12 +11096,14 @@ function getHpBreakdown(
             )
             : [];
 
+
     const efeitosMaximos =
         typeof getFeatureEffects === "function"
             ? getFeatureEffects(
                 "maxHp"
             )
             : [];
+
 
     const bonusPorNivel =
         efeitosPorNivel.reduce(
@@ -11114,6 +11115,7 @@ function getHpBreakdown(
             0
         );
 
+
     const bonusHP =
         efeitosMaximos.reduce(
             (total, effect) =>
@@ -11124,120 +11126,142 @@ function getHpBreakdown(
             0
         );
 
-    /*
-       Fallback para versões antigas da ficha que ainda não
-       possuem pvBaseNivel1 / pvPorNivel configuráveis.
-    */
+
     const vidaInicial =
-        typeof pvBaseNivel1 !== "undefined"
-            ? Number(
-                pvBaseNivel1 || 0
-            )
-            : 10;
+        Number(
+            pvBaseNivel1 || 0
+        );
+
 
     const vidaPorNivel =
-        typeof pvPorNivel !== "undefined"
-            ? Number(
-                pvPorNivel || 0
-            )
-            : 6;
+        Number(
+            pvPorNivel || 0
+        );
 
-    const primeiroNivel =
-        vidaInicial +
-        Number(conMod || 0);
 
     const ganhoPorNivel =
         vidaPorNivel +
-        Number(conMod || 0) +
         bonusPorNivel;
+
 
     const progressao =
         niveisExtras *
         ganhoPorNivel;
 
+
     const total =
-        primeiroNivel +
+        vidaInicial +
         progressao +
         bonusHP;
+
 
     const lines = [
         "PV Máximo",
         "",
-        `Nível 1: ${vidaInicial} + CON ${fmt(Number(conMod || 0))} = ${primeiroNivel}`
+        `Nível 1: ${vidaInicial} PV`
     ];
 
+
     if (niveisExtras > 0) {
+
         let formulaNivel =
-            `${niveisExtras} × (${vidaPorNivel} + CON ${fmt(Number(conMod || 0))}`;
+            `${niveisExtras} × (${vidaPorNivel}`;
+
 
         if (bonusPorNivel !== 0) {
+
             formulaNivel +=
                 ` + bônus ${fmt(bonusPorNivel)}`;
+
         }
+
 
         formulaNivel +=
             `) = ${progressao}`;
 
+
         lines.push(
             `Níveis 2–${nivel}: ${formulaNivel}`
         );
+
     }
 
+
     if (efeitosPorNivel.length > 0) {
+
         lines.push("");
         lines.push(
             "Bônus de PV por nível ativos:"
         );
 
+
         efeitosPorNivel.forEach(
             effect => {
+
                 lines.push(
                     `• ${effect.source || "Característica"}: ${fmt(Number(effect.bonus || 0))} por nível após o 1º`
                 );
+
             }
         );
+
     }
 
+
     if (efeitosMaximos.length > 0) {
+
         lines.push("");
         lines.push(
             "Bônus de PV máximo ativos:"
         );
 
+
         efeitosMaximos.forEach(
             effect => {
+
                 lines.push(
                     `• ${effect.source || "Característica"}: ${fmt(Number(effect.bonus || 0))}`
                 );
+
             }
         );
+
     }
+
 
     lines.push("");
     lines.push("────────────");
-    lines.push(`Total: ${total} PV`);
+    lines.push(
+        `Total: ${total} PV`
+    );
+
 
     return {
         total,
+
         tooltip:
             lines.join("\n"),
+
         vidaInicial,
+
         vidaPorNivel,
-        primeiroNivel,
+
         niveisExtras,
+
         bonusPorNivel,
+
         bonusHP,
+
+        ganhoPorNivel,
+
         progressao
     };
 }
 
-function calculateMaxHP(
-    level,
-    conMod
-) {
+function calculateMaxHP(level) {
+
     return getHpBreakdown(
-        level,
-        conMod
+        level
     ).total;
 }
 
@@ -11827,8 +11851,7 @@ document
 
 const maxHP =
     calculateMaxHP(
-        level,
-        mods.con
+        level
     );
 
 document
@@ -11847,8 +11870,7 @@ document
 
 const hpBreakdown =
     getHpBreakdown(
-        level,
-        mods.con
+        level
     );
 
 const hpMaxTooltip =
