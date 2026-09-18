@@ -14650,26 +14650,33 @@ async function iniciarFicha() {
 
     configurarLogin();
 
-    const savedTab =
-        localStorage.getItem(
-            "personagem_sheet_activeTab"
-        );
-
-    if (savedTab) {
-        openTab(savedTab);
-    }
 
     aplicarDadosSupabase(
         FICHA_PREVIEW_LOGIN
     );
 
+
     await verificarSessao();
 
+
     if (currentUser) {
-        await carregarFicha();
-        iniciarRealtime();
+
+        const carregou =
+            await carregarFicha();
+
+
+        if (carregou) {
+
+            await iniciarRealtime();
+
+        }
+
     }
+
 
     updateSheet();
 }
+
+
+iniciarFicha();
 </script>
