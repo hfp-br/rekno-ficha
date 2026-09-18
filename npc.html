@@ -877,7 +877,9 @@ body.editing
   display: block;
 
   object-fit: cover;
-  object-position: center 30%;
+  object-position:
+    var(--portrait-position-x, 50%)
+    var(--portrait-position-y, 30%);
 
   transform: scale(var(--portrait-zoom));
 
@@ -1008,6 +1010,78 @@ body.editing
   content: none !important;
   display: none !important;
 }
+
+
+
+/* ==========================================================
+   EDITOR DO RETRATO
+   ========================================================== */
+
+.portrait-editor {
+  display: grid;
+  gap: 10px;
+
+  padding: 12px;
+
+  border: 1px solid var(--line);
+  border-radius: 10px;
+
+  background: rgba(255,255,255,.22);
+}
+
+.portrait-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.portrait-editor-title {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+
+.portrait-slider-row {
+  display: grid;
+  grid-template-columns: 82px 1fr 64px;
+  gap: 9px;
+  align-items: center;
+}
+
+.portrait-slider-row input[type="range"] {
+  width: 100%;
+}
+
+.portrait-slider-value {
+  color: var(--muted);
+  font-size: 11px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.portrait-reset-button {
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--panel-strong);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.portrait-reset-button:hover {
+  border-color: var(--sand-4);
+}
+
+@media (max-width: 600px) {
+  .portrait-slider-row {
+    grid-template-columns: 70px 1fr 52px;
+  }
+}
+
 
   /* ---------- VITALS ---------- */
 
@@ -3389,6 +3463,45 @@ body.editing
           <span class="label">Observação da imagem</span>
           <input id="galleryImageNote" type="text">
         </label>
+
+
+    <div class="config-wide portrait-editor">
+      <div class="portrait-editor-header">
+        <span class="portrait-editor-title">Ajuste do retrato</span>
+        <button
+          id="resetNpcPortraitAdjustments"
+          class="portrait-reset-button"
+          type="button"
+        >
+          Resetar
+        </button>
+      </div>
+
+      <div class="portrait-slider-row">
+        <span class="label">Centro X</span>
+        <input id="configPortraitX" type="range" min="0" max="100" step="1" value="50">
+        <span id="configPortraitXValue" class="portrait-slider-value">50%</span>
+      </div>
+
+      <div class="portrait-slider-row">
+        <span class="label">Centro Y</span>
+        <input id="configPortraitY" type="range" min="0" max="100" step="1" value="30">
+        <span id="configPortraitYValue" class="portrait-slider-value">30%</span>
+      </div>
+
+      <div class="portrait-slider-row">
+        <span class="label">Zoom</span>
+        <input id="configPortraitZoom" type="range" min="-75" max="200" step="1" value="8">
+        <span id="configPortraitZoomValue" class="portrait-slider-value">+8%</span>
+      </div>
+
+      <div class="portrait-slider-row">
+        <span class="label">Blur</span>
+        <input id="configPortraitBlur" type="range" min="0" max="20" step="0.5" value="0">
+        <span id="configPortraitBlurValue" class="portrait-slider-value">0px</span>
+      </div>
+    </div>
+
       </div>
 
       <div id="galleryThumbList" class="gallery-thumbs"></div>
@@ -4626,7 +4739,11 @@ function criarImagemNpcPadrao(url = "", nome = "Retrato") {
         id: crypto.randomUUID(),
         nome,
         url: String(url || "").trim(),
-        nota: ""
+        nota: "",
+        portraitX: 50,
+        portraitY: 30,
+        portraitZoom: 8,
+        portraitBlur: 0
     };
 }
 
@@ -4697,7 +4814,15 @@ function normalizarEstruturaNpc(npc = {}) {
         url:
             String(imagem?.url || "").trim(),
         nota:
-            imagem?.nota || ""
+            imagem?.nota || "",
+        portraitX:
+            limitar(Number(imagem?.portraitX ?? 50), 0, 100),
+        portraitY:
+            limitar(Number(imagem?.portraitY ?? 30), 0, 100),
+        portraitZoom:
+            limitar(Number(imagem?.portraitZoom ?? 8), -75, 200),
+        portraitBlur:
+            limitar(Number(imagem?.portraitBlur ?? 0), 0, 20)
     }));
 
     if (
@@ -4797,6 +4922,279 @@ function capturarFichaAtual() {
     return normalizarFichaNpc(base, npcAtual);
 }
 
+
+
+/* ============================================================
+   AJUSTE DO RETRATO DO NPC
+   Cada imagem da galeria guarda o próprio enquadramento.
+   ============================================================ */
+
+function normalizarAjusteImagemNpc(imagem) {
+    if (!imagem || typeof imagem !== "object") {
+        return null;
+    }
+
+    imagem.portraitX = limitar(
+        Number(imagem.portraitX ?? 50),
+        0,
+        100
+    );
+
+    imagem.portraitY = limitar(
+        Number(imagem.portraitY ?? 30),
+        0,
+        100
+    );
+
+    imagem.portraitZoom = limitar(
+        Number(imagem.portraitZoom ?? 8),
+        -75,
+        200
+    );
+
+    imagem.portraitBlur = limitar(
+        Number(imagem.portraitBlur ?? 0),
+        0,
+        20
+    );
+
+    return imagem;
+}
+
+function escalaRetrato(zoomPercentual) {
+    return Math.max(
+        0.05,
+        1 + Number(zoomPercentual || 0) / 100
+    );
+}
+
+function formatarZoomRetrato(valor) {
+    const numero = Number(valor || 0);
+    return `${numero > 0 ? "+" : ""}${numero}%`;
+}
+
+function aplicarAjusteRetratoNpc() {
+    const imagemAtual =
+        normalizarAjusteImagemNpc(
+            obterImagemPrincipal(
+                npcAtual
+            )
+        );
+
+    const ajuste =
+        imagemAtual || {
+            portraitX: 50,
+            portraitY: 30,
+            portraitZoom: 8,
+            portraitBlur: 0
+        };
+
+    const container =
+        document.querySelector(
+            ".character-portrait"
+        );
+
+    const imagem =
+        document.getElementById(
+            "characterPortraitImage"
+        );
+
+    if (container) {
+        container.style.setProperty(
+            "--portrait-position-x",
+            `${ajuste.portraitX}%`
+        );
+
+        container.style.setProperty(
+            "--portrait-position-y",
+            `${ajuste.portraitY}%`
+        );
+
+        container.style.setProperty(
+            "--portrait-zoom",
+            String(
+                escalaRetrato(
+                    ajuste.portraitZoom
+                )
+            )
+        );
+
+        container.style.setProperty(
+            "--portrait-blur",
+            `${ajuste.portraitBlur}px`
+        );
+    }
+
+    if (imagem) {
+        imagem.style.objectPosition =
+            `${ajuste.portraitX}% ${ajuste.portraitY}%`;
+    }
+
+    const campos = {
+        configPortraitX:
+            ajuste.portraitX,
+        configPortraitY:
+            ajuste.portraitY,
+        configPortraitZoom:
+            ajuste.portraitZoom,
+        configPortraitBlur:
+            ajuste.portraitBlur
+    };
+
+    Object.entries(campos).forEach(
+        ([id, valor]) => {
+            const input =
+                document.getElementById(id);
+
+            if (
+                input &&
+                document.activeElement !== input
+            ) {
+                input.value = valor;
+            }
+        }
+    );
+
+    const xValue =
+        document.getElementById(
+            "configPortraitXValue"
+        );
+
+    const yValue =
+        document.getElementById(
+            "configPortraitYValue"
+        );
+
+    const zoomValue =
+        document.getElementById(
+            "configPortraitZoomValue"
+        );
+
+    const blurValue =
+        document.getElementById(
+            "configPortraitBlurValue"
+        );
+
+    if (xValue) {
+        xValue.textContent =
+            `${ajuste.portraitX}%`;
+    }
+
+    if (yValue) {
+        yValue.textContent =
+            `${ajuste.portraitY}%`;
+    }
+
+    if (zoomValue) {
+        zoomValue.textContent =
+            formatarZoomRetrato(
+                ajuste.portraitZoom
+            );
+    }
+
+    if (blurValue) {
+        blurValue.textContent =
+            `${ajuste.portraitBlur}px`;
+    }
+}
+
+function configurarEventosRetratoNpc() {
+    const ids = [
+        "configPortraitX",
+        "configPortraitY",
+        "configPortraitZoom",
+        "configPortraitBlur"
+    ];
+
+    ids.forEach(id => {
+        const input =
+            document.getElementById(id);
+
+        if (!input) {
+            return;
+        }
+
+        input.addEventListener(
+            "input",
+            () => {
+                const imagem =
+                    normalizarAjusteImagemNpc(
+                        obterImagemPrincipal(
+                            npcAtual
+                        )
+                    );
+
+                if (!imagem) {
+                    return;
+                }
+
+                if (id === "configPortraitX") {
+                    imagem.portraitX = Number(input.value);
+                }
+                else if (id === "configPortraitY") {
+                    imagem.portraitY = Number(input.value);
+                }
+                else if (id === "configPortraitZoom") {
+                    imagem.portraitZoom = Number(input.value);
+                }
+                else if (id === "configPortraitBlur") {
+                    imagem.portraitBlur = Number(input.value);
+                }
+
+                normalizarAjusteImagemNpc(
+                    imagem
+                );
+
+                aplicarAjusteRetratoNpc();
+                agendarPersistenciaNpcRetrato();
+            }
+        );
+    });
+
+    document
+        .getElementById(
+            "resetNpcPortraitAdjustments"
+        )
+        ?.addEventListener(
+            "click",
+            () => {
+                const imagem =
+                    obterImagemPrincipal(
+                        npcAtual
+                    );
+
+                if (!imagem) {
+                    return;
+                }
+
+                imagem.portraitX = 50;
+                imagem.portraitY = 30;
+                imagem.portraitZoom = 8;
+                imagem.portraitBlur = 0;
+
+                aplicarAjusteRetratoNpc();
+                agendarPersistenciaNpcRetrato();
+            }
+        );
+}
+
+let timerPersistenciaRetratoNpc = null;
+
+function agendarPersistenciaNpcRetrato() {
+    clearTimeout(
+        timerPersistenciaRetratoNpc
+    );
+
+    timerPersistenciaRetratoNpc =
+        setTimeout(
+            () => {
+                persistirNpcAtual();
+            },
+            250
+        );
+}
+
+
 function renderizarGaleriaImagens() {
     const select = document.getElementById('galleryImageSelect');
     const thumbList = document.getElementById('galleryThumbList');
@@ -4837,6 +5235,8 @@ function renderizarGaleriaImagens() {
     nameInput.value = imagemAtual?.nome || '';
     urlInput.value = imagemAtual?.url || '';
     noteInput.value = imagemAtual?.nota || '';
+
+    aplicarAjusteRetratoNpc();
 
     thumbList.innerHTML = '';
 
@@ -12153,6 +12553,8 @@ if (portrait) {
 
 }
 
+aplicarAjusteRetratoNpc();
+
 
 const fundo =
     configBackgroundUrl?.value
@@ -12782,6 +13184,8 @@ if (configThemeColor) {
         );
 
 }
+
+configurarEventosRetratoNpc();
 
 const galleryImageSelect =
     document.getElementById(

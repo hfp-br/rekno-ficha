@@ -877,7 +877,9 @@ body.editing
   display: block;
 
   object-fit: cover;
-  object-position: center 30%;
+  object-position:
+    var(--portrait-position-x, 50%)
+    var(--portrait-position-y, 30%);
 
   transform: scale(var(--portrait-zoom));
 
@@ -1008,6 +1010,78 @@ body.editing
   content: none !important;
   display: none !important;
 }
+
+
+
+/* ==========================================================
+   EDITOR DO RETRATO
+   ========================================================== */
+
+.portrait-editor {
+  display: grid;
+  gap: 10px;
+
+  padding: 12px;
+
+  border: 1px solid var(--line);
+  border-radius: 10px;
+
+  background: rgba(255,255,255,.22);
+}
+
+.portrait-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.portrait-editor-title {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+
+.portrait-slider-row {
+  display: grid;
+  grid-template-columns: 82px 1fr 64px;
+  gap: 9px;
+  align-items: center;
+}
+
+.portrait-slider-row input[type="range"] {
+  width: 100%;
+}
+
+.portrait-slider-value {
+  color: var(--muted);
+  font-size: 11px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.portrait-reset-button {
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--panel-strong);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.portrait-reset-button:hover {
+  border-color: var(--sand-4);
+}
+
+@media (max-width: 600px) {
+  .portrait-slider-row {
+    grid-template-columns: 70px 1fr 52px;
+  }
+}
+
 
   /* ---------- VITALS ---------- */
 
@@ -3369,6 +3443,44 @@ body.editing
       >
     </label>
 
+    <div class="config-wide portrait-editor">
+      <div class="portrait-editor-header">
+        <span class="portrait-editor-title">Ajuste do retrato</span>
+        <button
+          id="resetPortraitAdjustments"
+          class="portrait-reset-button"
+          type="button"
+        >
+          Resetar
+        </button>
+      </div>
+
+      <div class="portrait-slider-row">
+        <span class="label">Centro X</span>
+        <input id="configPortraitX" type="range" min="0" max="100" step="1" value="50">
+        <span id="configPortraitXValue" class="portrait-slider-value">50%</span>
+      </div>
+
+      <div class="portrait-slider-row">
+        <span class="label">Centro Y</span>
+        <input id="configPortraitY" type="range" min="0" max="100" step="1" value="30">
+        <span id="configPortraitYValue" class="portrait-slider-value">30%</span>
+      </div>
+
+      <div class="portrait-slider-row">
+        <span class="label">Zoom</span>
+        <input id="configPortraitZoom" type="range" min="-75" max="200" step="1" value="8">
+        <span id="configPortraitZoomValue" class="portrait-slider-value">+8%</span>
+      </div>
+
+      <div class="portrait-slider-row">
+        <span class="label">Blur</span>
+        <input id="configPortraitBlur" type="range" min="0" max="20" step="0.5" value="0">
+        <span id="configPortraitBlurValue" class="portrait-slider-value">0px</span>
+      </div>
+    </div>
+
+
     <label>
 
   <span class="label">
@@ -4650,6 +4762,235 @@ const FIELD_MAP = {
         "atributo_conjuracao",
 };
 
+
+
+/* ============================================================
+   AJUSTE DO RETRATO
+   ============================================================ */
+
+function normalizarAjusteRetrato(valor) {
+    const dados =
+        valor && typeof valor === "object"
+            ? valor
+            : {};
+
+    return {
+        x: limitar(Number(dados.x ?? 50), 0, 100),
+        y: limitar(Number(dados.y ?? 30), 0, 100),
+        zoom: limitar(Number(dados.zoom ?? 8), -75, 200),
+        blur: limitar(Number(dados.blur ?? 0), 0, 20)
+    };
+}
+
+function obterAjusteRetrato() {
+    conteudo.portrait =
+        normalizarAjusteRetrato(
+            conteudo.portrait
+        );
+
+    return conteudo.portrait;
+}
+
+function escalaRetrato(zoomPercentual) {
+    return Math.max(
+        0.05,
+        1 + Number(zoomPercentual || 0) / 100
+    );
+}
+
+function formatarZoomRetrato(valor) {
+    const numero = Number(valor || 0);
+    return `${numero > 0 ? "+" : ""}${numero}%`;
+}
+
+function aplicarAjusteRetrato() {
+    const ajuste = obterAjusteRetrato();
+
+    const container =
+        document.querySelector(
+            ".character-portrait"
+        );
+
+    const imagem =
+        document.getElementById(
+            "characterPortraitImage"
+        );
+
+    if (container) {
+        container.style.setProperty(
+            "--portrait-position-x",
+            `${ajuste.x}%`
+        );
+
+        container.style.setProperty(
+            "--portrait-position-y",
+            `${ajuste.y}%`
+        );
+
+        container.style.setProperty(
+            "--portrait-zoom",
+            String(
+                escalaRetrato(
+                    ajuste.zoom
+                )
+            )
+        );
+
+        container.style.setProperty(
+            "--portrait-blur",
+            `${ajuste.blur}px`
+        );
+    }
+
+    if (imagem) {
+        imagem.style.objectPosition =
+            `${ajuste.x}% ${ajuste.y}%`;
+    }
+
+    const xInput =
+        document.getElementById(
+            "configPortraitX"
+        );
+
+    const yInput =
+        document.getElementById(
+            "configPortraitY"
+        );
+
+    const zoomInput =
+        document.getElementById(
+            "configPortraitZoom"
+        );
+
+    const blurInput =
+        document.getElementById(
+            "configPortraitBlur"
+        );
+
+    if (xInput && document.activeElement !== xInput) {
+        xInput.value = ajuste.x;
+    }
+
+    if (yInput && document.activeElement !== yInput) {
+        yInput.value = ajuste.y;
+    }
+
+    if (zoomInput && document.activeElement !== zoomInput) {
+        zoomInput.value = ajuste.zoom;
+    }
+
+    if (blurInput && document.activeElement !== blurInput) {
+        blurInput.value = ajuste.blur;
+    }
+
+    const xValue =
+        document.getElementById(
+            "configPortraitXValue"
+        );
+
+    const yValue =
+        document.getElementById(
+            "configPortraitYValue"
+        );
+
+    const zoomValue =
+        document.getElementById(
+            "configPortraitZoomValue"
+        );
+
+    const blurValue =
+        document.getElementById(
+            "configPortraitBlurValue"
+        );
+
+    if (xValue) {
+        xValue.textContent = `${ajuste.x}%`;
+    }
+
+    if (yValue) {
+        yValue.textContent = `${ajuste.y}%`;
+    }
+
+    if (zoomValue) {
+        zoomValue.textContent =
+            formatarZoomRetrato(
+                ajuste.zoom
+            );
+    }
+
+    if (blurValue) {
+        blurValue.textContent =
+            `${ajuste.blur}px`;
+    }
+}
+
+function configurarEventosRetrato() {
+    const ids = [
+        "configPortraitX",
+        "configPortraitY",
+        "configPortraitZoom",
+        "configPortraitBlur"
+    ];
+
+    ids.forEach(id => {
+        const input =
+            document.getElementById(id);
+
+        if (!input) {
+            return;
+        }
+
+        input.addEventListener(
+            "input",
+            () => {
+                const ajuste =
+                    obterAjusteRetrato();
+
+                if (id === "configPortraitX") {
+                    ajuste.x = Number(input.value);
+                }
+                else if (id === "configPortraitY") {
+                    ajuste.y = Number(input.value);
+                }
+                else if (id === "configPortraitZoom") {
+                    ajuste.zoom = Number(input.value);
+                }
+                else if (id === "configPortraitBlur") {
+                    ajuste.blur = Number(input.value);
+                }
+
+                conteudo.portrait =
+                    normalizarAjusteRetrato(
+                        ajuste
+                    );
+
+                aplicarAjusteRetrato();
+                agendarSalvamentoConteudo();
+            }
+        );
+    });
+
+    document
+        .getElementById(
+            "resetPortraitAdjustments"
+        )
+        ?.addEventListener(
+            "click",
+            () => {
+                conteudo.portrait = {
+                    x: 50,
+                    y: 30,
+                    zoom: 8,
+                    blur: 0
+                };
+
+                aplicarAjusteRetrato();
+                agendarSalvamentoConteudo();
+            }
+        );
+}
+
+
 function normalizarConteudo(dados) {
 
     return {
@@ -4713,6 +5054,11 @@ function normalizarConteudo(dados) {
             )
                 ? dados.togglesCombate
                 : [],
+
+        portrait:
+            normalizarAjusteRetrato(
+                dados?.portrait
+            ),
 
         movement:
     (
@@ -11772,6 +12118,8 @@ if (portrait) {
 
 }
 
+aplicarAjusteRetrato();
+
 
 const fundo =
     configBackgroundUrl?.value
@@ -12358,6 +12706,8 @@ function restaurarPreferenciasFicha() {
    ============================================================ */
 
 function configurarEventos() {
+configurarEventosRetrato();
+
 const configThemeColor =
     document.getElementById(
         "configThemeColor"
