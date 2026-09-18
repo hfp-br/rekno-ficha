@@ -253,6 +253,12 @@ details.has-image:not([open]) > .feature-image {
 }
   
   :root {
+    --page-bg-light: #dcc28d;
+    --page-bg-dark: #b8955f;
+
+    --texture-color:
+      rgba(98, 65, 32, .03);
+
     --sand-0: #f6edd7;
     --sand-1: #ead8ad;
     --sand-2: #cfb47b;
@@ -284,10 +290,24 @@ details.has-image:not([open]) > .feature-image {
     color: var(--ink);
     font-family: Georgia, "Times New Roman", serif;
 
-    background:
-      radial-gradient(circle at 15% 20%, rgba(255,255,255,.22), transparent 25%),
-      radial-gradient(circle at 80% 65%, rgba(122,87,42,.08), transparent 30%),
-      linear-gradient(155deg, #dcc28d, #b8955f);
+background:
+  radial-gradient(
+    circle at 15% 20%,
+    rgba(255,255,255,.22),
+    transparent 25%
+  ),
+
+  radial-gradient(
+    circle at 80% 65%,
+    var(--texture-color),
+    transparent 30%
+  ),
+
+  linear-gradient(
+    155deg,
+    var(--page-bg-light),
+    var(--page-bg-dark)
+  );
   }
 
   button,
@@ -306,18 +326,111 @@ details.has-image:not([open]) > .feature-image {
     background:
       linear-gradient(rgba(255,255,255,.18), rgba(255,255,255,.08)),
       repeating-linear-gradient(
-        7deg,
-        rgba(98, 65, 32, .018) 0px,
-        rgba(98, 65, 32, .018) 1px,
-        transparent 1px,
-        transparent 5px
-      ),
+  7deg,
+
+  var(--texture-color) 0px,
+  var(--texture-color) 1px,
+
+  transparent 1px,
+  transparent 5px
+),
       var(--sand-0);
 
     border: 1px solid rgba(79, 52, 28, .45);
     border-radius: 0 18px 18px 18px;
     box-shadow: var(--shadow);
   }
+
+  /* ==========================================================
+   CONFIGURAÇÃO DO PERSONAGEM
+   ========================================================== */
+
+.character-config {
+    display: none;
+
+    margin-top: 22px;
+    padding: 18px;
+
+    background:
+        rgba(255,255,255,.22);
+
+    border:
+        1px solid var(--line);
+
+    border-radius: 12px;
+}
+
+
+body.editing
+.character-config {
+    display: block;
+}
+
+
+.character-config-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0, 1fr)
+        );
+
+    gap: 12px;
+}
+
+
+.character-config-grid label {
+    display: grid;
+
+    gap: 5px;
+}
+
+
+.character-config-grid
+.config-wide {
+    grid-column:
+        1 / -1;
+}
+
+
+.config-checkboxes {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 15px;
+
+    align-items: center;
+}
+
+
+.config-checkboxes label {
+    display: flex;
+
+    flex-direction: row;
+
+    align-items: center;
+
+    gap: 6px;
+}
+
+
+@media (max-width: 650px) {
+
+    .character-config-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .character-config-grid
+    .config-wide {
+        grid-column:
+            auto;
+    }
+
+}
 
 /* ==========================================================
    MODO DE EDIÇÃO
@@ -330,6 +443,42 @@ details.has-image:not([open]) > .feature-image {
   right: 18px;
 
   z-index: 2000;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logout-button {
+  padding: 7px 11px;
+
+  border:
+    1px solid var(--line);
+
+  border-radius: 20px;
+
+  background:
+    rgba(255, 248, 228, .90);
+
+  color:
+    var(--muted);
+
+  box-shadow:
+    0 3px 10px
+    rgba(60, 40, 20, .12);
+
+  cursor: pointer;
+
+  font-size: 12px;
+  font-weight: bold;
+}
+
+
+.logout-button:hover {
+  color: var(--red);
+
+  border-color:
+    var(--red);
 }
 
 .edit-switch {
@@ -862,9 +1011,9 @@ details.has-image:not([open]) > .feature-image {
 
   /* ---------- VITALS ---------- */
 
-  .vitals {
+.vitals {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(7, 1fr);
     gap: 10px;
   }
 
@@ -1156,6 +1305,86 @@ details.has-image:not([open]) > .feature-image {
     margin-bottom: 14px;
   }
 
+  /* ==========================================================
+   EDITOR DE MODIFICADORES DE COMBATE
+   ========================================================== */
+
+.toggle-editor {
+    display: grid;
+    gap: 8px;
+
+    margin-bottom: 14px;
+}
+
+
+.toggle-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.toggle-editor-title {
+    color: var(--muted);
+
+    font-size: 11px;
+    font-weight: bold;
+
+    text-transform: uppercase;
+    letter-spacing: .07em;
+}
+
+
+.toggle-editor-row {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        34px;
+
+    gap: 8px;
+
+    align-items: center;
+
+    padding: 8px 10px;
+
+    background:
+        rgba(255,255,255,.28);
+
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+
+.toggle-editor-row input {
+    width: 100%;
+
+    min-width: 0;
+
+    padding: 5px;
+
+    border: 0;
+    border-bottom:
+        1px solid var(--sand-3);
+
+    background: transparent;
+
+    color: var(--ink);
+}
+
+
+.toggle-editor-delete {
+    border: 0;
+
+    background: transparent;
+
+    color: var(--red);
+
+    cursor: pointer;
+}
+
   .toggle {
     display: flex;
     align-items: center;
@@ -1216,6 +1445,114 @@ details.has-image:not([open]) > .feature-image {
   .attack-data strong {
     font-size: 17px;
   }
+
+  /* ==========================================================
+   EDITOR DE RECURSOS
+   ========================================================== */
+
+.resource-editor {
+    display: grid;
+
+    gap: 8px;
+}
+
+
+.resource-editor-header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 4px;
+}
+
+
+.resource-editor-title {
+    color: var(--muted);
+
+    font-size: 11px;
+    font-weight: bold;
+
+    text-transform: uppercase;
+    letter-spacing: .07em;
+}
+
+
+.resource-editor-row {
+    display: grid;
+
+    grid-template-columns:
+        minmax(140px, 1fr)
+        80px
+        90px
+        90px
+        90px
+        34px;
+
+    gap: 8px;
+
+    align-items: center;
+
+    padding: 9px;
+
+    background:
+        rgba(255,255,255,.24);
+
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+
+.resource-editor-row input[type="text"],
+.resource-editor-row input[type="number"] {
+    width: 100%;
+
+    min-width: 0;
+
+    padding: 5px;
+
+    border: 0;
+    border-bottom:
+        1px solid var(--sand-3);
+
+    background: transparent;
+
+    color: var(--ink);
+}
+
+
+.resource-editor-check {
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    font-size: 11px;
+}
+
+
+.resource-editor-delete {
+    border: 0;
+
+    background: transparent;
+
+    color: var(--red);
+
+    cursor: pointer;
+}
+
+
+@media (max-width: 850px) {
+
+    .resource-editor-row {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+}
 
   /* ---------- RESOURCE ---------- */
 
@@ -1832,8 +2169,139 @@ body.editing .edit-only {
 }
 
 /* ==========================================================
+   EDITOR DE CA
+   ========================================================== */
+
+.armor-mode-editor {
+    display: none;
+
+    margin-top: 12px;
+
+    gap: 9px;
+}
+
+
+body.editing
+.armor-mode-editor {
+    display: grid;
+}
+
+
+.armor-mode-editor-header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 10px;
+
+    padding-bottom: 6px;
+
+    border-bottom:
+        1px solid rgba(112,82,51,.18);
+}
+
+
+.armor-mode-editor-title {
+    color: var(--muted);
+
+    font-size: 11px;
+    font-weight: bold;
+
+    text-transform: uppercase;
+    letter-spacing: .07em;
+}
+
+
+.armor-mode-row {
+    display: grid;
+
+    grid-template-columns:
+        minmax(130px, 1.4fr)
+        80px
+        80px
+        minmax(220px, 2fr)
+        90px
+        34px;
+
+    gap: 8px;
+
+    align-items: center;
+
+    padding: 9px;
+
+    background:
+        rgba(255,255,255,.22);
+
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+
+.armor-mode-row input[type="text"],
+.armor-mode-row input[type="number"] {
+    width: 100%;
+
+    min-width: 0;
+
+    padding: 5px;
+
+    border: 0;
+    border-bottom:
+        1px solid var(--sand-3);
+
+    background: transparent;
+
+    color: var(--ink);
+}
+
+
+.armor-attributes {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 5px 10px;
+
+    font-size: 11px;
+}
+
+
+.armor-attributes label,
+.armor-manual-label {
+    display: flex;
+
+    align-items: center;
+
+    gap: 4px;
+}
+
+
+.armor-mode-delete {
+    border: 0;
+
+    background: transparent;
+
+    color: var(--red);
+
+    cursor: pointer;
+}
+
+
+@media (max-width: 850px) {
+
+    .armor-mode-row {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+}
+
+/* ==========================================================
    EDITOR DE ATAQUES
    ========================================================== */
+
+
 
 .attack-editor-header {
     display: flex;
@@ -2224,6 +2692,114 @@ body.editing .edit-only {
 }
 
 /* ==========================================================
+   PROGRESSÃO DE SLOTS
+   ========================================================== */
+
+.slot-progression-editor {
+    display: none;
+
+    margin-top: 8px;
+
+    overflow: hidden;
+}
+
+
+.slot-progression-editor.visible {
+    display: block;
+}
+
+
+.slot-progression-header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 8px;
+}
+
+
+.slot-progression-title {
+    color: var(--muted);
+
+    font-size: 11px;
+    font-weight: bold;
+
+    text-transform: uppercase;
+    letter-spacing: .07em;
+}
+
+
+.slot-progression-scroll {
+    overflow-x: auto;
+}
+
+
+.slot-progression-table {
+    width: 100%;
+
+    min-width: 850px;
+
+    border-collapse: collapse;
+}
+
+
+.slot-progression-table th,
+.slot-progression-table td {
+    padding: 5px;
+
+    border-bottom:
+        1px solid rgba(
+            112,
+            82,
+            51,
+            .18
+        );
+
+    text-align: center;
+}
+
+
+.slot-progression-table th {
+    color: var(--muted);
+
+    font-size: 10px;
+
+    text-transform: uppercase;
+}
+
+
+.slot-progression-table input,
+.slot-progression-table select {
+    width: 55px;
+
+    padding: 4px;
+
+    text-align: center;
+
+    border: 0;
+    border-bottom:
+        1px solid var(--sand-3);
+
+    background: transparent;
+
+    color: var(--ink);
+}
+
+
+.slot-progression-delete {
+    border: 0;
+
+    background: transparent;
+
+    color: var(--red);
+
+    cursor: pointer;
+}
+
+/* ==========================================================
    CARACTERÍSTICAS DINÂMICAS
    ========================================================== */
 
@@ -2339,6 +2915,93 @@ body.editing .edit-only {
 
 }
 
+.combat-list-editor {
+    display: grid;
+    gap: 8px;
+}
+
+
+.combat-list-editor-header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 5px;
+}
+
+
+.combat-list-editor-title {
+    color: var(--muted);
+
+    font-size: 11px;
+    font-weight: bold;
+
+    text-transform: uppercase;
+    letter-spacing: .07em;
+}
+
+
+.combat-list-editor-row {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr)
+        34px;
+
+    gap: 8px;
+
+    align-items: center;
+
+    padding: 8px;
+
+    background:
+        rgba(255,255,255,.22);
+
+    border:
+        1px solid var(--line);
+
+    border-radius: 8px;
+}
+
+
+.combat-list-editor-row.reminder {
+    grid-template-columns:
+        minmax(0, 1fr)
+        34px;
+}
+
+
+.combat-list-editor-row input {
+    width: 100%;
+
+    min-width: 0;
+
+    padding: 5px;
+
+    border: 0;
+    border-bottom:
+        1px solid var(--sand-3);
+
+    background: transparent;
+
+    color: var(--ink);
+}
+
+
+.combat-list-editor-delete {
+    border: 0;
+
+    background: transparent;
+
+    color: var(--red);
+
+    cursor: pointer;
+}
+
 /* ==========================================================
    LOGIN
    ========================================================== */
@@ -2397,6 +3060,14 @@ body.editing .edit-only {
 </style>
 
 <div class="edit-mode-control">
+
+  <button
+    id="logoutButton"
+    class="logout-button"
+    type="button"
+  >
+    Sair
+  </button>
 
   <label class="edit-switch">
 
@@ -2541,6 +3212,242 @@ body.editing .edit-only {
 </div>
 </div>
 
+<div
+  class="character-config"
+  id="characterConfig"
+>
+
+  <div class="section-title">
+    Configuração do personagem
+  </div>
+
+
+  <div class="character-config-grid">
+
+    <label>
+      <span class="label">Nome</span>
+
+      <input
+        id="configName"
+        class="editable"
+        type="text"
+      >
+    </label>
+
+
+    <label>
+      <span class="label">Classe</span>
+
+      <input
+        id="configClassName"
+        class="editable"
+        type="text"
+      >
+    </label>
+
+
+    <label>
+      <span class="label">Raça</span>
+
+      <input
+        id="configRaceName"
+        class="editable"
+        type="text"
+      >
+    </label>
+
+
+    <label>
+      <span class="label">Antecedente</span>
+
+      <input
+        id="configBackgroundName"
+        class="editable"
+        type="text"
+      >
+    </label>
+
+
+    <label>
+      <span class="label">
+        Subtítulo da ficha
+      </span>
+
+      <input
+        id="configSubtitle"
+        class="editable"
+        type="text"
+      >
+    </label>
+
+
+    <label>
+      <span class="label">
+        Subtítulo de combate
+      </span>
+
+      <input
+        id="configCombatSubtitle"
+        class="editable"
+        type="text"
+      >
+    </label>
+
+
+    <label class="config-wide">
+      <span class="label">
+        URL do retrato
+      </span>
+
+      <input
+        id="configPortraitUrl"
+        class="editable"
+        type="text"
+      >
+    </label>
+
+    <label>
+
+  <span class="label">
+    Cor da ficha
+  </span>
+
+  <input
+    id="configThemeColor"
+    type="color"
+    value="#b8955f"
+  >
+</label>
+
+
+    <label class="config-wide">
+      <span class="label">
+        URL da imagem de fundo
+      </span>
+
+      <input
+        id="configBackgroundUrl"
+        class="editable"
+        type="text"
+      >
+    </label>
+
+
+    <label>
+      <span class="label">
+        PV no nível 1
+      </span>
+
+      <input
+        id="configPvBase"
+        class="editable"
+        type="number"
+      >
+    </label>
+
+
+    <label>
+      <span class="label">
+        PV por nível
+      </span>
+
+      <input
+        id="configPvPerLevel"
+        class="editable"
+        type="number"
+      >
+    </label>
+
+    <label>
+
+  <span class="label">
+    Movimento base
+  </span>
+
+  <input
+    id="configMovementBase"
+    class="editable"
+    type="number"
+    min="0"
+    step="0.5"
+  >
+
+</label>
+
+    <label>
+      <span class="label">
+        Atributo de conjuração
+      </span>
+
+      <select
+        id="configSpellAttribute"
+        class="editable"
+      >
+
+        <option value="str">
+          Força
+        </option>
+
+        <option value="dex">
+          Destreza
+        </option>
+
+        <option value="con">
+          Constituição
+        </option>
+
+        <option value="int">
+          Inteligência
+        </option>
+
+        <option value="wis">
+          Sabedoria
+        </option>
+
+        <option value="cha">
+          Carisma
+        </option>
+
+      </select>
+    </label>
+
+
+    <div class="config-checkboxes">
+
+      <label>
+
+        <input
+          id="configSpellEnabled"
+          type="checkbox"
+        >
+
+        Possui conjuração
+
+      </label>
+
+
+      <label>
+
+        <input
+          id="configUsesSlots"
+          type="checkbox"
+        >
+
+        Usa espaços de magia
+
+      </label>
+
+    </div>
+
+    <div
+  id="spellSlotProgressionEditor"
+  class="slot-progression-editor config-wide"
+></div>
+
+  </div>
+
+</div>
+
     <div class="section">
 
       <div class="section-title">Estado</div>
@@ -2589,6 +3496,21 @@ body.editing .edit-only {
           <span id="passivePerception" class="big">15</span>
         </div>
 
+        <div class="vital">
+
+  <span class="label">
+    Movimento
+  </span>
+
+  <span
+    id="movementDisplay"
+    class="big"
+  >
+    9 m
+  </span>
+
+</div>
+
       </div>
 
       <div class="grid-3" style="margin-top:10px">
@@ -2621,6 +3543,11 @@ body.editing .edit-only {
         </div>
 
       </div>
+
+      <div
+  id="armorModeEditor"
+  class="armor-mode-editor"
+></div>
 
     </div>
 
@@ -2683,9 +3610,12 @@ body.editing .edit-only {
     </div>
 
 
-    <div class="section">
+    <div
+  class="section"
+  id="spellcastingSection"
+>
 
-      <div class="section-title">Conjuração</div>
+  <div class="section-title">Conjuração</div>
 
       <div class="grid-3">
 
@@ -2828,14 +3758,24 @@ body.editing .edit-only {
     </button>
   </div>
 
-  <div
-    id="featFeatureList"
-    class="dynamic-feature-list"
-  ></div>
-  <div
-  id="normalResourceList"
-  style="margin-top:12px"
+<div
+  id="featFeatureList"
+  class="dynamic-feature-list"
 ></div>
+
+</div>
+
+
+<div class="section">
+
+  <div class="section-title">
+    Recursos
+  </div>
+
+  <div
+    id="normalResourceList"
+  ></div>
+
 </div>
 
     <div class="section">
@@ -3015,6 +3955,18 @@ body.editing .edit-only {
         </div>
 
         <div class="combat-chip">
+
+  <span class="label">
+    Movimento
+  </span>
+
+  <strong id="combatMovement">
+    9 m
+  </strong>
+
+</div>
+
+        <div class="combat-chip">
           <span class="label">Prof.</span>
           <strong id="combatProf">+2</strong>
         </div>
@@ -3060,9 +4012,12 @@ body.editing .edit-only {
       ></div>
 
 
-        <div class="section">
+        <div
+  class="section"
+  id="quickSpellSection"
+>
 
-          <div class="section-title">Magias rápidas</div>
+  <div class="section-title">Magias rápidas</div>
 
           <div
           id="quickSpellList"
@@ -3093,106 +4048,29 @@ body.editing .edit-only {
         <div class="section-title">Recursos</div>
         <div id="combatResourceList" data-gameplay="true"></div>
 
-        <div class="resource-block">
+<div
+  class="resource-block"
+  id="spellSlotsBlock"
+>
 
-          <div class="resource-title">
-            Espaços de magia
-          </div>
+  <div class="resource-title">
+    Espaços de magia
+  </div>
 
-          <div class="slot-row">
-            <span>1º nível</span>
+  <div id="spellSlotsList"></div>
 
-            <input
-              id="slot1"
-              class="save"
-              type="number"
-              value="0"
-              min="0"
-              data-gameplay="true"
-            >
-
-            <span>
-              / <strong id="slot1Max">2</strong>
-            </span>
-          </div>
-
-          <div class="slot-row">
-            <span>2º nível</span>
-
-            <input
-              id="slot2"
-              class="save"
-              type="number"
-              value="0"
-              min="0"
-              data-gameplay="true"
-            >
-
-            <span>
-              / <strong id="slot2Max">0</strong>
-            </span>
-          </div>
-
-          <div class="slot-row">
-            <span>3º nível</span>
-
-            <input
-              id="slot3"
-              class="save"
-              type="number"
-              value="0"
-              min="0"
-              data-gameplay="true"
-            >
-
-            <span>
-              / <strong id="slot3Max">0</strong>
-            </span>
-          </div>
-
-          <div class="slot-row">
-            <span>4º nível</span>
-
-            <input
-              id="slot4"
-              class="save"
-              type="number"
-              value="0"
-              min="0"
-              data-gameplay="true"
-            >
-
-            <span>
-              / <strong id="slot4Max">0</strong>
-            </span>
-          </div>
-
-          <div class="slot-row">
-            <span>5º nível</span>
-
-            <input
-              id="slot5"
-              class="save"
-              type="number"
-              value="0"
-              min="0"
-              data-gameplay="true"
-            >
-
-            <span>
-              / <strong id="slot5Max">0</strong>
-            </span>
-          </div>
-
-        </div>
+</div>
 
         <div id="combatActionList"></div>
 
-        <div class="resource-block">
+        <div
+  class="resource-block"
+  id="combatSpellcastingBlock"
+>
 
-          <div class="resource-title">
-            Conjuração
-          </div>
+  <div class="resource-title">
+    Conjuração
+  </div>
 
           <p>
             CD:
@@ -3263,7 +4141,8 @@ const sb = supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
 );
-
+let realtimeChannel =
+    null;
 let FICHA_ID = null;
 let atributoConjuracao = "int";
 let conteudo = {
@@ -3278,9 +4157,28 @@ let conteudo = {
     recursos: [],
     lembretesCombate: [],
     acoesCombate: [],
-    efeitosPericia: [],
     togglesCombate: [],
-    efeitosAtaque: []
+
+    spellcasting: {
+    enabled: false,
+    usesSlots: false,
+    slotsByLevel: {},
+
+    currentSlots: [
+        0, 0, 0,
+        0, 0, 0,
+        0, 0, 0
+    ],
+},    theme: {
+    baseColor: "#b8955f"
+},
+movement: {
+        base: 9
+    },
+
+armor: {
+    modes: []
+}
 };
 
 let currentUser = null;
@@ -3300,6 +4198,21 @@ function atualizarPermissaoEdicao() {
     const toggle = document.getElementById("editModeToggle");
     const control = document.querySelector(".edit-mode-control");
 
+    const logoutButton =
+    document.getElementById(
+        "logoutButton"
+    );
+
+
+if (logoutButton) {
+
+    logoutButton.style.display =
+        currentUser
+            ? ""
+            : "none";
+
+}
+
     if (control) {
         control.style.display = isOwner ? "" : "none";
     }
@@ -3311,9 +4224,10 @@ function atualizarPermissaoEdicao() {
     }
 
     setEditMode(
-        isOwner &&
-        toggle.checked
-    );
+    isOwner &&
+    toggle.checked,
+    false
+);
 }
 }
 
@@ -3395,21 +4309,144 @@ async function fazerLogin() {
         data.user;
 
 
+    const carregou =
     await carregarFicha();
 
 
-    document
-        .getElementById(
+if (!carregou) {
+    return;
+}
+
+
+document
+    .getElementById(
+        "loginOverlay"
+    )
+    .style.display =
+    "none";
+
+
+iniciarRealtime();
+}
+
+async function fazerLogout() {
+
+    if (
+        realtimeChannel
+    ) {
+
+        await sb.removeChannel(
+            realtimeChannel
+        );
+
+        realtimeChannel =
+            null;
+    }
+
+
+    const {
+        error
+    } =
+        await sb.auth.signOut();
+
+
+    if (error) {
+
+        console.error(
+            "Erro ao sair:",
+            error
+        );
+
+        return;
+    }
+
+
+    currentUser =
+        null;
+
+    currentFichaOwnerId =
+        null;
+
+    isOwner =
+        false;
+
+    FICHA_ID =
+        null;
+
+
+    const toggle =
+        document.getElementById(
+            "editModeToggle"
+        );
+
+
+    if (toggle) {
+
+        toggle.checked =
+            false;
+
+    }
+
+
+    setEditMode(
+        false
+    );
+
+
+    atualizarPermissaoEdicao();
+
+
+    const password =
+        document.getElementById(
+            "loginPassword"
+        );
+
+
+    if (password) {
+
+        password.value =
+            "";
+
+    }
+
+
+    const errorBox =
+        document.getElementById(
+            "loginError"
+        );
+
+
+    if (errorBox) {
+
+        errorBox.textContent =
+            "";
+
+    }
+
+
+    const overlay =
+        document.getElementById(
             "loginOverlay"
-        )
-        .style.display =
-        "none";
+        );
 
 
-    iniciarRealtime();
+    if (overlay) {
+
+        overlay.style.display =
+            "flex";
+
+    }
 }
 
 function configurarLogin() {
+  document
+    .getElementById(
+        "logoutButton"
+    )
+    ?.addEventListener(
+        "click",
+        fazerLogout
+    );
 
     document.getElementById("loginButton")
         ?.addEventListener("click", fazerLogin);
@@ -3444,13 +4481,40 @@ const FIELD_MAP = {
 
     normalNotes: "notas",
 
-    slot1: "slot_1",
-    slot2: "slot_2",
-    slot3: "slot_3",
-    slot4: "slot_4",
-    slot5: "slot_5",
+    combatNotes: "notas_combate",
 
-    combatNotes: "notas_combate"
+      configName:
+        "nome_personagem",
+
+    configClassName:
+        "classe_nome",
+
+    configRaceName:
+        "raca_nome",
+
+    configBackgroundName:
+        "antecedente_nome",
+
+    configSubtitle:
+        "subtitulo",
+
+    configCombatSubtitle:
+        "subtitulo_combate",
+
+    configPortraitUrl:
+        "retrato_url",
+
+    configBackgroundUrl:
+        "fundo_url",
+
+    configPvBase:
+        "pv_base_nivel_1",
+
+    configPvPerLevel:
+        "pv_por_nivel",
+
+    configSpellAttribute:
+        "atributo_conjuracao",
 };
 
 function normalizarConteudo(dados) {
@@ -3509,12 +4573,6 @@ function normalizarConteudo(dados) {
             )
                 ? dados.acoesCombate
                 : [],
-        efeitosPericia:
-            Array.isArray(
-                dados?.efeitosPericia
-            )
-                ? dados.efeitosPericia
-                : [],
 
         togglesCombate:
             Array.isArray(
@@ -3523,15 +4581,435 @@ function normalizarConteudo(dados) {
                 ? dados.togglesCombate
                 : [],
 
-        efeitosAtaque:
-            Array.isArray(
-                dados?.efeitosAtaque
+        movement:
+    (
+        dados?.movement &&
+        typeof dados.movement ===
+            "object"
+    )
+        ? {
+            base:
+                Number(
+                    dados.movement.base ??
+                    9
+                )
+        }
+        : {
+            base: 9
+        },
+
+        theme:
+    (
+        dados?.theme &&
+        typeof dados.theme ===
+            "object"
+    )
+        ? {
+            baseColor:
+                dados.theme.baseColor ||
+                "#b8955f"
+        }
+        : {
+            baseColor:
+                "#b8955f"
+        },
+
+spellcasting:
+    (
+        dados?.spellcasting &&
+        typeof dados.spellcasting ===
+            "object"
+    )
+        ? {
+            enabled:
+                Boolean(
+                    dados.spellcasting
+                        .enabled
+                ),
+
+            usesSlots:
+                Boolean(
+                    dados.spellcasting
+                        .usesSlots
+                ),
+
+            slotsByLevel:
+    (
+        dados.spellcasting
+            .slotsByLevel &&
+        typeof dados.spellcasting
+            .slotsByLevel ===
+            "object"
+    )
+        ? dados.spellcasting
+            .slotsByLevel
+        : {},
+
+currentSlots:
+    Array.from(
+        {
+            length: 9
+        },
+        (_, index) =>
+            Number(
+                dados.spellcasting
+                    .currentSlots
+                    ?.[index] ||
+                0
             )
-                ? dados.efeitosAtaque
-                : []
+    )
+        }: {
+    enabled: false,
+    usesSlots: false,
+
+    slotsByLevel: {},
+
+    currentSlots: [
+        0, 0, 0,
+        0, 0, 0,
+        0, 0, 0
+    ]
+},
+        armor:
+    (
+        dados?.armor &&
+        typeof dados.armor ===
+            "object"
+    )
+        ? {
+            modes:
+                Array.isArray(
+                    dados.armor.modes
+                )
+                    ? dados.armor.modes
+                    : []
+        }
+        : {
+            modes: []
+        }
     };
 }
 
+function hexParaHsl(hex) {
+
+    let valor =
+        String(hex || "")
+            .replace("#", "")
+            .trim();
+
+
+    if (valor.length === 3) {
+
+        valor =
+            valor
+                .split("")
+                .map(
+                    letra =>
+                        letra + letra
+                )
+                .join("");
+
+    }
+
+
+    if (valor.length !== 6) {
+
+        return {
+            h: 38,
+            s: 38,
+            l: 55
+        };
+
+    }
+
+
+    const r =
+        parseInt(
+            valor.slice(0, 2),
+            16
+        ) / 255;
+
+    const g =
+        parseInt(
+            valor.slice(2, 4),
+            16
+        ) / 255;
+
+    const b =
+        parseInt(
+            valor.slice(4, 6),
+            16
+        ) / 255;
+
+
+    const max =
+        Math.max(
+            r,
+            g,
+            b
+        );
+
+    const min =
+        Math.min(
+            r,
+            g,
+            b
+        );
+
+
+    let h = 0;
+    let s = 0;
+
+    const l =
+        (
+            max +
+            min
+        ) / 2;
+
+
+    if (max !== min) {
+
+        const d =
+            max -
+            min;
+
+
+        s =
+            l > 0.5
+                ? d /
+                    (
+                        2 -
+                        max -
+                        min
+                    )
+                : d /
+                    (
+                        max +
+                        min
+                    );
+
+
+        switch (max) {
+
+            case r:
+
+                h =
+                    (
+                        g -
+                        b
+                    ) /
+                    d +
+                    (
+                        g < b
+                            ? 6
+                            : 0
+                    );
+
+                break;
+
+
+            case g:
+
+                h =
+                    (
+                        b -
+                        r
+                    ) /
+                    d +
+                    2;
+
+                break;
+
+
+            case b:
+
+                h =
+                    (
+                        r -
+                        g
+                    ) /
+                    d +
+                    4;
+
+                break;
+
+        }
+
+
+        h *=
+            60;
+
+    }
+
+
+    return {
+
+        h,
+
+        s:
+            s * 100,
+
+        l:
+            l * 100
+
+    };
+}
+
+
+function limitar(
+    valor,
+    minimo,
+    maximo
+) {
+
+    return Math.max(
+        minimo,
+        Math.min(
+            maximo,
+            valor
+        )
+    );
+}
+
+
+function normalizarHue(
+    h
+) {
+
+    return (
+        (
+            h % 360
+        ) +
+        360
+    ) % 360;
+}
+
+function aplicarTema(
+    hex
+) {
+
+    const {
+        h,
+        s
+    } =
+        hexParaHsl(
+            hex
+        );
+
+
+    const root =
+        document
+            .documentElement
+            .style;
+
+    const saturacao =
+        limitar(
+            s,
+            22,
+            65
+        );
+
+
+    root.setProperty(
+        "--sand-0",
+        `hsl(${h} ${limitar(saturacao - 6, 12, 55)}% 90%)`
+    );
+
+    root.setProperty(
+        "--sand-1",
+        `hsl(${h} ${saturacao}% 80%)`
+    );
+
+    root.setProperty(
+        "--sand-2",
+        `hsl(${h} ${limitar(saturacao + 3, 15, 70)}% 65%)`
+    );
+
+    root.setProperty(
+        "--sand-3",
+        `hsl(${h} ${limitar(saturacao + 2, 15, 70)}% 48%)`
+    );
+
+    root.setProperty(
+        "--sand-4",
+        `hsl(${h} ${limitar(saturacao - 5, 10, 60)}% 32%)`
+    );
+
+    root.setProperty(
+        "--sand-5",
+        `hsl(${h} ${limitar(saturacao - 10, 8, 55)}% 19%)`
+    );
+
+    root.setProperty(
+        "--ink",
+        `hsl(${h} ${limitar(saturacao - 14, 8, 45)}% 15%)`
+    );
+
+
+    root.setProperty(
+        "--muted",
+        `hsl(${h} ${limitar(saturacao - 18, 8, 40)}% 38%)`
+    );
+
+
+    root.setProperty(
+        "--line",
+        `hsl(${h} ${limitar(saturacao - 12, 10, 45)}% 30% / .35)`
+    );
+
+    root.setProperty(
+        "--green",
+        `hsl(${normalizarHue(h + 55)} 20% 34%)`
+    );
+
+
+    root.setProperty(
+        "--red",
+        `hsl(${normalizarHue(h - 32)} 38% 40%)`
+    );
+
+
+    root.setProperty(
+        "--gold",
+        `hsl(${normalizarHue(h - 4)} 52% 44%)`
+    );
+
+
+    root.setProperty(
+        "--panel",
+        `hsl(${h} ${limitar(saturacao - 10, 10, 50)}% 94% / .74)`
+    );
+
+
+    root.setProperty(
+        "--panel-strong",
+        `hsl(${h} ${limitar(saturacao - 5, 10, 55)}% 94% / .94)`
+    );
+
+
+    root.setProperty(
+        "--page-bg-light",
+        `hsl(${h} ${saturacao}% 71%)`
+    );
+
+
+    root.setProperty(
+        "--page-bg-dark",
+        `hsl(${h} ${saturacao}% 55%)`
+    );
+
+
+    root.setProperty(
+        "--texture-color",
+        `hsl(${h} ${limitar(saturacao - 5, 10, 55)}% 28% / .03)`
+    );
+
+
+    root.setProperty(
+        "--shadow",
+        `0 10px 30px hsl(${h} 45% 12% / .18)`
+    );
+}
 
 async function salvarConteudo() {
   if (!isOwner) {
@@ -3619,12 +5097,54 @@ function adicionarCaracteristica(tipo) {
     }, 0);
 }
 
+function contarReferenciasToggle(
+    toggleId
+) {
+
+    let total = 0;
+
+
+    [
+    "antecedente",
+    "raca",
+    "classe",
+    "talentos",
+    "magias"
+].forEach(tipo => {
+
+        (
+            conteudo[tipo] ||
+            []
+        ).forEach(feature => {
+
+            (
+                feature.effects ||
+                []
+            ).forEach(effect => {
+
+                if (
+                    effect.requiresToggle ===
+                    toggleId
+                ) {
+                    total++;
+                }
+
+            });
+
+        });
+
+    });
+
+    return total;
+}
+
 function renderizarTogglesCombate() {
 
     const container =
         document.getElementById(
             "combatToggleList"
         );
+
 
     if (!container) {
         return;
@@ -3635,12 +5155,253 @@ function renderizarTogglesCombate() {
 
 
     const editando =
-        document.getElementById(
-            "editModeToggle"
-        )?.checked;
+        Boolean(
+            document
+                .getElementById(
+                    "editModeToggle"
+                )
+                ?.checked
+        );
 
 
-    conteudo.togglesCombate
+    /* =====================================================
+       MODO EDIÇÃO
+       ===================================================== */
+
+    if (editando) {
+
+        container.className =
+            "toggle-editor";
+
+
+        const header =
+            document.createElement(
+                "div"
+            );
+
+        header.className =
+            "toggle-editor-header";
+
+
+        const title =
+            document.createElement(
+                "span"
+            );
+
+        title.className =
+            "toggle-editor-title";
+
+        title.textContent =
+            "Modificadores disponíveis";
+
+
+        const add =
+            document.createElement(
+                "button"
+            );
+
+        add.type =
+            "button";
+
+        add.className =
+            "feature-effect-add";
+
+        add.textContent =
+            "+ Modificador";
+
+
+        add.addEventListener(
+    "click",
+    () => {
+
+        conteudo
+            .togglesCombate
+            .push({
+
+                id:
+                    criarId(),
+
+                name:
+                    "Novo modificador",
+
+                active:
+                    false
+
+            });
+
+
+        renderizarTogglesCombate();
+
+        renderizarTodasFontesDeEfeito();
+
+        agendarSalvamentoConteudo();
+
+    }
+);
+
+
+        header.appendChild(
+            title
+        );
+
+        header.appendChild(
+            add
+        );
+
+
+        container.appendChild(
+            header
+        );
+
+
+        conteudo
+            .togglesCombate
+            .forEach(toggle => {
+
+                const row =
+                    document.createElement(
+                        "div"
+                    );
+
+                row.className =
+                    "toggle-editor-row";
+
+
+                const name =
+                    document.createElement(
+                        "input"
+                    );
+
+                name.type =
+                    "text";
+
+                name.placeholder =
+                    "Nome do modificador";
+
+                name.value =
+                    toggle.name ||
+                    "";
+
+
+                const excluir =
+                    document.createElement(
+                        "button"
+                    );
+
+                excluir.type =
+                    "button";
+
+                excluir.className =
+                    "toggle-editor-delete";
+
+                excluir.textContent =
+                    "🗑";
+
+
+                name.addEventListener(
+                    "input",
+                    () => {
+
+                        toggle.name =
+                            name.value;
+
+                        agendarSalvamentoConteudo();
+
+                    }
+                );
+
+
+                /*
+                atualiza os nomes mostrados
+                nos seletores de condição
+                */
+
+                name.addEventListener(
+    "change",
+    () => {
+
+        renderizarTodasFontesDeEfeito();
+
+    }
+);
+
+
+                excluir.addEventListener(
+                    "click",
+                    () => {
+
+                        const referencias =
+                            contarReferenciasToggle(
+                                toggle.id
+                            );
+
+
+                        if (
+                            referencias > 0
+                        ) {
+
+                            alert(
+                                `Este modificador está sendo usado por ${referencias} efeito(s).\n\n` +
+                                `Troque ou remova essas condições antes de excluir o modificador.`
+                            );
+
+                            return;
+                        }
+
+
+                        conteudo
+                            .togglesCombate =
+                            conteudo
+                                .togglesCombate
+                                .filter(
+                                    item =>
+                                        item.id !==
+                                        toggle.id
+                                );
+
+
+                          renderizarTogglesCombate();
+
+                        renderizarTodasFontesDeEfeito();
+
+                        agendarSalvamentoConteudo();
+
+                        updateSheet();
+
+                    }
+                );
+
+
+                row.appendChild(
+                    name
+                );
+
+                row.appendChild(
+                    excluir
+                );
+
+
+                container.appendChild(
+                    row
+                );
+
+            });
+
+
+        return;
+    }
+
+
+    /* =====================================================
+       MODO JOGO
+       ===================================================== */
+
+    container.className =
+        "toggle-row";
+
+
+    conteudo
+        .togglesCombate
         .forEach(toggle => {
 
             const label =
@@ -3720,13 +5481,249 @@ function renderizarAcoesCombate() {
             "combatActionList"
         );
 
+
     if (!container) {
         return;
     }
 
-    container.innerHTML = "";
 
-    const grupos = {};
+    container.innerHTML =
+        "";
+
+
+    const editando =
+        Boolean(
+            isOwner &&
+            document
+                .getElementById(
+                    "editModeToggle"
+                )
+                ?.checked
+        );
+
+
+    if (editando) {
+
+        container.className =
+            "combat-list-editor";
+
+
+        const header =
+            document.createElement(
+                "div"
+            );
+
+        header.className =
+            "combat-list-editor-header";
+
+
+        const title =
+            document.createElement(
+                "span"
+            );
+
+        title.className =
+            "combat-list-editor-title";
+
+        title.textContent =
+            "Ações de combate";
+
+
+        const add =
+            document.createElement(
+                "button"
+            );
+
+        add.type =
+            "button";
+
+        add.className =
+            "feature-effect-add";
+
+        add.textContent =
+            "+ Ação";
+
+
+        add.addEventListener(
+            "click",
+            () => {
+
+                conteudo
+                    .acoesCombate
+                    .push({
+
+                        id:
+                            criarId(),
+
+                        type:
+                            "Ação",
+
+                        name:
+                            "Nova ação"
+
+                    });
+
+
+                renderizarAcoesCombate();
+
+                agendarSalvamentoConteudo();
+
+            }
+        );
+
+
+        header.appendChild(
+            title
+        );
+
+        header.appendChild(
+            add
+        );
+
+        container.appendChild(
+            header
+        );
+
+
+        conteudo
+            .acoesCombate
+            .forEach(
+                acao => {
+
+                    const row =
+                        document.createElement(
+                            "div"
+                        );
+
+                    row.className =
+                        "combat-list-editor-row";
+
+
+                    const type =
+                        document.createElement(
+                            "input"
+                        );
+
+                    type.type =
+                        "text";
+
+                    type.placeholder =
+                        "Tipo";
+
+                    type.value =
+                        acao.type || "";
+
+
+                    const name =
+                        document.createElement(
+                            "input"
+                        );
+
+                    name.type =
+                        "text";
+
+                    name.placeholder =
+                        "Nome";
+
+                    name.value =
+                        acao.name || "";
+
+
+                    const excluir =
+                        document.createElement(
+                            "button"
+                        );
+
+                    excluir.type =
+                        "button";
+
+                    excluir.className =
+                        "combat-list-editor-delete";
+
+                    excluir.textContent =
+                        "🗑";
+
+
+                    type.addEventListener(
+                        "input",
+                        () => {
+
+                            acao.type =
+                                type.value;
+
+                            agendarSalvamentoConteudo();
+
+                        }
+                    );
+
+
+                    name.addEventListener(
+                        "input",
+                        () => {
+
+                            acao.name =
+                                name.value;
+
+                            agendarSalvamentoConteudo();
+
+                        }
+                    );
+
+
+                    excluir.addEventListener(
+                        "click",
+                        () => {
+
+                            conteudo.acoesCombate =
+                                conteudo
+                                    .acoesCombate
+                                    .filter(
+                                        item =>
+                                            item.id !==
+                                            acao.id
+                                    );
+
+
+                            renderizarAcoesCombate();
+
+                            agendarSalvamentoConteudo();
+
+                        }
+                    );
+
+
+                    row.appendChild(
+                        type
+                    );
+
+                    row.appendChild(
+                        name
+                    );
+
+                    row.appendChild(
+                        excluir
+                    );
+
+
+                    container.appendChild(
+                        row
+                    );
+
+                }
+            );
+
+
+        return;
+    }
+
+
+    container.className =
+        "";
+
+
+    const grupos =
+        {};
+
 
     conteudo.acoesCombate
         .forEach(acao => {
@@ -3735,9 +5732,14 @@ function renderizarAcoesCombate() {
                 acao.type ||
                 "Outros";
 
+
             if (!grupos[tipo]) {
-                grupos[tipo] = [];
+
+                grupos[tipo] =
+                    [];
+
             }
+
 
             grupos[tipo].push(
                 acao
@@ -3746,64 +5748,67 @@ function renderizarAcoesCombate() {
         });
 
 
-    Object.entries(grupos)
-        .forEach(
-            ([tipo, acoes]) => {
+    Object.entries(
+        grupos
+    ).forEach(
+        ([tipo, acoes]) => {
 
-                const block =
-                    document.createElement(
-                        "div"
-                    );
-
-                block.className =
-                    "resource-block";
-
-
-                const title =
-                    document.createElement(
-                        "div"
-                    );
-
-                title.className =
-                    "resource-title";
-
-                title.textContent =
-                    tipo;
-
-                block.appendChild(
-                    title
+            const block =
+                document.createElement(
+                    "div"
                 );
 
+            block.className =
+                "resource-block";
 
-                acoes.forEach(
-                    acao => {
 
-                        const tag =
-                            document.createElement(
-                                "span"
-                            );
+            const title =
+                document.createElement(
+                    "div"
+                );
 
-                        tag.className =
-                            "action-tag";
+            title.className =
+                "resource-title";
 
-                        tag.textContent =
-                            acao.name ||
-                            "Ação";
+            title.textContent =
+                tipo;
 
-                        block.appendChild(
-                            tag
+
+            block.appendChild(
+                title
+            );
+
+
+            acoes.forEach(
+                acao => {
+
+                    const tag =
+                        document.createElement(
+                            "span"
                         );
 
-                    }
-                );
+                    tag.className =
+                        "action-tag";
+
+                    tag.textContent =
+                        acao.name ||
+                        "Ação";
 
 
-                container.appendChild(
-                    block
-                );
+                    block.appendChild(
+                        tag
+                    );
 
-            }
-        );
+                }
+            );
+
+
+            container.appendChild(
+                block
+            );
+
+        }
+    );
 }
 
 
@@ -3814,11 +5819,206 @@ function renderizarLembretesCombate() {
             "combatReminderList"
         );
 
+
     if (!container) {
         return;
     }
 
-    container.innerHTML = "";
+
+    container.innerHTML =
+        "";
+
+
+    const editando =
+        Boolean(
+            isOwner &&
+            document
+                .getElementById(
+                    "editModeToggle"
+                )
+                ?.checked
+        );
+
+
+    if (editando) {
+
+        container.className =
+            "combat-list-editor";
+
+
+        const header =
+            document.createElement(
+                "div"
+            );
+
+        header.className =
+            "combat-list-editor-header";
+
+
+        const title =
+            document.createElement(
+                "span"
+            );
+
+        title.className =
+            "combat-list-editor-title";
+
+        title.textContent =
+            "Lembretes de combate";
+
+
+        const add =
+            document.createElement(
+                "button"
+            );
+
+        add.type =
+            "button";
+
+        add.className =
+            "feature-effect-add";
+
+        add.textContent =
+            "+ Lembrete";
+
+
+        add.addEventListener(
+            "click",
+            () => {
+
+                conteudo
+                    .lembretesCombate
+                    .push({
+
+                        id:
+                            criarId(),
+
+                        text:
+                            "Novo lembrete"
+
+                    });
+
+
+                renderizarLembretesCombate();
+
+                agendarSalvamentoConteudo();
+
+            }
+        );
+
+
+        header.appendChild(
+            title
+        );
+
+        header.appendChild(
+            add
+        );
+
+        container.appendChild(
+            header
+        );
+
+
+        conteudo
+            .lembretesCombate
+            .forEach(
+                lembrete => {
+
+                    const row =
+                        document.createElement(
+                            "div"
+                        );
+
+                    row.className =
+                        "combat-list-editor-row reminder";
+
+
+                    const input =
+                        document.createElement(
+                            "input"
+                        );
+
+                    input.type =
+                        "text";
+
+                    input.value =
+                        lembrete.text || "";
+
+
+                    const excluir =
+                        document.createElement(
+                            "button"
+                        );
+
+                    excluir.type =
+                        "button";
+
+                    excluir.className =
+                        "combat-list-editor-delete";
+
+                    excluir.textContent =
+                        "🗑";
+
+
+                    input.addEventListener(
+                        "input",
+                        () => {
+
+                            lembrete.text =
+                                input.value;
+
+                            agendarSalvamentoConteudo();
+
+                        }
+                    );
+
+
+                    excluir.addEventListener(
+                        "click",
+                        () => {
+
+                            conteudo.lembretesCombate =
+                                conteudo
+                                    .lembretesCombate
+                                    .filter(
+                                        item =>
+                                            item.id !==
+                                            lembrete.id
+                                    );
+
+
+                            renderizarLembretesCombate();
+
+                            agendarSalvamentoConteudo();
+
+                        }
+                    );
+
+
+                    row.appendChild(
+                        input
+                    );
+
+                    row.appendChild(
+                        excluir
+                    );
+
+
+                    container.appendChild(
+                        row
+                    );
+
+                }
+            );
+
+
+        return;
+    }
+
+
+    container.className =
+        "panel";
 
 
     conteudo.lembretesCombate
@@ -3842,6 +6042,35 @@ function renderizarLembretesCombate() {
         });
 }
 
+function adicionarRecurso() {
+
+    conteudo.recursos.push({
+
+        id:
+            criarId(),
+
+        name:
+            "Novo recurso",
+
+        current:
+            0,
+
+        max:
+            null,
+
+        showNormal:
+            true,
+
+        showCombat:
+            true
+
+    });
+
+
+    renderizarRecursos();
+
+    agendarSalvamentoConteudo();
+}
 
 function renderizarRecursos() {
 
@@ -3849,6 +6078,7 @@ function renderizarRecursos() {
         document.getElementById(
             "normalResourceList"
         );
+
 
     const combatContainer =
         document.getElementById(
@@ -3860,138 +6090,658 @@ function renderizarRecursos() {
         normalContainer.innerHTML = "";
     }
 
+
     if (combatContainer) {
         combatContainer.innerHTML = "";
     }
 
-    conteudo.recursos.forEach(
+
+    const editando =
+        Boolean(
+            document
+                .getElementById(
+                    "editModeToggle"
+                )
+                ?.checked
+        );
+
+
+    /* =====================================================
+       CRIA VISUAL NORMAL DO RECURSO
+       ===================================================== */
+
+    const criarBlocoRecurso =
         recurso => {
 
-            const criarElemento =
+            const block =
+                document.createElement(
+                    "div"
+                );
+
+            block.className =
+                "resource-block";
+
+
+            const title =
+                document.createElement(
+                    "div"
+                );
+
+            title.className =
+                "resource-title";
+
+            title.textContent =
+                recurso.name ||
+                "Recurso";
+
+
+            const input =
+                document.createElement(
+                    "input"
+                );
+
+            input.type =
+                "number";
+
+            input.min =
+                "0";
+
+            input.value =
+                Number(
+                    recurso.current ??
+                    0
+                );
+
+            input.className =
+                "resource-value";
+
+            input.dataset.resourceId =
+                recurso.id;
+
+            input.dataset.gameplay =
+                "true";
+
+            input.disabled =
+                !isOwner;
+
+            input.style.width =
+                "70px";
+
+            input.style.textAlign =
+                "center";
+
+
+            block.appendChild(
+                title
+            );
+
+            block.appendChild(
+                input
+            );
+
+
+            if (
+                recurso.max !== null &&
+                recurso.max !== undefined
+            ) {
+
+                const max =
+                    document.createElement(
+                        "span"
+                    );
+
+                max.textContent =
+                    ` / ${recurso.max}`;
+
+                block.appendChild(
+                    max
+                );
+
+            }
+
+
+            input.addEventListener(
+                "input",
                 () => {
 
-                    const block =
-                        document.createElement(
-                            "div"
-                        );
-
-                    block.className =
-                        "resource-block";
-
-
-                    const title =
-                        document.createElement(
-                            "div"
-                        );
-
-                    title.className =
-                        "resource-title";
-
-                    title.textContent =
-                        recurso.name ||
-                        "Recurso";
-
-
-                    const input =
-                        document.createElement(
-                            "input"
-                        );
-
-                    input.type =
-                        "number";
-
-                    input.min =
-                        "0";
-
-                    input.value =
+                    recurso.current =
                         Number(
-                            recurso.current ?? 0
+                            input.value ||
+                            0
                         );
 
-                    input.dataset.gameplay =
-                        "true";
 
-                    input.disabled =
-                        !isOwner;
+                    /*
+                    mantém ficha e combate
+                    sincronizados na hora
+                    */
 
-                    input.style.width =
-                        "70px";
+                    document
+                        .querySelectorAll(
+                            ".resource-value"
+                        )
+                        .forEach(
+                            outro => {
 
-                    input.style.textAlign =
-                        "center";
+                                if (
+                                    outro ===
+                                    input
+                                ) {
+                                    return;
+                                }
 
 
-                    block.appendChild(
-                        title
-                    );
+                                if (
+                                    outro.dataset
+                                        .resourceId !==
+                                    recurso.id
+                                ) {
+                                    return;
+                                }
 
-                    block.appendChild(
-                        input
-                    );
 
+                                outro.value =
+                                    recurso.current;
 
-                    if (
-                        recurso.max !== null &&
-                        recurso.max !== undefined
-                    ) {
-
-                        const max =
-                            document.createElement(
-                                "span"
-                            );
-
-                        max.textContent =
-                            ` / ${recurso.max}`;
-
-                        block.appendChild(
-                            max
+                            }
                         );
+
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            return block;
+        };
+
+
+    /* =====================================================
+       EDITOR
+       ===================================================== */
+
+    if (
+        editando &&
+        isOwner &&
+        normalContainer
+    ) {
+
+        normalContainer.className =
+            "resource-editor";
+
+
+        const header =
+            document.createElement(
+                "div"
+            );
+
+        header.className =
+            "resource-editor-header";
+
+
+        const title =
+            document.createElement(
+                "span"
+            );
+
+        title.className =
+            "resource-editor-title";
+
+        title.textContent =
+            "Recursos do personagem";
+
+
+        const add =
+            document.createElement(
+                "button"
+            );
+
+        add.type =
+            "button";
+
+        add.className =
+            "feature-effect-add";
+
+        add.textContent =
+            "+ Recurso";
+
+
+        add.addEventListener(
+            "click",
+            adicionarRecurso
+        );
+
+
+        header.appendChild(
+            title
+        );
+
+        header.appendChild(
+            add
+        );
+
+
+        normalContainer.appendChild(
+            header
+        );
+
+
+        conteudo.recursos.forEach(
+            recurso => {
+
+                const row =
+                    document.createElement(
+                        "div"
+                    );
+
+                row.className =
+                    "resource-editor-row";
+
+
+                /* nome */
+
+                const name =
+                    document.createElement(
+                        "input"
+                    );
+
+                name.type =
+                    "text";
+
+                name.placeholder =
+                    "Nome";
+
+                name.value =
+                    recurso.name || "";
+
+
+                /* valor atual */
+
+                const current =
+                    document.createElement(
+                        "input"
+                    );
+
+                current.type =
+                    "number";
+
+                current.min =
+                    "0";
+
+                current.placeholder =
+                    "Atual";
+
+                current.value =
+                    Number(
+                        recurso.current ??
+                        0
+                    );
+
+
+                /* máximo */
+
+                const max =
+                    document.createElement(
+                        "input"
+                    );
+
+                max.type =
+                    "number";
+
+                max.min =
+                    "0";
+
+                max.placeholder =
+                    "Sem máximo";
+
+
+                if (
+                    recurso.max !== null &&
+                    recurso.max !== undefined
+                ) {
+
+                    max.value =
+                        Number(
+                            recurso.max
+                        );
+
+                }
+
+                else {
+
+                    max.value =
+                        "";
+
+                }
+
+
+                /* mostrar na ficha */
+
+                const normalLabel =
+                    document.createElement(
+                        "label"
+                    );
+
+                normalLabel.className =
+                    "resource-editor-check";
+
+
+                const showNormal =
+                    document.createElement(
+                        "input"
+                    );
+
+                showNormal.type =
+                    "checkbox";
+
+                showNormal.checked =
+                    recurso.showNormal !==
+                    false;
+
+
+                normalLabel.appendChild(
+                    showNormal
+                );
+
+                normalLabel.appendChild(
+                    document.createTextNode(
+                        "Ficha"
+                    )
+                );
+
+
+                /* mostrar no combate */
+
+                const combatLabel =
+                    document.createElement(
+                        "label"
+                    );
+
+                combatLabel.className =
+                    "resource-editor-check";
+
+
+                const showCombat =
+                    document.createElement(
+                        "input"
+                    );
+
+                showCombat.type =
+                    "checkbox";
+
+                showCombat.checked =
+                    recurso.showCombat !==
+                    false;
+
+
+                combatLabel.appendChild(
+                    showCombat
+                );
+
+                combatLabel.appendChild(
+                    document.createTextNode(
+                        "Combate"
+                    )
+                );
+
+
+                /* excluir */
+
+                const excluir =
+                    document.createElement(
+                        "button"
+                    );
+
+                excluir.type =
+                    "button";
+
+                excluir.className =
+                    "resource-editor-delete";
+
+                excluir.textContent =
+                    "🗑";
+
+
+                /* =========================
+                   EVENTOS
+                   ========================= */
+
+
+                name.addEventListener(
+                    "input",
+                    () => {
+
+                        recurso.name =
+                            name.value;
+
+                        agendarSalvamentoConteudo();
 
                     }
+                );
 
 
-                    input.addEventListener(
-                        "input",
-                        () => {
+                current.addEventListener(
+                    "input",
+                    () => {
 
-                            recurso.current =
-                                Number(
-                                    input.value || 0
+                        recurso.current =
+                            Number(
+                                current.value ||
+                                0
+                            );
+
+
+                        document
+                            .querySelectorAll(
+                                ".resource-value"
+                            )
+                            .forEach(
+                                input => {
+
+                                    if (
+                                        input.dataset
+                                            .resourceId ===
+                                        recurso.id
+                                    ) {
+
+                                        input.value =
+                                            recurso.current;
+
+                                    }
+
+                                }
+                            );
+
+
+                        agendarSalvamentoConteudo();
+
+                    }
+                );
+
+
+                max.addEventListener(
+                    "input",
+                    () => {
+
+                        const valor =
+                            max.value.trim();
+
+
+                        recurso.max =
+                            valor === ""
+                                ? null
+                                : Number(
+                                    valor
                                 );
 
-                            agendarSalvamentoConteudo();
 
-                        }
+                        agendarSalvamentoConteudo();
+
+                    }
+                );
+
+
+                max.addEventListener(
+                    "change",
+                    () => {
+
+                        renderizarRecursos();
+
+                    }
+                );
+
+
+                showNormal.addEventListener(
+                    "change",
+                    () => {
+
+                        recurso.showNormal =
+                            showNormal.checked;
+
+                        agendarSalvamentoConteudo();
+
+                        renderizarRecursos();
+
+                    }
+                );
+
+
+                showCombat.addEventListener(
+                    "change",
+                    () => {
+
+                        recurso.showCombat =
+                            showCombat.checked;
+
+                        agendarSalvamentoConteudo();
+
+                        renderizarRecursos();
+
+                    }
+                );
+
+
+                excluir.addEventListener(
+                    "click",
+                    () => {
+
+                        conteudo.recursos =
+                            conteudo.recursos
+                                .filter(
+                                    item =>
+                                        item.id !==
+                                        recurso.id
+                                );
+
+
+                        renderizarRecursos();
+
+                        agendarSalvamentoConteudo();
+
+                    }
+                );
+
+
+                row.appendChild(
+                    name
+                );
+
+                row.appendChild(
+                    current
+                );
+
+                row.appendChild(
+                    max
+                );
+
+                row.appendChild(
+                    normalLabel
+                );
+
+                row.appendChild(
+                    combatLabel
+                );
+
+                row.appendChild(
+                    excluir
+                );
+
+
+                normalContainer
+                    .appendChild(
+                        row
                     );
 
+            });
 
-                    return block;
-                };
+    }
 
 
-            if (
-                recurso.showNormal !== false &&
+    /* =====================================================
+       FICHA NORMAL
+       ===================================================== */
+
+    else if (
+        normalContainer
+    ) {
+
+        normalContainer.className =
+            "";
+
+
+        conteudo.recursos.forEach(
+            recurso => {
+
+                if (
+                    recurso.showNormal ===
+                    false
+                ) {
+                    return;
+                }
+
+
                 normalContainer
-            ) {
+                    .appendChild(
+                        criarBlocoRecurso(
+                            recurso
+                        )
+                    );
 
-                normalContainer.appendChild(
-                    criarElemento()
-                );
-            }
+            });
+
+    }
 
 
-            if (
-                recurso.showCombat !== false &&
+    /* =====================================================
+       COMBATE
+       ===================================================== */
+
+    if (
+        combatContainer
+    ) {
+
+        conteudo.recursos.forEach(
+            recurso => {
+
+                if (
+                    recurso.showCombat ===
+                    false
+                ) {
+                    return;
+                }
+
+
                 combatContainer
-            ) {
+                    .appendChild(
+                        criarBlocoRecurso(
+                            recurso
+                        )
+                    );
 
-                combatContainer.appendChild(
-                    criarElemento()
-                );
-            }
+            });
 
-        }
-    );
+    }
 }
 
 function adicionarItemInventario() {
@@ -4052,9 +6802,13 @@ async function excluirCaracteristica(
         );
 
 
+    limparReferenciasEfeitosAtaque();
+
     renderizarCaracteristicas(
         tipo
     );
+
+    renderizarAtaques();
 
 
     await salvarConteudo();
@@ -4117,40 +6871,63 @@ function agendarSalvamentoConteudo() {
    ============================================================ */
    
 
-  function iniciarRealtime() {
+  async function iniciarRealtime() {
 
-    return sb
-        .channel(
-    `ficha-${FICHA_ID}`
-)
+    if (
+        realtimeChannel
+    ) {
+
+        await sb.removeChannel(
+            realtimeChannel
+        );
+
+        realtimeChannel =
+            null;
+    }
+
+
+    realtimeChannel =
+        sb.channel(
+            `ficha-${FICHA_ID}`
+        )
         .on(
             "postgres_changes",
             {
-                event: "UPDATE",
-                schema: "public",
-                table: "fichas",
-                filter: `id=eq.${FICHA_ID}`
+                event:
+                    "UPDATE",
+
+                schema:
+                    "public",
+
+                table:
+                    "fichas",
+
+                filter:
+                    `id=eq.${FICHA_ID}`
             },
             payload => {
-
-                console.log(
-                    "Ficha atualizada em tempo real:",
-                    payload.new
-                );
 
                 aplicarDadosSupabase(
                     payload.new
                 );
+
             }
-        )
-        .subscribe(status => {
+        );
+
+
+    realtimeChannel.subscribe(
+        status => {
 
             console.log(
                 "Realtime:",
                 status
             );
 
-        });
+        }
+    );
+
+
+    return realtimeChannel;
 }
 
 function getElementValue(element) {
@@ -4180,9 +6957,9 @@ function setElementValue(element, value) {
 
 async function carregarFicha() {
 
-    if (!currentUser) {
-        return;
-    }
+if (!currentUser) {
+    return false;
+}
 
     const { data, error } = await sb
         .from("fichas")
@@ -4193,14 +6970,60 @@ async function carregarFicha() {
         )
         .single();
 
-    if (error) {
-        console.error(
-            "Erro ao carregar ficha:",
-            error
+if (error) {
+
+    console.error(
+        "Erro ao carregar ficha:",
+        error
+    );
+
+
+    const overlay =
+        document.getElementById(
+            "loginOverlay"
         );
 
-        return;
+
+    const errorBox =
+        document.getElementById(
+            "loginError"
+        );
+
+        if (overlay) {
+
+    overlay.style.display =
+        "flex";
+
+}
+
+    if (
+    error.code ===
+    "PGRST116"
+) {
+
+    if (errorBox) {
+
+        errorBox.textContent =
+            "Nenhuma ficha foi vinculada a esta conta.";
+
     }
+
+}
+
+else {
+
+    if (errorBox) {
+
+        errorBox.textContent =
+            "Não foi possível carregar a ficha. Tente novamente.";
+
+    }
+
+}
+
+
+    return false;
+}
 
     FICHA_ID =
         data.id;
@@ -4213,6 +7036,9 @@ async function carregarFicha() {
     aplicarDadosSupabase(
         data
     );
+
+    restaurarPreferenciasFicha();
+    return true;
 }
 
 
@@ -4318,7 +7144,12 @@ if (dados.raca_nome) {
         ".dynamic-feature-list, " +
         "#normalResourceList, " +
         "#combatResourceList, " +
-        "#combatToggleList"
+        "#combatToggleList, " +
+        "#combatReminderList, " +
+        "#combatActionList, " +
+        "#armorModeEditor, " +
+        "#spellSlotProgressionEditor, " +
+        "#spellSlotsList"
     );
 
 
@@ -4328,6 +7159,98 @@ if (dados.raca_nome) {
             normalizarConteudo(
                 dados.conteudo_dinamico
             );
+
+            const configThemeColor =
+    document.getElementById(
+        "configThemeColor"
+    );
+
+
+const themeColor =
+    conteudo
+        .theme
+        ?.baseColor ||
+    "#b8955f";
+
+
+if (
+    configThemeColor &&
+    document.activeElement !==
+        configThemeColor
+) {
+
+    configThemeColor.value =
+        themeColor;
+
+}
+
+
+aplicarTema(
+    themeColor
+);
+
+      const configMovementBase =
+    document.getElementById(
+        "configMovementBase"
+    );
+
+
+if (
+    configMovementBase &&
+    document.activeElement !==
+        configMovementBase
+) {
+
+    configMovementBase.value =
+        Number(
+            conteudo
+                .movement
+                ?.base ??
+            9
+        );
+
+}
+
+            const configSpellEnabled =
+    document.getElementById(
+        "configSpellEnabled"
+    );
+
+
+const configUsesSlots =
+    document.getElementById(
+        "configUsesSlots"
+    );
+
+
+if (configSpellEnabled) {
+
+    configSpellEnabled.checked =
+        Boolean(
+            conteudo
+                .spellcasting
+                ?.enabled
+        );
+
+}
+
+
+if (configUsesSlots) {
+
+    configUsesSlots.checked =
+        Boolean(
+            conteudo
+                .spellcasting
+                ?.usesSlots
+        );
+
+}
+
+        renderizarModosCA();
+
+        renderizarEditorCA();
+
+        renderizarEditorProgressaoSlots();
 
         renderizarInventario();
 
@@ -4694,102 +7617,97 @@ function getMods() {
     EFEITOS DE HABILIDADES
     ============================================================ */
 
-function getSkillEffects(skillName) {
+function getSkillEffects(
+    skillName
+) {
 
-    const todosEfeitos = [
-        ...(
-            conteudo.efeitosPericia ||
-            []
-        )
-    ];
+    return coletarEfeitosCaracteristicas(
+        "skill"
+    ).filter(effect => {
 
-
-    [
-        "antecedente",
-        "raca",
-        "classe",
-        "talentos"
-    ].forEach(tipo => {
-
-        (
-            conteudo[tipo] ||
-            []
-        ).forEach(feature => {
-
-            const effects =
-                Array.isArray(
-                    feature.effects
+        const affectsSkill =
+            Array.isArray(
+                effect.skills
+            )
+                ? effect.skills.includes(
+                    skillName
                 )
-                    ? feature.effects
+                : effect.skill ===
+                    skillName;
+
+
+        if (!affectsSkill) {
+            return false;
+        }
+
+
+        return efeitoEstaAtivo(
+            effect
+        );
+    });
+}
+
+function limparReferenciasEfeitosAtaque() {
+
+    const idsValidos =
+        new Set(
+            getAttackEffectDefinitions()
+                .map(
+                    effect =>
+                        effect.id
+                )
+                .filter(Boolean)
+        );
+
+
+    let alterou =
+        false;
+
+
+    conteudo.ataques.forEach(
+        attack => {
+
+            const atuais =
+                Array.isArray(
+                    attack.effects
+                )
+                    ? attack.effects
                     : [];
 
 
-            effects.forEach(effect => {
-
-                if (
-                    effect.type !==
-                    "skill"
-                ) {
-                    return;
-                }
-
-
-                todosEfeitos.push({
-
-                    ...effect,
-
-                    source:
-                        effect.source ||
-                        feature.name ||
-                        "Característica"
-
-                });
-
-            });
-
-        });
-
-    });
-
-
-    return todosEfeitos.filter(
-        effect => {
-
-            const affectsSkill =
-                Array.isArray(
-                    effect.skills
-                )
-                    ? effect.skills.includes(
-                        skillName
-                    )
-                    : effect.skill ===
-                        skillName;
-
-
-            if (!affectsSkill) {
-                return false;
-            }
+            const filtrados =
+                atuais.filter(
+                    id =>
+                        idsValidos.has(
+                            id
+                        )
+                );
 
 
             if (
-                effect.requiresToggle
+                filtrados.length !==
+                atuais.length
             ) {
 
-                const toggle =
-                    document.getElementById(
-                        effect.requiresToggle
-                    );
+                attack.effects =
+                    filtrados;
 
-
-                if (!toggle?.checked) {
-                    return false;
-                }
+                alterou =
+                    true;
             }
 
-
-            return true;
         }
     );
+
+
+    if (alterou) {
+
+        agendarSalvamentoConteudo();
+
+    }
+
+
+    return alterou;
 }
 
 function renderizarAtaques() {
@@ -4803,6 +7721,7 @@ function renderizarAtaques() {
         return;
     }
 
+    limparReferenciasEfeitosAtaque();
 
     const editando =
         document.getElementById(
@@ -4822,6 +7741,7 @@ function renderizarAtaques() {
             attack.id;
 
 
+            
         /* =====================================================
            MODO EDIÇÃO
            ===================================================== */
@@ -5268,32 +8188,929 @@ getAttackEffectDefinitions()
     }
 }
 
+function atualizarVisibilidadeConjuracao() {
+
+    const enabled =
+        Boolean(
+            conteudo
+                .spellcasting
+                ?.enabled
+        );
+
+    const usesSlots =
+        enabled &&
+        Boolean(
+            conteudo
+                .spellcasting
+                ?.usesSlots
+        );
+
+
+    const section =
+        document.getElementById(
+            "spellcastingSection"
+        );
+
+    const quick =
+        document.getElementById(
+            "quickSpellSection"
+        );
+
+    const slots =
+        document.getElementById(
+            "spellSlotsBlock"
+        );
+
+    const combat =
+        document.getElementById(
+            "combatSpellcastingBlock"
+        );
+
+
+    if (section) {
+        section.style.display =
+            enabled
+                ? ""
+                : "none";
+    }
+
+
+    if (quick) {
+        quick.style.display =
+            enabled
+                ? ""
+                : "none";
+    }
+
+
+    if (combat) {
+        combat.style.display =
+            enabled
+                ? ""
+                : "none";
+    }
+
+
+    if (slots) {
+        slots.style.display =
+            usesSlots
+                ? ""
+                : "none";
+    }
+}
+
   /* ============================================================
-     SLOTS DE PATRULHEIRO
+     SLOTS DE MAGIA
      ============================================================ */
 
-  const rangerSlots = {
-    1:  [0,0,0,0,0],
-    2:  [2,0,0,0,0],
-    3:  [3,0,0,0,0],
-    4:  [3,0,0,0,0],
-    5:  [4,2,0,0,0],
-    6:  [4,2,0,0,0],
-    7:  [4,3,0,0,0],
-    8:  [4,3,0,0,0],
-    9:  [4,3,2,0,0],
-    10: [4,3,2,0,0],
-    11: [4,3,3,0,0],
-    12: [4,3,3,0,0],
-    13: [4,3,3,1,0],
-    14: [4,3,3,1,0],
-    15: [4,3,3,2,0],
-    16: [4,3,3,2,0],
-    17: [4,3,3,3,1],
-    18: [4,3,3,3,1],
-    19: [4,3,3,3,2],
-    20: [4,3,3,3,2]
-  };
+function getSpellSlotsForLevel(
+    level
+) {
+
+    const spellcasting =
+        conteudo.spellcasting;
+
+
+    if (
+        !spellcasting?.enabled ||
+        !spellcasting?.usesSlots
+    ) {
+        return [
+    0, 0, 0,
+    0, 0, 0,
+    0, 0, 0
+];
+    }
+
+
+    const table =
+        spellcasting.slotsByLevel ||
+        {};
+
+
+    const niveis =
+        Object
+            .keys(table)
+            .map(Number)
+            .filter(
+                valor =>
+                    Number.isFinite(
+                        valor
+                    ) &&
+                    valor <= level
+            )
+            .sort(
+                (a, b) =>
+                    a - b
+            );
+
+
+    if (
+        niveis.length === 0
+    ) {
+        return [
+    0, 0, 0,
+    0, 0, 0,
+    0, 0, 0
+];
+    }
+
+
+    const nivelUsado =
+        niveis[
+            niveis.length - 1
+        ];
+
+
+    const slots =
+        table[
+            String(
+                nivelUsado
+            )
+        ];
+
+
+    return Array.from(
+        {
+            length: 9
+        },
+        (_, index) =>
+            Number(
+                slots?.[index] ||
+                0
+            )
+    );
+}
+
+function renderizarSlotsMagia() {
+
+    const container =
+        document.getElementById(
+            "spellSlotsList"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML =
+        "";
+
+
+    const spellcasting =
+        conteudo.spellcasting;
+
+
+    if (
+        !spellcasting?.enabled ||
+        !spellcasting?.usesSlots
+    ) {
+        return;
+    }
+
+
+    const level =
+        Math.max(
+            1,
+            num("level")
+        );
+
+
+    const maxSlots =
+        getSpellSlotsForLevel(
+            level
+        );
+
+
+    if (
+        !Array.isArray(
+            spellcasting.currentSlots
+        )
+    ) {
+
+        spellcasting.currentSlots =
+            Array(9).fill(0);
+
+    }
+
+
+    while (
+        spellcasting
+            .currentSlots
+            .length < 9
+    ) {
+
+        spellcasting
+            .currentSlots
+            .push(0);
+
+    }
+
+
+    let possuiSlots =
+        false;
+
+
+    maxSlots.forEach(
+        (max, index) => {
+
+            if (max <= 0) {
+                return;
+            }
+
+
+            possuiSlots =
+                true;
+
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+            row.className =
+                "slot-row";
+
+
+            const label =
+                document.createElement(
+                    "span"
+                );
+
+            label.textContent =
+                `${index + 1}º nível`;
+
+
+            const input =
+                document.createElement(
+                    "input"
+                );
+
+            input.type =
+                "number";
+
+            input.min =
+                "0";
+
+            input.max =
+                String(max);
+
+            input.value =
+                Number(
+                    spellcasting
+                        .currentSlots[
+                            index
+                        ] || 0
+                );
+
+            input.dataset.gameplay =
+                "true";
+
+            input.disabled =
+                !isOwner;
+
+
+            const maxDisplay =
+                document.createElement(
+                    "span"
+                );
+
+            maxDisplay.innerHTML =
+                `/ <strong>${max}</strong>`;
+
+
+            input.addEventListener(
+                "input",
+                () => {
+
+                    let valor =
+                        Number(
+                            input.value ||
+                            0
+                        );
+
+
+                    valor =
+                        Math.max(
+                            0,
+                            Math.min(
+                                valor,
+                                max
+                            )
+                        );
+
+
+                    input.value =
+                        valor;
+
+
+                    spellcasting
+                        .currentSlots[
+                            index
+                        ] =
+                        valor;
+
+
+                    agendarSalvamentoConteudo();
+
+                }
+            );
+
+
+            row.appendChild(
+                label
+            );
+
+            row.appendChild(
+                input
+            );
+
+            row.appendChild(
+                maxDisplay
+            );
+
+
+            container.appendChild(
+                row
+            );
+
+        }
+    );
+
+
+    if (!possuiSlots) {
+
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+        empty.className =
+            "label";
+
+        empty.textContent =
+            "Nenhum espaço disponível neste nível.";
+
+
+        container.appendChild(
+            empty
+        );
+
+    }
+}
+
+function adicionarLinhaProgressaoSlots() {
+
+    const tabela =
+        conteudo
+            .spellcasting
+            .slotsByLevel;
+
+
+    let novoNivel =
+        null;
+
+
+    for (
+        let nivel = 1;
+        nivel <= 20;
+        nivel++
+    ) {
+
+        if (
+            tabela[
+                String(nivel)
+            ] === undefined
+        ) {
+
+            novoNivel =
+                nivel;
+
+            break;
+        }
+
+    }
+
+
+    if (
+        novoNivel === null
+    ) {
+
+        alert(
+            "Todos os níveis já estão configurados."
+        );
+
+        return;
+    }
+
+
+    tabela[
+        String(novoNivel)
+    ] =
+        Array(9).fill(0);
+
+
+    renderizarEditorProgressaoSlots();
+
+    agendarSalvamentoConteudo();
+}
+
+
+function renderizarEditorProgressaoSlots() {
+
+    const container =
+        document.getElementById(
+            "spellSlotProgressionEditor"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML =
+        "";
+
+
+    const spellcasting =
+        conteudo.spellcasting;
+
+
+    const mostrar =
+        Boolean(
+            isOwner &&
+            document
+                .getElementById(
+                    "editModeToggle"
+                )
+                ?.checked &&
+            spellcasting?.enabled &&
+            spellcasting?.usesSlots
+        );
+
+
+    container.classList.toggle(
+        "visible",
+        mostrar
+    );
+
+
+    if (!mostrar) {
+        return;
+    }
+
+
+    const header =
+        document.createElement(
+            "div"
+        );
+
+    header.className =
+        "slot-progression-header";
+
+
+    const title =
+        document.createElement(
+            "span"
+        );
+
+    title.className =
+        "slot-progression-title";
+
+    title.textContent =
+        "Progressão de espaços de magia";
+
+
+    const add =
+        document.createElement(
+            "button"
+        );
+
+    add.type =
+        "button";
+
+    add.className =
+        "feature-effect-add";
+
+    add.textContent =
+        "+ Nível";
+
+
+    add.addEventListener(
+        "click",
+        adicionarLinhaProgressaoSlots
+    );
+
+
+    header.appendChild(
+        title
+    );
+
+    header.appendChild(
+        add
+    );
+
+
+    container.appendChild(
+        header
+    );
+
+
+    const scroll =
+        document.createElement(
+            "div"
+        );
+
+    scroll.className =
+        "slot-progression-scroll";
+
+
+    const table =
+        document.createElement(
+            "table"
+        );
+
+    table.className =
+        "slot-progression-table";
+
+
+    const thead =
+        document.createElement(
+            "thead"
+        );
+
+
+    const headerRow =
+        document.createElement(
+            "tr"
+        );
+
+
+    [
+        "Personagem",
+        "1º",
+        "2º",
+        "3º",
+        "4º",
+        "5º",
+        "6º",
+        "7º",
+        "8º",
+        "9º",
+        ""
+    ].forEach(texto => {
+
+        const th =
+            document.createElement(
+                "th"
+            );
+
+        th.textContent =
+            texto;
+
+        headerRow.appendChild(
+            th
+        );
+
+    });
+
+
+    thead.appendChild(
+        headerRow
+    );
+
+    table.appendChild(
+        thead
+    );
+
+
+    const tbody =
+        document.createElement(
+            "tbody"
+        );
+
+
+    const tabelaSlots =
+        spellcasting.slotsByLevel ||
+        {};
+
+
+    const niveis =
+        Object
+            .keys(
+                tabelaSlots
+            )
+            .map(Number)
+            .filter(
+                nivel =>
+                    Number.isFinite(
+                        nivel
+                    )
+            )
+            .sort(
+                (a, b) =>
+                    a - b
+            );
+
+
+    niveis.forEach(
+        nivelOriginal => {
+
+            const keyOriginal =
+                String(
+                    nivelOriginal
+                );
+
+
+            let slots =
+                tabelaSlots[
+                    keyOriginal
+                ];
+
+
+            if (
+                !Array.isArray(
+                    slots
+                )
+            ) {
+
+                slots =
+                    Array(9).fill(0);
+
+                tabelaSlots[
+                    keyOriginal
+                ] =
+                    slots;
+
+            }
+
+
+            while (
+                slots.length < 9
+            ) {
+
+                slots.push(0);
+
+            }
+
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            /* nível do personagem */
+
+            const levelCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            const levelSelect =
+                document.createElement(
+                    "select"
+                );
+
+
+            for (
+                let i = 1;
+                i <= 20;
+                i++
+            ) {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value =
+                    String(i);
+
+                option.textContent =
+                    String(i);
+
+                levelSelect.appendChild(
+                    option
+                );
+
+            }
+
+
+            levelSelect.value =
+                keyOriginal;
+
+
+            levelSelect.addEventListener(
+                "change",
+                () => {
+
+                    const novaKey =
+                        levelSelect.value;
+
+
+                    if (
+                        novaKey ===
+                        keyOriginal
+                    ) {
+                        return;
+                    }
+
+
+                    if (
+                        tabelaSlots[
+                            novaKey
+                        ] !== undefined
+                    ) {
+
+                        alert(
+                            "Esse nível já possui uma configuração."
+                        );
+
+
+                        levelSelect.value =
+                            keyOriginal;
+
+                        return;
+                    }
+
+
+                    tabelaSlots[
+                        novaKey
+                    ] =
+                        tabelaSlots[
+                            keyOriginal
+                        ];
+
+
+                    delete tabelaSlots[
+                        keyOriginal
+                    ];
+
+
+                    agendarSalvamentoConteudo();
+
+                    renderizarEditorProgressaoSlots();
+
+                    renderizarSlotsMagia();
+
+                }
+            );
+
+
+            levelCell.appendChild(
+                levelSelect
+            );
+
+
+            row.appendChild(
+                levelCell
+            );
+
+
+            /* slots 1º até 9º */
+
+            for (
+                let index = 0;
+                index < 9;
+                index++
+            ) {
+
+                const cell =
+                    document.createElement(
+                        "td"
+                    );
+
+
+                const input =
+                    document.createElement(
+                        "input"
+                    );
+
+                input.type =
+                    "number";
+
+                input.min =
+                    "0";
+
+                input.value =
+                    Number(
+                        slots[
+                            index
+                        ] || 0
+                    );
+
+
+                input.addEventListener(
+                    "input",
+                    () => {
+
+                        slots[
+                            index
+                        ] =
+                            Math.max(
+                                0,
+                                Number(
+                                    input.value ||
+                                    0
+                                )
+                            );
+
+
+                        agendarSalvamentoConteudo();
+
+                        renderizarSlotsMagia();
+
+                    }
+                );
+
+
+                cell.appendChild(
+                    input
+                );
+
+                row.appendChild(
+                    cell
+                );
+
+            }
+
+
+            /* excluir */
+
+            const deleteCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            const excluir =
+                document.createElement(
+                    "button"
+                );
+
+            excluir.type =
+                "button";
+
+            excluir.className =
+                "slot-progression-delete";
+
+            excluir.textContent =
+                "🗑";
+
+
+            excluir.addEventListener(
+                "click",
+                () => {
+
+                    delete tabelaSlots[
+                        keyOriginal
+                    ];
+
+
+                    agendarSalvamentoConteudo();
+
+                    renderizarEditorProgressaoSlots();
+
+                    renderizarSlotsMagia();
+
+                }
+            );
+
+
+            deleteCell.appendChild(
+                excluir
+            );
+
+            row.appendChild(
+                deleteCell
+            );
+
+
+            tbody.appendChild(
+                row
+            );
+
+        }
+    );
+
+
+    table.appendChild(
+        tbody
+    );
+
+    scroll.appendChild(
+        table
+    );
+
+    container.appendChild(
+        scroll
+    );
+}
 
    /* ============================================================
      PROGRESSAO DE LEVEL
@@ -5384,8 +9201,10 @@ getAttackEffectDefinitions()
   /* ----------------------------
      texto do tooltip
      ---------------------------- */
-  const attributeScore =
-    num(stat);
+const attributeScore =
+    getAttributeScore(
+        stat
+    );
   const lines = [
     `${name}`,
     ``,
@@ -5468,53 +9287,99 @@ function formatarTextoMagia(texto) {
     const mods =
         getMods();
 
+
     const level =
         Math.max(
             1,
             num("level")
         );
 
+
     const pb =
-        proficiency(level);
+        proficiency(
+            level
+        );
+
 
     const spellMod =
         mods[
             atributoConjuracao
         ] ?? 0;
 
+
     const spellEffects =
-    getSpellEffectBonuses();
+        getSpellEffectBonuses();
+
 
     const spellDC =
-    8 +
-    spellMod +
-    pb +
-    spellEffects.dc;
+        8 +
+        spellMod +
+        pb +
+        spellEffects.dc;
 
 
-const spellAttack =
-    spellMod +
-    pb +
-    spellEffects.attack;
+    const spellAttack =
+        spellMod +
+        pb +
+        spellEffects.attack;
 
 
-    return String(texto || "")
-        .replaceAll(
-            "{wis}",
-            mods.wis
-        )
-        .replaceAll(
-            "{pb}",
-            pb
-        )
-        .replaceAll(
-            "{spellDC}",
-            spellDC
-        )
-        .replaceAll(
-            "{spellAttack}",
-            fmt(spellAttack)
+    const valores = {
+
+        str:
+            mods.str,
+
+        dex:
+            mods.dex,
+
+        con:
+            mods.con,
+
+        int:
+            mods.int,
+
+        wis:
+            mods.wis,
+
+        cha:
+            mods.cha,
+
+        pb,
+
+        spellMod,
+
+        spellDC,
+
+        spellAttack:
+            fmt(
+                spellAttack
+            )
+
+    };
+
+
+    let resultado =
+        String(
+            texto || ""
         );
+
+
+    Object.entries(
+        valores
+    ).forEach(
+        ([chave, valor]) => {
+
+            resultado =
+                resultado.replaceAll(
+                    `{${chave}}`,
+                    valor
+                );
+
+        }
+    );
+
+
+    return resultado;
 }
 
 function renderizarMagias() {
@@ -5620,6 +9485,9 @@ function renderizarMagias() {
                     placeholder="Resumo para combate"
                 >
 
+                <div
+    class="spell-effects-slot"
+></div>
 
                 <div class="spell-editor-options">
 
@@ -5706,6 +9574,28 @@ function renderizarMagias() {
                 element.querySelector(
                     ".spell-delete"
                 );
+
+            const effectsSlot =
+    element.querySelector(
+        ".spell-effects-slot"
+    );
+
+
+if (
+    !Array.isArray(
+        spell.effects
+    )
+) {
+    spell.effects = [];
+}
+
+
+effectsSlot.appendChild(
+    criarEditorEfeitosCaracteristica(
+        spell,
+        "magias"
+    )
+);
 
 
             name.value =
@@ -6031,7 +9921,9 @@ function adicionarMagia() {
 
         quick: false,
 
-        quickText: ""
+        quickText: "",
+
+        effects: [],
 
     });
 
@@ -6065,11 +9957,15 @@ async function excluirMagia(id) {
         );
 
 
+    limparReferenciasEfeitosAtaque();
+
     renderizarMagias();
+
+    renderizarAtaques();
+
 
     await salvarConteudo();
 }
-
 const addSpellButton =
     document.getElementById(
         "addSpell"
@@ -6147,42 +10043,894 @@ if (addSpellButton) {
      ARMADURA
      ============================================================ */
 
-    function calculateAC(mods) {
+    function renderizarModosCA() {
 
-    const mode =
+    const select =
         document.getElementById(
             "acMode"
-        ).value;
+        );
+
+
+    if (!select) {
+        return;
+    }
+
+
+    const valorAtual =
+        select.value;
+
+
+    select.innerHTML = "";
+
+
+    const modes =
+        conteudo.armor?.modes ||
+        [];
+
+
+    modes.forEach(mode => {
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+        option.value =
+            mode.id;
+
+        option.textContent =
+            mode.name ||
+            mode.id;
+
+        select.appendChild(
+            option
+        );
+
+    });
+
+
+    if (
+        modes.some(
+            mode =>
+                mode.id ===
+                valorAtual
+        )
+    ) {
+        select.value =
+            valorAtual;
+    }
+}
+
+function adicionarModoCA() {
+
+    if (
+        !conteudo.armor ||
+        typeof conteudo.armor !==
+            "object"
+    ) {
+        conteudo.armor = {
+            modes: []
+        };
+    }
+
+
+    if (
+        !Array.isArray(
+            conteudo.armor.modes
+        )
+    ) {
+        conteudo.armor.modes = [];
+    }
+
+
+    const id =
+        criarId();
+
+
+    conteudo.armor.modes.push({
+
+        id,
+
+        name:
+            "Nova fórmula de CA",
+
+        base:
+            10,
+
+attributes:
+    [],
+
+attributeCaps:
+    {},
+
+flatBonus:
+    0,
+
+        manual:
+            false
+
+    });
+
+
+    renderizarModosCA();
+
+    renderizarEditorCA();
+
+    agendarSalvamentoConteudo();
+
+    updateSheet();
+}
+
+
+function renderizarEditorCA() {
+
+    const container =
+        document.getElementById(
+            "armorModeEditor"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML =
+        "";
+
+
+    const editando =
+        Boolean(
+            document
+                .getElementById(
+                    "editModeToggle"
+                )
+                ?.checked
+        );
+
+
+    if (
+        !editando ||
+        !isOwner
+    ) {
+        return;
+    }
+
+
+    const header =
+        document.createElement(
+            "div"
+        );
+
+    header.className =
+        "armor-mode-editor-header";
+
+
+    const title =
+        document.createElement(
+            "span"
+        );
+
+    title.className =
+        "armor-mode-editor-title";
+
+    title.textContent =
+        "Fórmulas de CA";
+
+
+    const add =
+        document.createElement(
+            "button"
+        );
+
+    add.type =
+        "button";
+
+    add.className =
+        "feature-effect-add";
+
+    add.textContent =
+        "+ Fórmula";
+
+
+    add.addEventListener(
+        "click",
+        adicionarModoCA
+    );
+
+
+    header.appendChild(
+        title
+    );
+
+    header.appendChild(
+        add
+    );
+
+
+    container.appendChild(
+        header
+    );
+
+
+    const modes =
+        conteudo.armor?.modes ||
+        [];
+
+
+    modes.forEach(mode => {
+
+        const row =
+            document.createElement(
+                "div"
+            );
+
+        row.className =
+            "armor-mode-row";
+
+
+        /* nome */
+
+        const name =
+            document.createElement(
+                "input"
+            );
+
+        name.type =
+            "text";
+
+        name.placeholder =
+            "Nome";
+
+        name.value =
+            mode.name || "";
+
+
+        /* base */
+
+        const base =
+            document.createElement(
+                "input"
+            );
+
+        base.type =
+            "number";
+
+        base.placeholder =
+            "Base";
+
+        base.title =
+            "CA base";
+
+        base.value =
+            Number(
+                mode.base || 0
+            );
+
+
+        /* bônus fixo */
+
+        const flat =
+            document.createElement(
+                "input"
+            );
+
+        flat.type =
+            "number";
+
+        flat.placeholder =
+            "Bônus";
+
+        flat.title =
+            "Bônus fixo";
+
+        flat.value =
+            Number(
+                mode.flatBonus || 0
+            );
+
+
+        /* atributos */
+
+        const attributes =
+            document.createElement(
+                "div"
+            );
+
+        attributes.className =
+            "armor-attributes";
+
+
+        if (
+            !Array.isArray(
+                mode.attributes
+            )
+        ) {
+            mode.attributes = [];
+        }
+
+        if (
+    !mode.attributeCaps ||
+    typeof mode.attributeCaps !==
+        "object"
+) {
+
+    mode.attributeCaps =
+        {};
+}
+
+
+        Object.entries(
+            statNames
+        ).forEach(
+            ([stat, label]) => {
+
+                const attrLabel =
+                    document.createElement(
+                        "label"
+                    );
+
+
+                const checkbox =
+                    document.createElement(
+                        "input"
+                    );
+
+                checkbox.type =
+                    "checkbox";
+
+                checkbox.checked =
+                    mode.attributes
+                        .includes(stat);
+
+                const cap =
+    document.createElement(
+        "input"
+    );
+
+
+cap.type =
+    "number";
+
+cap.placeholder =
+    "∞";
+
+cap.title =
+    "Limite máximo deste modificador";
+
+cap.style.width =
+    "42px";
+
+cap.dataset.armorCap =
+    stat;
+
+
+if (
+    mode.attributeCaps[
+        stat
+    ] !== undefined &&
+    mode.attributeCaps[
+        stat
+    ] !== null
+) {
+
+    cap.value =
+        mode.attributeCaps[
+            stat
+        ];
+
+}
+
+
+cap.disabled =
+    Boolean(
+        mode.manual
+    ) ||
+    !checkbox.checked;
+
+
+cap.addEventListener(
+    "input",
+    () => {
+
+        if (
+            cap.value === ""
+        ) {
+
+            delete mode
+                .attributeCaps[
+                    stat
+                ];
+
+        }
+
+        else {
+
+            mode.attributeCaps[
+                stat
+            ] =
+                Number(
+                    cap.value
+                );
+
+        }
+
+
+        agendarSalvamentoConteudo();
+
+        updateSheet();
+
+    }
+);
+
+
+                checkbox.addEventListener(
+                    "change",
+                    () => {
+
+                        if (
+                            checkbox.checked
+                        ) {
+
+                            if (
+                                !mode.attributes
+                                    .includes(
+                                        stat
+                                    )
+                            ) {
+
+                                mode.attributes
+                                    .push(
+                                        stat
+                                    );
+
+                            }
+
+                        }
+
+                        else {
+
+                            mode.attributes =
+                                mode.attributes
+                                    .filter(
+                                        item =>
+                                            item !==
+                                            stat
+                                    );
+
+                        }
+                        cap.disabled =
+    Boolean(
+        mode.manual
+    ) ||
+    !checkbox.checked;
+
+
+                        agendarSalvamentoConteudo();
+
+                        updateSheet();
+
+                    }
+                );
+
+                attrLabel.appendChild(
+                  
+                    checkbox
+                );
+
+                
+
+                attrLabel.appendChild(
+                    document.createTextNode(
+                        label
+                    )
+                );
+
+                attrLabel.appendChild(
+    cap
+);
+
+
+                attributes.appendChild(
+                    attrLabel
+                );
+
+            }
+        );
+
+
+        /* modo manual */
+
+        const manualLabel =
+            document.createElement(
+                "label"
+            );
+
+        manualLabel.className =
+            "armor-manual-label";
+
+
+        const manual =
+            document.createElement(
+                "input"
+            );
+
+        manual.type =
+            "checkbox";
+
+        manual.checked =
+            Boolean(
+                mode.manual
+            );
+
+
+        manualLabel.appendChild(
+            manual
+        );
+
+        manualLabel.appendChild(
+            document.createTextNode(
+                "Manual"
+            )
+        );
+
+
+        /* excluir */
+
+        const excluir =
+            document.createElement(
+                "button"
+            );
+
+        excluir.type =
+            "button";
+
+        excluir.className =
+            "armor-mode-delete";
+
+        excluir.textContent =
+            "🗑";
+
+
+        /* eventos */
+
+        name.addEventListener(
+            "input",
+            () => {
+
+                mode.name =
+                    name.value;
+
+                renderizarModosCA();
+
+                agendarSalvamentoConteudo();
+
+            }
+        );
+
+
+        base.addEventListener(
+            "input",
+            () => {
+
+                mode.base =
+                    Number(
+                        base.value || 0
+                    );
+
+                agendarSalvamentoConteudo();
+
+                updateSheet();
+
+            }
+        );
+
+
+        flat.addEventListener(
+            "input",
+            () => {
+
+                mode.flatBonus =
+                    Number(
+                        flat.value || 0
+                    );
+
+                agendarSalvamentoConteudo();
+
+                updateSheet();
+
+            }
+        );
+
+
+        manual.addEventListener(
+            "change",
+            () => {
+
+                mode.manual =
+                    manual.checked;
+
+                base.disabled =
+                    manual.checked;
+
+                flat.disabled =
+                    manual.checked;
+
+
+                attributes
+    .querySelectorAll(
+        "label"
+    )
+    .forEach(label => {
+
+        const checkbox =
+            label.querySelector(
+                'input[type="checkbox"]'
+            );
+
+        const cap =
+            label.querySelector(
+                'input[data-armor-cap]'
+            );
+
+
+        if (checkbox) {
+
+            checkbox.disabled =
+                manual.checked;
+
+        }
+
+
+        if (cap) {
+
+            cap.disabled =
+                manual.checked ||
+                !checkbox?.checked;
+
+        }
+
+    });
+
+
+                agendarSalvamentoConteudo();
+
+                updateSheet();
+
+            }
+        );
+
+
+        excluir.addEventListener(
+            "click",
+            () => {
+
+                const select =
+                    document.getElementById(
+                        "acMode"
+                    );
+
+
+                const eraSelecionado =
+                    select?.value ===
+                    mode.id;
+
+
+                conteudo.armor.modes =
+                    conteudo.armor.modes
+                        .filter(
+                            item =>
+                                item.id !==
+                                mode.id
+                        );
+
+
+                renderizarModosCA();
+
+                renderizarEditorCA();
+                
+                if (
+                    eraSelecionado &&
+                    select
+                ) {
+
+                    const primeiro =
+                        conteudo.armor
+                            .modes[0];
+
+
+                    if (primeiro) {
+
+                        select.value =
+                            primeiro.id;
+
+                        salvarCampo(
+                            "acMode"
+                        );
+
+                    }
+
+                }
+
+
+                agendarSalvamentoConteudo();
+
+                updateSheet();
+
+            }
+        );
+
+
+        /* estado manual inicial */
+
+        base.disabled =
+            manual.checked;
+
+        flat.disabled =
+            manual.checked;
+
+
+        attributes
+    .querySelectorAll(
+        "label"
+    )
+    .forEach(label => {
+
+        const checkbox =
+            label.querySelector(
+                'input[type="checkbox"]'
+            );
+
+        const cap =
+            label.querySelector(
+                'input[data-armor-cap]'
+            );
+
+
+        if (checkbox) {
+
+            checkbox.disabled =
+                manual.checked;
+
+        }
+
+
+        if (cap) {
+
+            cap.disabled =
+                manual.checked ||
+                !checkbox?.checked;
+
+        }
+
+    });
+
+
+        row.appendChild(
+            name
+        );
+
+        row.appendChild(
+            base
+        );
+
+        row.appendChild(
+            flat
+        );
+
+        row.appendChild(
+            attributes
+        );
+
+        row.appendChild(
+            manualLabel
+        );
+
+        row.appendChild(
+            excluir
+        );
+
+
+        container.appendChild(
+            row
+        );
+
+    });
+}
+
+function calculateAC(mods) {
+
+    const modeId =
+        document
+            .getElementById(
+                "acMode"
+            )
+            .value;
+
+
+    const mode =
+        (
+            conteudo.armor?.modes ||
+            []
+        ).find(
+            item =>
+                item.id ===
+                modeId
+        );
 
 
     let baseAC;
 
 
-    if (mode === "natural") {
-
-        baseAC =
-            13 +
-            mods.dex +
-            2;
-
-    }
-
-    else if (
-        mode === "leather"
+    if (
+        !mode ||
+        mode.manual
     ) {
 
         baseAC =
-            11 +
-            mods.dex +
-            2;
+            num(
+                "manualCA"
+            );
 
     }
 
     else {
 
         baseAC =
-            num(
-                "manualCA"
+            Number(
+                mode.base || 0
+            );
+
+
+        const attributes =
+            Array.isArray(
+                mode.attributes
+            )
+                ? mode.attributes
+                : [];
+
+
+        attributes.forEach(stat => {
+
+    const valor =
+        Number(
+            mods[stat] || 0
+        );
+
+
+    const cap =
+        mode.attributeCaps?.[
+            stat
+        ];
+
+
+    if (
+        cap === undefined ||
+        cap === null ||
+        cap === ""
+    ) {
+
+        baseAC +=
+            valor;
+
+    }
+
+    else {
+
+        baseAC +=
+            Math.min(
+                valor,
+                Number(cap)
+            );
+
+    }
+
+});
+
+
+        baseAC +=
+            Number(
+                mode.flatBonus || 0
             );
 
     }
@@ -6390,34 +11138,22 @@ function getAttackEffects(attack) {
 
 
     return getAttackEffectDefinitions()
-    .filter(effect => {
+        .filter(effect => {
 
-        if (
-            !ids.includes(
-                effect.id
-            )
-        ) {
-            return false;
-        }
-
-
-        if (
-            effect.requiresToggle
-        ) {
-
-            const toggle =
-                document.getElementById(
-                    effect.requiresToggle
-                );
-
-            if (!toggle?.checked) {
+            if (
+                !ids.includes(
+                    effect.id
+                )
+            ) {
                 return false;
             }
-        }
 
 
-        return true;
-    });
+            return efeitoEstaAtivo(
+                effect
+            );
+
+        });
 }
 
 
@@ -6533,6 +11269,260 @@ if (damageElement) {
 }
 
   function updateSheet() {
+    const configName =
+    document.getElementById(
+        "configName"
+    );
+
+
+const configClassName =
+    document.getElementById(
+        "configClassName"
+    );
+
+
+const configRaceName =
+    document.getElementById(
+        "configRaceName"
+    );
+
+
+const configBackgroundName =
+    document.getElementById(
+        "configBackgroundName"
+    );
+
+
+const configSubtitle =
+    document.getElementById(
+        "configSubtitle"
+    );
+
+
+const configCombatSubtitle =
+    document.getElementById(
+        "configCombatSubtitle"
+    );
+
+
+const configPortraitUrl =
+    document.getElementById(
+        "configPortraitUrl"
+    );
+
+
+const configBackgroundUrl =
+    document.getElementById(
+        "configBackgroundUrl"
+    );
+
+
+const configPvBase =
+    document.getElementById(
+        "configPvBase"
+    );
+
+
+const configPvPerLevel =
+    document.getElementById(
+        "configPvPerLevel"
+    );
+
+
+const configSpellAttribute =
+    document.getElementById(
+        "configSpellAttribute"
+    );
+
+const movement =
+    Number(
+        conteudo
+            .movement
+            ?.base ??
+        0
+    ) +
+    somarEfeitos(
+        "movement"
+    );
+
+
+document
+    .getElementById(
+        "movementDisplay"
+    )
+    .textContent =
+    `${movement} m`;
+
+
+document
+    .getElementById(
+        "combatMovement"
+    )
+    .textContent =
+    `${movement} m`;
+
+
+/* =========================
+   CONFIGURAÇÕES MECÂNICAS
+   ========================= */
+
+if (configPvBase) {
+
+    pvBaseNivel1 =
+        Number(
+            configPvBase.value ||
+            0
+        );
+
+}
+
+
+if (configPvPerLevel) {
+
+    pvPorNivel =
+        Number(
+            configPvPerLevel.value ||
+            0
+        );
+
+}
+
+
+if (configSpellAttribute) {
+
+    atributoConjuracao =
+        configSpellAttribute.value ||
+        "int";
+
+}
+
+
+/* =========================
+   TEXTOS
+   ========================= */
+
+const nomePersonagem =
+    configName?.value ||
+    "";
+
+
+document
+    .getElementById(
+        "charName"
+    )
+    .textContent =
+    nomePersonagem;
+
+
+document
+    .getElementById(
+        "combatCharName"
+    )
+    .textContent =
+    nomePersonagem;
+
+
+document
+    .getElementById(
+        "charSubtitle"
+    )
+    .textContent =
+    configSubtitle?.value ||
+    "";
+
+
+document
+    .getElementById(
+        "combatCharSubtitle"
+    )
+    .textContent =
+    configCombatSubtitle?.value ||
+    "";
+
+
+document
+    .getElementById(
+        "classSectionTitle"
+    )
+    .textContent =
+    configClassName?.value ||
+    "Classe";
+
+
+document
+    .getElementById(
+        "raceSectionTitle"
+    )
+    .textContent =
+    configRaceName?.value ||
+    "Raça";
+
+
+document
+    .getElementById(
+        "charBackgroundName"
+    )
+    .textContent =
+    configBackgroundName?.value ||
+    "";
+
+
+/* =========================
+   IMAGENS
+   ========================= */
+
+const portrait =
+    document.getElementById(
+        "characterPortraitImage"
+    );
+
+
+if (portrait) {
+
+    portrait.src =
+        configPortraitUrl?.value
+            .trim() ||
+        "";
+
+    portrait.alt =
+        nomePersonagem;
+
+}
+
+
+const fundo =
+    configBackgroundUrl?.value
+        .trim() ||
+    "";
+
+
+const fundoBase =
+    document.getElementById(
+        "backgroundImageBase"
+    );
+
+
+const fundoBlur =
+    document.getElementById(
+        "backgroundImageBlur"
+    );
+
+
+if (fundoBase) {
+
+    fundoBase.src =
+        fundo;
+
+}
+
+
+if (fundoBlur) {
+
+    fundoBlur.src =
+        fundo;
+
+}
+
     if (
     !document.getElementById(
         "editModeToggle"
@@ -6551,6 +11541,8 @@ document
     ] || "—";
 
     const level = Math.max(1, num("level"));
+
+    atualizarVisibilidadeConjuracao();
 
     const mods = getMods();
 
@@ -6739,18 +11731,9 @@ const spellAttack =
     /* combate */
 
 
-    /* slots */
+   /* slots */
 
-    const slots =
-      rangerSlots[Math.min(level, 20)] || [0,0,0,0,0];
-
-    slots.forEach((amount, i) => {
-
-      document.getElementById(
-        `slot${i + 1}Max`
-      ).textContent = amount;
-
-    });
+renderizarSlotsMagia();
 
     /* PV temporário duplicado */
 
@@ -6763,6 +11746,20 @@ const spellAttack =
   /* ============================================================
      TABS
      ============================================================ */
+  function chavePreferencia(
+    nome
+) {
+
+    if (!FICHA_ID) {
+        return null;
+    }
+
+
+    return (
+        `personagem_sheet_${FICHA_ID}_${nome}`
+    );
+}
+
 
   function openTab(id) {
 
@@ -6788,10 +11785,20 @@ const spellAttack =
       )
       .classList.add("active");
 
+const key =
+    chavePreferencia(
+        "activeTab"
+    );
+
+
+if (key) {
+
     localStorage.setItem(
-    "personagem_sheet_activeTab",
-    id
-);
+        key,
+        id
+    );
+
+}
   }
 
   document
@@ -6806,7 +11813,12 @@ const spellAttack =
    MODO DE EDIÇÃO
    ============================================================ */
 
-function setEditMode(enabled) {
+
+
+function setEditMode(
+    enabled,
+    salvarPreferencia = true
+) {
 
     document.body.classList.toggle(
         "editing",
@@ -6852,10 +11864,26 @@ function setEditMode(enabled) {
             : "Jogo";
 
 
-    localStorage.setItem(
-        "personagem_sheet_edit_mode",
-        enabled ? "1" : "0"
-    );
+if (salvarPreferencia) {
+
+    const key =
+        chavePreferencia(
+            "edit_mode"
+        );
+
+
+    if (key) {
+
+        localStorage.setItem(
+            key,
+            enabled
+                ? "1"
+                : "0"
+        );
+
+    }
+
+}
 }
 
 
@@ -6867,19 +11895,14 @@ function configurarModoEdicao() {
         );
 
 
-    const savedMode =
-        localStorage.getItem(
-            "personagem_sheet_edit_mode"
-        ) === "1";
-
-
     toggle.checked =
-        savedMode;
+    false;
 
 
-    setEditMode(
-        savedMode
-    );
+setEditMode(
+    false,
+    false
+);
 
 
     toggle.addEventListener(
@@ -6891,6 +11914,12 @@ function configurarModoEdicao() {
           );
 
           renderizarInventario();
+
+          renderizarModosCA();
+
+          renderizarEditorCA();
+
+          renderizarEditorProgressaoSlots();
 
           renderizarAtaques();
 
@@ -6909,11 +11938,162 @@ function configurarModoEdicao() {
   );
 }
 
+function restaurarPreferenciasFicha() {
+
+    if (!FICHA_ID) {
+        return;
+    }
+
+
+    /* =========================
+       ABA
+       ========================= */
+
+    const tabKey =
+        chavePreferencia(
+            "activeTab"
+        );
+
+
+    const savedTab =
+        tabKey
+            ? localStorage.getItem(
+                tabKey
+            )
+            : null;
+
+
+    if (
+        savedTab === "normal" ||
+        savedTab === "combat"
+    ) {
+
+        openTab(
+            savedTab
+        );
+
+    }
+
+    else {
+
+        openTab(
+            "normal"
+        );
+
+    }
+
+
+    /* =========================
+       MODO DE EDIÇÃO
+       ========================= */
+
+    const editKey =
+        chavePreferencia(
+            "edit_mode"
+        );
+
+
+    const savedMode =
+        editKey &&
+        localStorage.getItem(
+            editKey
+        ) === "1";
+
+
+    const toggle =
+        document.getElementById(
+            "editModeToggle"
+        );
+
+
+    if (!toggle) {
+        return;
+    }
+
+
+    toggle.checked =
+        Boolean(
+            savedMode &&
+            isOwner
+        );
+
+
+    setEditMode(
+        toggle.checked
+    );
+
+
+    renderizarInventario();
+
+    renderizarModosCA();
+
+    renderizarEditorCA();
+
+    renderizarEditorProgressaoSlots();
+
+    renderizarAtaques();
+
+    renderizarMagias();
+
+    renderizarTodasCaracteristicas();
+
+    renderizarRecursos();
+
+    renderizarLembretesCombate();
+
+    renderizarAcoesCombate();
+
+    renderizarTogglesCombate();
+}
+
 /* ============================================================
    EVENTOS DA FICHA
    ============================================================ */
 
 function configurarEventos() {
+const configThemeColor =
+    document.getElementById(
+        "configThemeColor"
+    );
+
+
+if (configThemeColor) {
+
+    configThemeColor
+        .addEventListener(
+            "input",
+            () => {
+
+                if (
+                    !conteudo.theme ||
+                    typeof conteudo.theme !==
+                        "object"
+                ) {
+
+                    conteudo.theme =
+                        {};
+
+                }
+
+
+                conteudo
+                    .theme
+                    .baseColor =
+                    configThemeColor.value;
+
+
+                aplicarTema(
+                    configThemeColor.value
+                );
+
+
+                agendarSalvamentoConteudo();
+
+            }
+        );
+
+}
+
 const addInventoryButton =
     document.getElementById(
         "addInventoryItem"
@@ -6940,6 +12120,99 @@ if (addInventoryButton) {
         "click",
         adicionarItemInventario
     );
+
+}
+
+const configMovementBase =
+    document.getElementById(
+        "configMovementBase"
+    );
+
+
+if (configMovementBase) {
+
+    configMovementBase
+        .addEventListener(
+            "input",
+            () => {
+
+                conteudo
+                    .movement
+                    .base =
+                    Number(
+                        configMovementBase
+                            .value ||
+                        0
+                    );
+
+
+                agendarSalvamentoConteudo();
+
+                updateSheet();
+
+            }
+        );
+
+}
+
+const configSpellEnabled =
+    document.getElementById(
+        "configSpellEnabled"
+    );
+
+
+const configUsesSlots =
+    document.getElementById(
+        "configUsesSlots"
+    );
+
+
+if (configSpellEnabled) {
+
+    configSpellEnabled
+        .addEventListener(
+            "change",
+            () => {
+
+                conteudo
+                    .spellcasting
+                    .enabled =
+                    configSpellEnabled
+                        .checked;
+
+
+                agendarSalvamentoConteudo();
+
+                updateSheet();
+
+                renderizarEditorProgressaoSlots();
+            }
+        );
+
+}
+
+
+if (configUsesSlots) {
+
+    configUsesSlots
+        .addEventListener(
+            "change",
+            () => {
+
+                conteudo
+                    .spellcasting
+                    .usesSlots =
+                    configUsesSlots
+                        .checked;
+
+
+                agendarSalvamentoConteudo();
+
+                updateSheet();
+
+                renderizarEditorProgressaoSlots();
+            }
+        );
 
 }
     document
@@ -7145,11 +12418,12 @@ function coletarEfeitosCaracteristicas(
 
 
     [
-        "antecedente",
-        "raca",
-        "classe",
-        "talentos"
-    ].forEach(tipo => {
+    "antecedente",
+    "raca",
+    "classe",
+    "talentos",
+    "magias"
+].forEach(tipo => {
 
         (
             conteudo[tipo] || []
@@ -7205,16 +12479,20 @@ function efeitoEstaAtivo(effect) {
 
 
     const toggle =
-        document.getElementById(
-            effect.requiresToggle
+        (
+            conteudo.togglesCombate ||
+            []
+        ).find(
+            item =>
+                item.id ===
+                effect.requiresToggle
         );
 
 
     return Boolean(
-        toggle?.checked
+        toggle?.active
     );
 }
-
 
 function getFeatureEffects(
     tipoEfeito
@@ -7250,18 +12528,29 @@ function somarEfeitos(
 
 function getAttackEffectDefinitions() {
 
-    return [
+    return coletarEfeitosCaracteristicas(
+        "attack"
+    );
+}
 
-        ...(
-            conteudo.efeitosAtaque ||
-            []
-        ),
+function renderizarFonteEfeito(
+    tipo
+) {
 
-        ...coletarEfeitosCaracteristicas(
-            "attack"
-        )
+    if (
+        tipo ===
+        "magias"
+    ) {
 
-    ];
+        renderizarMagias();
+
+        return;
+    }
+
+
+    renderizarCaracteristicas(
+        tipo
+    );
 }
 
 function criarEditorEfeitosCaracteristica(
@@ -7344,9 +12633,9 @@ function criarEditorEfeitosCaracteristica(
             });
 
 
-            renderizarCaracteristicas(
-                tipo
-            );
+renderizarFonteEfeito(
+    tipo
+);
 
             renderizarAtaques();
 
@@ -7417,7 +12706,11 @@ function criarEditorEfeitosCaracteristica(
                   [
                       "spell",
                       "Conjuração"
-                  ]
+                  ],
+                  [
+    "movement",
+    "Movimento"
+]
               ].forEach(
                 ([value, label]) => {
 
@@ -8045,7 +13338,56 @@ function criarEditorEfeitosCaracteristica(
                         );
 
                     }
-                };
+                    else if (
+    effect.type ===
+    "movement"
+) {
+
+    const bonus =
+        document.createElement(
+            "input"
+        );
+
+
+    bonus.type =
+        "number";
+
+    bonus.step =
+        "0.5";
+
+    bonus.placeholder =
+        "Movimento +m";
+
+    bonus.value =
+        Number(
+            effect.bonus || 0
+        );
+
+
+    bonus.addEventListener(
+        "input",
+        () => {
+
+            effect.bonus =
+                Number(
+                    bonus.value || 0
+                );
+
+
+            agendarSalvamentoConteudo();
+
+            updateSheet();
+
+        }
+    );
+
+
+    fields.appendChild(
+        bonus
+    );
+}
+
+                  };
 
 
             renderizarCampos();
@@ -8154,6 +13496,18 @@ function criarEditorEfeitosCaracteristica(
 
                     }
 
+                    else if (
+                        effect.type ===
+                        "movement"
+                    ) {
+
+                        effect.bonus =
+                            Number(
+                                effect.bonus || 0
+                            );
+
+                    }
+
 
                     renderizarCampos();
 
@@ -8194,9 +13548,9 @@ function criarEditorEfeitosCaracteristica(
                         );
 
 
-                    renderizarCaracteristicas(
-                        tipo
-                    );
+renderizarFonteEfeito(
+    tipo
+);
 
                     renderizarAtaques();
 
@@ -8808,6 +14162,13 @@ function renderizarTodasCaracteristicas() {
     });
 }
 
+function renderizarTodasFontesDeEfeito() {
+
+    renderizarTodasCaracteristicas();
+
+    renderizarMagias();
+}
+
 function renderizarInventario() {
 
     const container =
@@ -9169,27 +14530,22 @@ async function iniciarFicha() {
 
     configurarLogin();
 
-
-    const savedTab =
-        localStorage.getItem(
-            "personagem_sheet_activeTab"
-        );
-
-    if (savedTab) {
-        openTab(savedTab);
-    }
-
-
     await verificarSessao();
 
 
     if (currentUser) {
 
+    const carregou =
         await carregarFicha();
+
+
+    if (carregou) {
 
         iniciarRealtime();
 
     }
+
+}
 
 
     updateSheet();
