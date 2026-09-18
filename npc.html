@@ -3003,6 +3003,95 @@ body.editing
 }
 
 
+
+
+/* ==========================================================
+   GALERIA DE IMAGENS / FORMAS DO NPC
+   ========================================================== */
+.gallery-config-block,
+.form-variants-block {
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255,255,255,.22);
+}
+
+.gallery-toolbar,
+.form-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 10px 0 12px;
+}
+
+.gallery-toolbar select,
+.form-toolbar select {
+  flex: 1 1 220px;
+  min-width: 180px;
+}
+
+.gallery-thumbs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.gallery-thumb {
+  border: 1px solid rgba(104,75,43,.22);
+  border-radius: 10px;
+  background: rgba(255,255,255,.52);
+  padding: 6px;
+  cursor: pointer;
+}
+
+.gallery-thumb.active {
+  outline: 2px solid var(--sand-4);
+  border-color: var(--sand-4);
+}
+
+.gallery-thumb-preview {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg,var(--sand-1),var(--sand-3));
+  color: rgba(61,43,29,.62);
+  font-weight: bold;
+  font-size: 22px;
+}
+
+.gallery-thumb-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-thumb-label {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.form-variants-block {
+  margin: 18px 16px 0;
+}
+
+.form-helper-text {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 </style>
 
 <div class="edit-mode-control">
@@ -3222,17 +3311,35 @@ body.editing
     </label>
 
 
-    <label class="config-wide">
-      <span class="label">
-        URL do retrato
-      </span>
+    <div class="config-wide gallery-config-block">
+      <div class="section-title">Galeria de imagens</div>
 
-      <input
-        id="configPortraitUrl"
-        class="editable"
-        type="text"
-      >
-    </label>
+      <div class="gallery-toolbar">
+        <select id="galleryImageSelect"></select>
+        <button type="button" id="addGalleryImageButton">+ Imagem</button>
+        <button type="button" id="duplicateGalleryImageButton">Duplicar</button>
+        <button type="button" id="removeGalleryImageButton">Excluir</button>
+      </div>
+
+      <div class="character-config-grid">
+        <label>
+          <span class="label">Nome da imagem</span>
+          <input id="galleryImageName" type="text">
+        </label>
+
+        <label class="config-wide">
+          <span class="label">URL da imagem selecionada</span>
+          <input id="configPortraitUrl" class="editable" type="text">
+        </label>
+
+        <label class="config-wide">
+          <span class="label">Observação da imagem</span>
+          <input id="galleryImageNote" type="text">
+        </label>
+      </div>
+
+      <div id="galleryThumbList" class="gallery-thumbs"></div>
+    </div>
 
     <label>
 
@@ -4050,6 +4157,22 @@ body.editing
 
   </section>
 
+  <div class="form-variants-block">
+    <div class="section-title">Formas / fichas do NPC</div>
+
+    <div class="form-toolbar">
+      <select id="npcFormSelect"></select>
+      <button type="button" id="addNpcFormButton">+ Nova ficha</button>
+      <button type="button" id="duplicateNpcFormButton">Duplicar</button>
+      <button type="button" id="renameNpcFormButton">Renomear</button>
+      <button type="button" id="removeNpcFormButton">Excluir</button>
+    </div>
+
+    <p class="form-helper-text">
+      Troque a ficha inteira do NPC aqui. A forma escolhida não precisa estar ligada à imagem ativa da galeria, então você pode misturar livremente.
+    </p>
+  </div>
+
 </div>
 
 
@@ -4436,6 +4559,382 @@ function normalizarFichaNpc(
             ficha.conteudo_dinamico ??
             criarConteudoPadraoNpc()
     };
+}
+
+
+function criarImagemNpcPadrao(url = "", nome = "Retrato") {
+    return {
+        id: crypto.randomUUID(),
+        nome,
+        url: String(url || "").trim(),
+        nota: ""
+    };
+}
+
+function obterImagemPrincipal(npc = npcAtual) {
+    if (!npc || !Array.isArray(npc.imagens) || npc.imagens.length === 0) {
+        return null;
+    }
+
+    return (
+        npc.imagens.find(
+            imagem => imagem.id === npc.imagemPrincipalId
+        ) ||
+        npc.imagens[0] ||
+        null
+    );
+}
+
+function obterImagemPrincipalUrl(npc = npcAtual) {
+    return obterImagemPrincipal(npc)?.url || "";
+}
+
+function obterFormaAtiva(npc = npcAtual) {
+    if (!npc || !Array.isArray(npc.formas) || npc.formas.length === 0) {
+        return null;
+    }
+
+    return (
+        npc.formas.find(
+            forma => forma.id === npc.formaAtivaId
+        ) ||
+        npc.formas[0] ||
+        null
+    );
+}
+
+function normalizarEstruturaNpc(npc = {}) {
+    if (!npc || typeof npc !== "object") {
+        npc = {};
+    }
+
+    if (!Array.isArray(npc.imagens)) {
+        npc.imagens = [];
+    }
+
+    if (npc.imagens.length === 0) {
+        const urlInicial =
+            npc?.ficha?.retrato_url ||
+            npc?.retrato ||
+            "";
+
+        if (urlInicial) {
+            npc.imagens.push(
+                criarImagemNpcPadrao(
+                    urlInicial,
+                    "Retrato"
+                )
+            );
+        }
+    }
+
+    npc.imagens = npc.imagens.map((imagem, index) => ({
+        id:
+            imagem?.id ||
+            crypto.randomUUID(),
+        nome:
+            imagem?.nome ||
+            `Imagem ${index + 1}`,
+        url:
+            String(imagem?.url || "").trim(),
+        nota:
+            imagem?.nota || ""
+    }));
+
+    if (
+        !npc.imagemPrincipalId ||
+        !npc.imagens.some(
+            imagem =>
+                imagem.id === npc.imagemPrincipalId
+        )
+    ) {
+        npc.imagemPrincipalId =
+            npc.imagens[0]?.id || null;
+    }
+
+    if (!Array.isArray(npc.formas) || npc.formas.length === 0) {
+        npc.formas = [
+            {
+                id: crypto.randomUUID(),
+                nome: "Forma 1",
+                ficha: npc.ficha || {}
+            }
+        ];
+    }
+
+    npc.formas = npc.formas.map((forma, index) => ({
+        id:
+            forma?.id ||
+            crypto.randomUUID(),
+        nome:
+            forma?.nome ||
+            `Forma ${index + 1}`,
+        ficha:
+            normalizarFichaNpc(
+                forma?.ficha || npc.ficha || {},
+                npc
+            )
+    }));
+
+    if (
+        !npc.formaAtivaId ||
+        !npc.formas.some(
+            forma => forma.id === npc.formaAtivaId
+        )
+    ) {
+        npc.formaAtivaId =
+            npc.formas[0]?.id || null;
+    }
+
+    const formaAtiva = obterFormaAtiva(npc);
+
+    npc.ficha =
+        formaAtiva?.ficha ||
+        normalizarFichaNpc({}, npc);
+
+    npc.retrato =
+        obterImagemPrincipalUrl(npc) ||
+        npc.ficha.retrato_url ||
+        "";
+
+    return npc;
+}
+
+function capturarFichaAtual() {
+    if (!npcAtual?.ficha) {
+        return normalizarFichaNpc({}, npcAtual || {});
+    }
+
+    const base = structuredClone(npcAtual.ficha);
+
+    Object.entries(FIELD_MAP).forEach(
+        ([elementId, databaseField]) => {
+            const element = document.getElementById(elementId);
+            if (!element) {
+                return;
+            }
+            base[databaseField] = getElementValue(element);
+        }
+    );
+
+    base.proficiencias =
+        [...document.querySelectorAll('.skill')]
+            .filter(row =>
+                row.querySelector('.skill-prof')?.checked
+            )
+            .map(row => row.dataset.name)
+            .filter(Boolean);
+
+    base.atributo_conjuracao = atributoConjuracao;
+    base.pv_base_nivel_1 = Number(
+        document.getElementById('configPvBase')?.value ?? pvBaseNivel1
+    );
+    base.pv_por_nivel = Number(
+        document.getElementById('configPvPerLevel')?.value ?? pvPorNivel
+    );
+    base.retrato_url = obterImagemPrincipalUrl(npcAtual) || "";
+    base.conteudo_dinamico = structuredClone(conteudo);
+
+    return normalizarFichaNpc(base, npcAtual);
+}
+
+function renderizarGaleriaImagens() {
+    const select = document.getElementById('galleryImageSelect');
+    const thumbList = document.getElementById('galleryThumbList');
+    const nameInput = document.getElementById('galleryImageName');
+    const urlInput = document.getElementById('configPortraitUrl');
+    const noteInput = document.getElementById('galleryImageNote');
+
+    if (!select || !thumbList || !nameInput || !urlInput || !noteInput || !npcAtual) {
+        return;
+    }
+
+    const imagens = Array.isArray(npcAtual.imagens)
+        ? npcAtual.imagens
+        : [];
+
+    if (imagens.length === 0) {
+        select.innerHTML = '<option value="">Sem imagens</option>';
+        select.value = '';
+        thumbList.innerHTML = '';
+        nameInput.value = '';
+        urlInput.value = '';
+        noteInput.value = '';
+        return;
+    }
+
+    select.innerHTML = imagens.map((imagem, index) => `
+        <option value="${imagem.id}">${(imagem.nome || `Imagem ${index + 1}`).replace(/</g,'&lt;')}</option>
+    `).join('');
+
+    if (!npcAtual.imagemPrincipalId || !imagens.some(img => img.id === npcAtual.imagemPrincipalId)) {
+        npcAtual.imagemPrincipalId = imagens[0].id;
+    }
+
+    select.value = npcAtual.imagemPrincipalId;
+
+    const imagemAtual = obterImagemPrincipal(npcAtual);
+
+    nameInput.value = imagemAtual?.nome || '';
+    urlInput.value = imagemAtual?.url || '';
+    noteInput.value = imagemAtual?.nota || '';
+
+    thumbList.innerHTML = '';
+
+    imagens.forEach((imagem, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'gallery-thumb' + (imagem.id === npcAtual.imagemPrincipalId ? ' active' : '');
+        button.innerHTML = `
+            <div class="gallery-thumb-preview">${imagem.url ? `<img src="${imagem.url.replace(/"/g,'&quot;')}" alt="${(imagem.nome || '').replace(/"/g,'&quot;')}">` : (imagem.nome || `I${index + 1}`).slice(0, 2)}</div>
+            <div class="gallery-thumb-label">${(imagem.nome || `Imagem ${index + 1}`).replace(/</g,'&lt;')}</div>
+        `;
+        button.addEventListener('click', async () => {
+            npcAtual.imagemPrincipalId = imagem.id;
+            npcAtual.retrato = imagem.url || '';
+            updateSheet();
+            renderizarGaleriaImagens();
+            await persistirNpcAtual();
+        });
+        thumbList.appendChild(button);
+    });
+}
+
+function renderizarSeletorFormasNpc() {
+    const select = document.getElementById('npcFormSelect');
+    if (!select || !npcAtual) {
+        return;
+    }
+
+    const formas = Array.isArray(npcAtual.formas)
+        ? npcAtual.formas
+        : [];
+
+    select.innerHTML = formas.map((forma, index) => `
+        <option value="${forma.id}">${(forma.nome || `Forma ${index + 1}`).replace(/</g,'&lt;')}</option>
+    `).join('');
+
+    if (npcAtual.formaAtivaId) {
+        select.value = npcAtual.formaAtivaId;
+    }
+}
+
+async function salvarEstadoNaFormaAtiva() {
+    const forma = obterFormaAtiva(npcAtual);
+    if (!forma) {
+        return;
+    }
+    forma.ficha = capturarFichaAtual();
+    npcAtual.ficha = forma.ficha;
+}
+
+async function trocarFormaNpc(formaId) {
+    if (!npcAtual || !formaId) {
+        return;
+    }
+
+    await salvarEstadoNaFormaAtiva();
+    npcAtual.formaAtivaId = formaId;
+
+    const forma = obterFormaAtiva(npcAtual);
+    npcAtual.ficha = normalizarFichaNpc(forma?.ficha || {}, npcAtual);
+
+    aplicarDadosFicha(npcAtual.ficha);
+    await persistirNpcAtual();
+}
+
+async function adicionarFormaNpc() {
+    if (!npcAtual) {
+        return;
+    }
+
+    await salvarEstadoNaFormaAtiva();
+
+    const novaForma = {
+        id: crypto.randomUUID(),
+        nome: `Forma ${((npcAtual.formas || []).length || 0) + 1}`,
+        ficha: normalizarFichaNpc({}, npcAtual)
+    };
+
+    npcAtual.formas.push(novaForma);
+    npcAtual.formaAtivaId = novaForma.id;
+    npcAtual.ficha = novaForma.ficha;
+
+    aplicarDadosFicha(novaForma.ficha);
+    await persistirNpcAtual();
+}
+
+async function duplicarFormaNpc() {
+    if (!npcAtual) {
+        return;
+    }
+
+    await salvarEstadoNaFormaAtiva();
+
+    const atual = obterFormaAtiva(npcAtual);
+    if (!atual) {
+        return;
+    }
+
+    const copia = {
+        id: crypto.randomUUID(),
+        nome: `${atual.nome} — Cópia`,
+        ficha: normalizarFichaNpc(
+            structuredClone(atual.ficha),
+            npcAtual
+        )
+    };
+
+    npcAtual.formas.push(copia);
+    npcAtual.formaAtivaId = copia.id;
+    npcAtual.ficha = copia.ficha;
+
+    aplicarDadosFicha(copia.ficha);
+    await persistirNpcAtual();
+}
+
+async function renomearFormaNpc() {
+    const forma = obterFormaAtiva(npcAtual);
+    if (!forma) {
+        return;
+    }
+
+    const nome = prompt('Novo nome para esta ficha:', forma.nome || '');
+    if (!nome || !nome.trim()) {
+        return;
+    }
+
+    forma.nome = nome.trim();
+    renderizarSeletorFormasNpc();
+    await persistirNpcAtual();
+}
+
+async function excluirFormaNpc() {
+    if (!npcAtual || !Array.isArray(npcAtual.formas)) {
+        return;
+    }
+
+    if (npcAtual.formas.length <= 1) {
+        alert('O NPC precisa ter pelo menos uma ficha.');
+        return;
+    }
+
+    const forma = obterFormaAtiva(npcAtual);
+    if (!forma) {
+        return;
+    }
+
+    const ok = confirm(`Excluir a ficha "${forma.nome}"?`);
+    if (!ok) {
+        return;
+    }
+
+    npcAtual.formas = npcAtual.formas.filter(item => item.id !== forma.id);
+    npcAtual.formaAtivaId = npcAtual.formas[0].id;
+    npcAtual.ficha = npcAtual.formas[0].ficha;
+
+    aplicarDadosFicha(npcAtual.ficha);
+    await persistirNpcAtual();
 }
 
 function mostrarErroNpc(mensagem) {
@@ -5027,6 +5526,14 @@ async function persistirNpcAtual() {
     npcAtual.atualizadoEm =
         agora;
 
+    const formaAtiva =
+        obterFormaAtiva(npcAtual);
+
+    if (formaAtiva && npcAtual.ficha) {
+        formaAtiva.ficha = npcAtual.ficha;
+        npcAtual.ficha = formaAtiva.ficha;
+    }
+
     /*
        Mantém os dados usados pelos cards de npcs.html
        sincronizados com a ficha.
@@ -5037,10 +5544,19 @@ async function persistirNpcAtual() {
         npcAtual.nome ||
         "NPC sem nome";
 
-    npcAtual.retrato =
+    const retratoAtual =
+        obterImagemPrincipalUrl(npcAtual) ||
         npcAtual.ficha
             ?.retrato_url ||
         "";
+
+    npcAtual.retrato =
+        retratoAtual;
+
+    if (npcAtual.ficha) {
+        npcAtual.ficha.retrato_url =
+            retratoAtual;
+    }
 
     await gravarNpcLocal(
         npcAtual
@@ -6954,7 +7470,15 @@ async function carregarFicha() {
     FICHA_ID =
         npcAtual.id;
 
+    npcAtual =
+        normalizarEstruturaNpc(
+            npcAtual
+        );
+
     npcAtual.ficha =
+        obterFormaAtiva(
+            npcAtual
+        )?.ficha ||
         normalizarFichaNpc(
             npcAtual.ficha,
             npcAtual
@@ -7000,8 +7524,13 @@ function aplicarDadosFicha(dados) {
                 "characterPortraitImage"
             );
 
+        const portraitUrl =
+            obterImagemPrincipalUrl(
+                npcAtual
+            ) || "";
+
         portrait.src =
-            dados.retrato_url || "";
+            portraitUrl;
 
         portrait.alt =
             dados.nome_personagem || "";
@@ -7231,6 +7760,23 @@ function aplicarDadosFicha(dados) {
             )
             .value;
 
+    const currentPortraitUrl =
+        obterImagemPrincipalUrl(
+            npcAtual
+        ) || "";
+
+    const portraitUrlInput =
+        document.getElementById(
+            "configPortraitUrl"
+        );
+
+    if (portraitUrlInput) {
+        portraitUrlInput.value =
+            currentPortraitUrl;
+    }
+
+    renderizarGaleriaImagens();
+    renderizarSeletorFormasNpc();
 
     updateSheet();
 }
@@ -7283,8 +7829,32 @@ async function salvarCampo(
         databaseField ===
         "retrato_url"
     ) {
+        let imagemAtual =
+            obterImagemPrincipal(
+                npcAtual
+            );
+
+        if (!imagemAtual && String(value || '').trim()) {
+            imagemAtual = criarImagemNpcPadrao(
+                String(value || '').trim(),
+                'Retrato'
+            );
+            npcAtual.imagens.push(
+                imagemAtual
+            );
+            npcAtual.imagemPrincipalId =
+                imagemAtual.id;
+        }
+
+        if (imagemAtual) {
+            imagemAtual.url =
+                String(value || "").trim();
+        }
+
         npcAtual.retrato =
             String(value || "");
+
+        renderizarGaleriaImagens();
     }
 
     await persistirNpcAtual();
@@ -12014,6 +12584,200 @@ if (configThemeColor) {
             }
         );
 
+}
+
+const galleryImageSelect =
+    document.getElementById(
+        "galleryImageSelect"
+    );
+
+const galleryImageName =
+    document.getElementById(
+        "galleryImageName"
+    );
+
+const galleryImageNote =
+    document.getElementById(
+        "galleryImageNote"
+    );
+
+const addGalleryImageButton =
+    document.getElementById(
+        "addGalleryImageButton"
+    );
+
+const duplicateGalleryImageButton =
+    document.getElementById(
+        "duplicateGalleryImageButton"
+    );
+
+const removeGalleryImageButton =
+    document.getElementById(
+        "removeGalleryImageButton"
+    );
+
+if (galleryImageSelect) {
+    galleryImageSelect.addEventListener(
+        "change",
+        async () => {
+            npcAtual.imagemPrincipalId =
+                galleryImageSelect.value || null;
+            renderizarGaleriaImagens();
+            updateSheet();
+            await persistirNpcAtual();
+        }
+    );
+}
+
+if (galleryImageName) {
+    galleryImageName.addEventListener(
+        "input",
+        async () => {
+            const imagem = obterImagemPrincipal(npcAtual);
+            if (!imagem) {
+                return;
+            }
+            imagem.nome = galleryImageName.value;
+            renderizarGaleriaImagens();
+            await persistirNpcAtual();
+        }
+    );
+}
+
+if (galleryImageNote) {
+    galleryImageNote.addEventListener(
+        "input",
+        async () => {
+            const imagem = obterImagemPrincipal(npcAtual);
+            if (!imagem) {
+                return;
+            }
+            imagem.nota = galleryImageNote.value;
+            await persistirNpcAtual();
+        }
+    );
+}
+
+if (addGalleryImageButton) {
+    addGalleryImageButton.addEventListener(
+        "click",
+        async () => {
+            const nova = criarImagemNpcPadrao(
+                '',
+                `Imagem ${((npcAtual.imagens || []).length || 0) + 1}`
+            );
+            npcAtual.imagens.push(nova);
+            npcAtual.imagemPrincipalId = nova.id;
+            renderizarGaleriaImagens();
+            updateSheet();
+            await persistirNpcAtual();
+        }
+    );
+}
+
+if (duplicateGalleryImageButton) {
+    duplicateGalleryImageButton.addEventListener(
+        "click",
+        async () => {
+            const atual = obterImagemPrincipal(npcAtual);
+            if (!atual) {
+                return;
+            }
+            const copia = {
+                ...structuredClone(atual),
+                id: crypto.randomUUID(),
+                nome: `${atual.nome || 'Imagem'} — Cópia`
+            };
+            npcAtual.imagens.push(copia);
+            npcAtual.imagemPrincipalId = copia.id;
+            renderizarGaleriaImagens();
+            updateSheet();
+            await persistirNpcAtual();
+        }
+    );
+}
+
+if (removeGalleryImageButton) {
+    removeGalleryImageButton.addEventListener(
+        "click",
+        async () => {
+            const atual = obterImagemPrincipal(npcAtual);
+            if (!atual) {
+                return;
+            }
+            const ok = confirm(`Excluir a imagem "${atual.nome || 'sem nome'}"?`);
+            if (!ok) {
+                return;
+            }
+            npcAtual.imagens = (npcAtual.imagens || []).filter(item => item.id !== atual.id);
+            npcAtual.imagemPrincipalId = npcAtual.imagens[0]?.id || null;
+            renderizarGaleriaImagens();
+            updateSheet();
+            await persistirNpcAtual();
+        }
+    );
+}
+
+const npcFormSelect =
+    document.getElementById(
+        "npcFormSelect"
+    );
+
+const addNpcFormButton =
+    document.getElementById(
+        "addNpcFormButton"
+    );
+
+const duplicateNpcFormButton =
+    document.getElementById(
+        "duplicateNpcFormButton"
+    );
+
+const renameNpcFormButton =
+    document.getElementById(
+        "renameNpcFormButton"
+    );
+
+const removeNpcFormButton =
+    document.getElementById(
+        "removeNpcFormButton"
+    );
+
+if (npcFormSelect) {
+    npcFormSelect.addEventListener(
+        "change",
+        () => {
+            trocarFormaNpc(npcFormSelect.value);
+        }
+    );
+}
+
+if (addNpcFormButton) {
+    addNpcFormButton.addEventListener(
+        "click",
+        adicionarFormaNpc
+    );
+}
+
+if (duplicateNpcFormButton) {
+    duplicateNpcFormButton.addEventListener(
+        "click",
+        duplicarFormaNpc
+    );
+}
+
+if (renameNpcFormButton) {
+    renameNpcFormButton.addEventListener(
+        "click",
+        renomearFormaNpc
+    );
+}
+
+if (removeNpcFormButton) {
+    removeNpcFormButton.addEventListener(
+        "click",
+        excluirFormaNpc
+    );
 }
 
 const addInventoryButton =
