@@ -244,6 +244,54 @@ input:focus,select:focus{
   line-height:1.45;
 }
 
+.backup-config{
+  margin-top:14px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:rgba(255,255,255,.22);
+  display:grid;
+  gap:10px;
+}
+
+.backup-config-title{
+  color:var(--ink);
+  font-size:12px;
+  font-weight:bold;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+
+.backup-toggle{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--ink);
+  font-size:12px;
+}
+
+.backup-toggle input{ width:auto; }
+
+.backup-interval-row{
+  display:grid;
+  grid-template-columns:1fr 70px;
+  gap:8px;
+  align-items:center;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.backup-interval-row input{
+  padding:6px 8px;
+  text-align:center;
+}
+
+.backup-status{
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.4;
+}
+
 .content{
   min-width:0;
   padding:20px;
@@ -522,6 +570,22 @@ dialog::backdrop{
         Os NPCs ficam salvos somente neste navegador.<br><br>
         Faça backups periódicos em <strong>Exportar tudo</strong>.
       </div>
+
+      <div class="backup-config">
+        <div class="backup-config-title">Backup automático</div>
+
+        <label class="backup-toggle">
+          <input id="autoBackupEnabled" type="checkbox">
+          Exportar tudo automaticamente
+        </label>
+
+        <label class="backup-interval-row">
+          <span>A cada quantos NPCs criados</span>
+          <input id="autoBackupInterval" type="number" min="1" max="100" step="1" value="5">
+        </label>
+
+        <div id="autoBackupStatus" class="backup-status"></div>
+      </div>
     </aside>
 
     <main class="content">
@@ -797,6 +861,8 @@ function criarTemplateNpc(nome, nivel, pastaId, retrato) {
 
       proficiencias: [],
 
+      origem_nome: "",
+
       notas: "",
       notas_combate: "",
 
@@ -807,6 +873,8 @@ function criarTemplateNpc(nome, nivel, pastaId, retrato) {
         talentos: [],
         classe: [],
         antecedente: [],
+        origem: [],
+        origemNome: "",
         raca: [],
 
         recursos: [],
@@ -900,6 +968,10 @@ const moveFolderSelect = document.getElementById("moveFolderSelect");
 
 const importFileInput = document.getElementById("importFileInput");
 
+const autoBackupEnabled = document.getElementById("autoBackupEnabled");
+const autoBackupInterval = document.getElementById("autoBackupInterval");
+const autoBackupStatus = document.getElementById("autoBackupStatus");
+
 
 /* ============================================================
    HELPERS
@@ -983,6 +1055,146 @@ function baixarJson(nomeArquivo, dados) {
   a.remove();
 
   URL.revokeObjectURL(url);
+}
+
+
+/* ============================================================
+   BACKUP AUTOMÁTICO
+   ============================================================ */
+
+const AUTO_BACKUP_KEYS = {
+  enabled: "la-magie-npcs-auto-backup-enabled",
+  interval: "la-magie-npcs-auto-backup-interval",
+  createdSinceBackup: "la-magie-npcs-auto-backup-created-since",
+  lastBackup: "la-magie-npcs-auto-backup-last"
+};
+
+function lerStorageSeguro(chave, fallback = null) {
+  try {
+    const valor = localStorage.getItem(chave);
+    return valor === null ? fallback : valor;
+  }
+  catch (error) {
+    console.warn("Não foi possível ler localStorage:", error);
+    return fallback;
+  }
+}
+
+function salvarStorageSeguro(chave, valor) {
+  try {
+    localStorage.setItem(chave, String(valor));
+    return true;
+  }
+  catch (error) {
+    console.warn("Não foi possível salvar localStorage:", error);
+    return false;
+  }
+}
+
+function obterConfigBackupAutomatico() {
+  const enabledRaw = lerStorageSeguro(AUTO_BACKUP_KEYS.enabled, "true");
+  const intervalRaw = Number(lerStorageSeguro(AUTO_BACKUP_KEYS.interval, "5"));
+  const createdRaw = Number(lerStorageSeguro(AUTO_BACKUP_KEYS.createdSinceBackup, "0"));
+
+  return {
+    enabled: enabledRaw !== "false",
+    interval: Math.max(1, Math.min(100, Number.isFinite(intervalRaw) ? Math.floor(intervalRaw) : 5)),
+    createdSinceBackup: Math.max(0, Number.isFinite(createdRaw) ? Math.floor(createdRaw) : 0),
+    lastBackup: lerStorageSeguro(AUTO_BACKUP_KEYS.lastBackup, "") || ""
+  };
+}
+
+function atualizarUiBackupAutomatico() {
+  const config = obterConfigBackupAutomatico();
+
+  if (autoBackupEnabled) {
+    autoBackupEnabled.checked = config.enabled;
+  }
+
+  if (autoBackupInterval && document.activeElement !== autoBackupInterval) {
+    autoBackupInterval.value = config.interval;
+  }
+
+  if (!autoBackupStatus) return;
+
+  if (!config.enabled) {
+    autoBackupStatus.textContent = "Desativado. O botão “Exportar tudo” continua funcionando normalmente.";
+    return;
+  }
+
+  const faltam = Math.max(0, config.interval - config.createdSinceBackup);
+  let texto = faltam <= 0
+    ? "O próximo NPC criado fará um backup completo."
+    : `Próximo backup em ${faltam} ${faltam === 1 ? "NPC criado" : "NPCs criados"}.`;
+
+  if (config.lastBackup) {
+    texto += ` Último backup completo: ${formatarData(config.lastBackup)}.`;
+  }
+
+  autoBackupStatus.textContent = texto;
+}
+
+function marcarBackupCompletoRealizado() {
+  const agora = new Date().toISOString();
+  salvarStorageSeguro(AUTO_BACKUP_KEYS.createdSinceBackup, 0);
+  salvarStorageSeguro(AUTO_BACKUP_KEYS.lastBackup, agora);
+  atualizarUiBackupAutomatico();
+}
+
+function nomeArquivoBackupAutomatico(iso) {
+  const seguro = String(iso).replace(/[:.]/g, "-");
+  return `la-magie-npcs-auto-backup-${seguro}.json`;
+}
+
+async function exportarBackupCompletoAutomatico() {
+  const [pastasBackup, npcsBackup] = await Promise.all([
+    dbGetAll(STORE_FOLDERS),
+    dbGetAll(STORE_NPCS)
+  ]);
+
+  const agora = new Date().toISOString();
+
+  baixarJson(
+    nomeArquivoBackupAutomatico(agora),
+    {
+      formato: "la-magie-npcs",
+      versao: 1,
+      exportadoEm: agora,
+      backupAutomatico: true,
+      pastas: pastasBackup,
+      npcs: npcsBackup
+    }
+  );
+
+  marcarBackupCompletoRealizado();
+  toast(`Backup automático exportado com ${npcsBackup.length} NPC(s).`);
+}
+
+async function registrarFichaCriadaParaBackup() {
+  const config = obterConfigBackupAutomatico();
+
+  if (!config.enabled) {
+    atualizarUiBackupAutomatico();
+    return false;
+  }
+
+  const novoTotal = config.createdSinceBackup + 1;
+  salvarStorageSeguro(AUTO_BACKUP_KEYS.createdSinceBackup, novoTotal);
+  atualizarUiBackupAutomatico();
+
+  if (novoTotal < config.interval) {
+    return false;
+  }
+
+  try {
+    await exportarBackupCompletoAutomatico();
+    return true;
+  }
+  catch (error) {
+    console.error("Falha no backup automático:", error);
+    toast("Não foi possível fazer o backup automático. A próxima criação tentará novamente.");
+    return false;
+  }
 }
 
 
@@ -1477,9 +1689,8 @@ npcForm.addEventListener("submit", async event => {
   toast("NPC criado.");
 
   await recarregarDados();
+  await registrarFichaCriadaParaBackup();
 
-  // O npc.html será criado no próximo passo.
-  // Quando existir, esta linha já abre a ficha correta.
   window.location.href =
     `npc.html?id=${encodeURIComponent(npc.id)}`;
 });
@@ -1506,6 +1717,7 @@ async function duplicarNpc(id) {
 
   toast("NPC duplicado.");
   await recarregarDados();
+  await registrarFichaCriadaParaBackup();
 }
 
 function abrirMoverNpc(id) {
@@ -1624,6 +1836,7 @@ document
       }
     );
 
+    marcarBackupCompletoRealizado();
     toast("Backup exportado.");
   });
 
@@ -1766,6 +1979,13 @@ importFileInput.addEventListener(
         }
       }
 
+      salvarStorageSeguro(
+        AUTO_BACKUP_KEYS.createdSinceBackup,
+        0
+      );
+
+      atualizarUiBackupAutomatico();
+
       toast("Backup importado.");
       await recarregarDados();
     }
@@ -1784,6 +2004,38 @@ importFileInput.addEventListener(
 /* ============================================================
    EVENTOS GERAIS
    ============================================================ */
+
+if (autoBackupEnabled) {
+  autoBackupEnabled.addEventListener(
+    "change",
+    () => {
+      salvarStorageSeguro(
+        AUTO_BACKUP_KEYS.enabled,
+        autoBackupEnabled.checked
+      );
+      atualizarUiBackupAutomatico();
+    }
+  );
+}
+
+if (autoBackupInterval) {
+  autoBackupInterval.addEventListener(
+    "change",
+    () => {
+      const valor = Math.max(
+        1,
+        Math.min(
+          100,
+          Math.floor(Number(autoBackupInterval.value) || 5)
+        )
+      );
+
+      autoBackupInterval.value = valor;
+      salvarStorageSeguro(AUTO_BACKUP_KEYS.interval, valor);
+      atualizarUiBackupAutomatico();
+    }
+  );
+}
 
 document
   .getElementById("newFolderBtn")
@@ -1839,6 +2091,7 @@ async function iniciar() {
   try {
     await abrirBanco();
     await recarregarDados();
+    atualizarUiBackupAutomatico();
   }
   catch (error) {
     console.error(error);
