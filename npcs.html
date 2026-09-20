@@ -292,6 +292,44 @@ input:focus,select:focus{
   line-height:1.4;
 }
 
+.storage-info{
+  margin-top:14px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:rgba(255,255,255,.22);
+  display:grid;
+  gap:8px;
+}
+
+.storage-info-title{
+  color:var(--ink);
+  font-size:12px;
+  font-weight:bold;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+
+.storage-line{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.storage-line strong{
+  color:var(--ink);
+  font-variant-numeric:tabular-nums;
+  text-align:right;
+}
+
+.storage-refresh{
+  width:100%;
+  padding:7px 9px;
+  font-size:11px;
+}
+
 .content{
   min-width:0;
   padding:20px;
@@ -585,6 +623,33 @@ dialog::backdrop{
         </label>
 
         <div id="autoBackupStatus" class="backup-status"></div>
+      </div>
+
+      <div class="storage-info">
+        <div class="storage-info-title">Armazenamento</div>
+
+        <div class="storage-line">
+          <span>Dados dos NPCs</span>
+          <strong id="dbLogicalSize">Calculando…</strong>
+        </div>
+
+        <div class="storage-line">
+          <span>Uso deste site</span>
+          <strong id="siteStorageUsage">Calculando…</strong>
+        </div>
+
+        <div class="storage-line">
+          <span>Limite disponível</span>
+          <strong id="siteStorageQuota">Calculando…</strong>
+        </div>
+
+        <button
+          id="refreshStorageBtn"
+          class="storage-refresh"
+          type="button"
+        >
+          Atualizar tamanho
+        </button>
       </div>
     </aside>
 
@@ -972,6 +1037,11 @@ const autoBackupEnabled = document.getElementById("autoBackupEnabled");
 const autoBackupInterval = document.getElementById("autoBackupInterval");
 const autoBackupStatus = document.getElementById("autoBackupStatus");
 
+const dbLogicalSize = document.getElementById("dbLogicalSize");
+const siteStorageUsage = document.getElementById("siteStorageUsage");
+const siteStorageQuota = document.getElementById("siteStorageQuota");
+const refreshStorageBtn = document.getElementById("refreshStorageBtn");
+
 
 /* ============================================================
    HELPERS
@@ -1198,6 +1268,163 @@ async function registrarFichaCriadaParaBackup() {
 }
 
 
+
+/* ============================================================
+   TAMANHO DO ARMAZENAMENTO
+   ============================================================ */
+
+function formatarBytes(bytes) {
+  const valor = Number(bytes || 0);
+
+  if (!Number.isFinite(valor) || valor < 0) {
+    return "—";
+  }
+
+  if (valor === 0) {
+    return "0 B";
+  }
+
+  const unidades = ["B", "KB", "MB", "GB", "TB"];
+
+  const indice = Math.min(
+    unidades.length - 1,
+    Math.floor(
+      Math.log(valor) /
+      Math.log(1024)
+    )
+  );
+
+  const convertido =
+    valor /
+    Math.pow(1024, indice);
+
+  const casas =
+    convertido >= 100
+      ? 0
+      : convertido >= 10
+        ? 1
+        : 2;
+
+  return `${convertido.toFixed(casas)} ${unidades[indice]}`;
+}
+
+
+function tamanhoJsonEmBytes(valor) {
+  try {
+    return new Blob(
+      [JSON.stringify(valor)]
+    ).size;
+  }
+  catch (error) {
+    console.warn(
+      "Não foi possível calcular o tamanho dos dados:",
+      error
+    );
+
+    return 0;
+  }
+}
+
+
+async function calcularTamanhoLogicoBanco() {
+  const [
+    pastasBanco,
+    npcsBanco
+  ] = await Promise.all([
+    dbGetAll(STORE_FOLDERS),
+    dbGetAll(STORE_NPCS)
+  ]);
+
+  /*
+     Aproxima o tamanho dos dados úteis salvos no IndexedDB.
+     O tamanho físico real pode ser um pouco maior por causa
+     de índices e metadados internos do navegador.
+  */
+  return tamanhoJsonEmBytes({
+    pastas: pastasBanco,
+    npcs: npcsBanco
+  });
+}
+
+
+async function atualizarTamanhoArmazenamento() {
+  if (dbLogicalSize) {
+    dbLogicalSize.textContent = "Calculando…";
+  }
+
+  try {
+    const tamanhoBanco =
+      await calcularTamanhoLogicoBanco();
+
+    if (dbLogicalSize) {
+      dbLogicalSize.textContent =
+        `${formatarBytes(tamanhoBanco)} aprox.`;
+    }
+  }
+  catch (error) {
+    console.error(
+      "Erro ao calcular tamanho do banco:",
+      error
+    );
+
+    if (dbLogicalSize) {
+      dbLogicalSize.textContent =
+        "Indisponível";
+    }
+  }
+
+  try {
+    if (
+      navigator.storage &&
+      navigator.storage.estimate
+    ) {
+      const estimativa =
+        await navigator.storage.estimate();
+
+      if (siteStorageUsage) {
+        siteStorageUsage.textContent =
+          formatarBytes(
+            estimativa.usage || 0
+          );
+      }
+
+      if (siteStorageQuota) {
+        siteStorageQuota.textContent =
+          formatarBytes(
+            estimativa.quota || 0
+          );
+      }
+    }
+    else {
+      if (siteStorageUsage) {
+        siteStorageUsage.textContent =
+          "Não suportado";
+      }
+
+      if (siteStorageQuota) {
+        siteStorageQuota.textContent =
+          "Não suportado";
+      }
+    }
+  }
+  catch (error) {
+    console.warn(
+      "Não foi possível estimar o armazenamento do site:",
+      error
+    );
+
+    if (siteStorageUsage) {
+      siteStorageUsage.textContent =
+        "Indisponível";
+    }
+
+    if (siteStorageQuota) {
+      siteStorageQuota.textContent =
+        "Indisponível";
+    }
+  }
+}
+
 /* ============================================================
    CARREGAMENTO
    ============================================================ */
@@ -1217,6 +1444,7 @@ async function recarregarDados() {
   );
 
   renderTudo();
+  atualizarTamanhoArmazenamento();
 }
 
 
@@ -2037,6 +2265,11 @@ if (autoBackupInterval) {
   );
 }
 
+refreshStorageBtn?.addEventListener(
+  "click",
+  atualizarTamanhoArmazenamento
+);
+
 document
   .getElementById("newFolderBtn")
   .addEventListener(
@@ -2092,6 +2325,7 @@ async function iniciar() {
     await abrirBanco();
     await recarregarDados();
     atualizarUiBackupAutomatico();
+    atualizarTamanhoArmazenamento();
   }
   catch (error) {
     console.error(error);
