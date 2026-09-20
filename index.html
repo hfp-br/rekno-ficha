@@ -26,8 +26,18 @@ details.has-image,
 
   display: block;
 
-  object-fit: cover;
+  /*
+     "contain" é intencional.
+     O JS calcula a escala necessária para que 0% continue
+     parecendo "cover". Assim o zoom negativo revela mais
+     da imagem original em vez de encolher só o recorte pronto.
+  */
+  object-fit: contain;
   object-position:
+    var(--feature-position-x, 50%)
+    var(--feature-position-y, 50%);
+
+  transform-origin:
     var(--feature-position-x, 50%)
     var(--feature-position-y, 50%);
 
@@ -788,7 +798,15 @@ body.editing
   height: calc(100% + 24px);
 
   display: block;
-  object-fit: cover;
+  object-fit: contain;
+
+  object-position:
+    var(--feature-position-x, 50%)
+    var(--feature-position-y, 50%);
+
+  transform-origin:
+    var(--feature-position-x, 50%)
+    var(--feature-position-y, 50%);
 
   transform: scale(var(--feature-zoom));
 
@@ -2722,8 +2740,12 @@ body.editing
     width: 100%;
     height: 100%;
 
-    object-fit: cover;
+    object-fit: contain;
     object-position:
+        var(--preview-position-x, 50%)
+        var(--preview-position-y, 50%);
+
+    transform-origin:
         var(--preview-position-x, 50%)
         var(--preview-position-y, 50%);
 
@@ -5569,6 +5591,192 @@ async function salvarConteudo() {
             "Erro ao salvar conteúdo:",
             error
         );
+    }
+}
+
+
+/* ============================================================
+   ENQUADRAMENTO REAL DAS IMAGENS DE HABILIDADES
+   ============================================================ */
+
+/*
+   Uma imagem com object-fit: cover já nasce recortada.
+   Aplicar scale() nela apenas aumenta/diminui esse recorte.
+
+   Aqui usamos object-fit: contain e calculamos a escala que seria
+   necessária para atingir exatamente o mesmo enquadramento de cover.
+   Dessa forma:
+       0%   = cover
+       -X%  = zoom out de verdade
+       +X%  = zoom in
+*/
+function calcularEscalaCoverImagem(
+    imagem,
+    container
+) {
+
+    const iw =
+        Number(
+            imagem?.naturalWidth ||
+            0
+        );
+
+    const ih =
+        Number(
+            imagem?.naturalHeight ||
+            0
+        );
+
+    const cw =
+        Number(
+            container?.clientWidth ||
+            0
+        );
+
+    const ch =
+        Number(
+            container?.clientHeight ||
+            0
+        );
+
+
+    if (
+        !iw ||
+        !ih ||
+        !cw ||
+        !ch
+    ) {
+        return 1;
+    }
+
+
+    const escalaContain =
+        Math.min(
+            cw / iw,
+            ch / ih
+        );
+
+
+    const escalaCover =
+        Math.max(
+            cw / iw,
+            ch / ih
+        );
+
+
+    if (
+        !escalaContain ||
+        !Number.isFinite(
+            escalaContain
+        ) ||
+        !Number.isFinite(
+            escalaCover
+        )
+    ) {
+        return 1;
+    }
+
+
+    return (
+        escalaCover /
+        escalaContain
+    );
+}
+
+
+function aplicarEnquadramentoImagemFeature(
+    imagem,
+    container,
+    {
+        x = 50,
+        y = 50,
+        zoom = 0,
+        blur = 0,
+        prefix = "feature"
+    } = {}
+) {
+
+    if (
+        !imagem ||
+        !container
+    ) {
+        return;
+    }
+
+
+    const aplicar = () => {
+
+        const escalaCover =
+            calcularEscalaCoverImagem(
+                imagem,
+                container
+            );
+
+
+        const fatorZoom =
+            Math.max(
+                0.05,
+                1 +
+                Number(
+                    zoom || 0
+                ) / 100
+            );
+
+
+        const escalaFinal =
+            Math.max(
+                0.05,
+                escalaCover *
+                fatorZoom
+            );
+
+
+        container.style.setProperty(
+            `--${prefix}-position-x`,
+            `${Number(x ?? 50)}%`
+        );
+
+        container.style.setProperty(
+            `--${prefix}-position-y`,
+            `${Number(y ?? 50)}%`
+        );
+
+        container.style.setProperty(
+            `--${prefix}-zoom`,
+            String(
+                escalaFinal
+            )
+        );
+
+        container.style.setProperty(
+            `--${prefix}-blur`,
+            `${Number(blur || 0)}px`
+        );
+    };
+
+
+    if (
+        imagem.complete &&
+        imagem.naturalWidth
+    ) {
+        requestAnimationFrame(
+            aplicar
+        );
+    }
+
+    else {
+
+        imagem.addEventListener(
+            "load",
+            () =>
+                requestAnimationFrame(
+                    aplicar
+                ),
+            {
+                once: true
+            }
+        );
+
     }
 }
 
@@ -14853,8 +15061,30 @@ function renderizarCaracteristicas(tipo) {
         }
 
 
-        preview.src =
-            src;
+        preview.onload =
+            () => {
+
+                /*
+                   A função abaixo será chamada novamente após o load
+                   pelas próximas linhas; este request garante atualização
+                   imediata quando a proporção da URL nova for diferente.
+                */
+                requestAnimationFrame(
+                    atualizarControlesImagem
+                );
+
+            };
+
+
+        if (
+            preview.src !==
+            src
+        ) {
+
+            preview.src =
+                src;
+
+        }
 
 
         const xAtual =
@@ -14877,32 +15107,24 @@ function renderizarCaracteristicas(tipo) {
                 zoom.value || 0
             );
 
-        const escalaAtual =
-            Math.max(
-                0.05,
-                1 +
-                zoomPercentAtual / 100
-            );
-
-
-        preview.style.setProperty(
-            "--preview-position-x",
-            `${xAtual}%`
-        );
-
-        preview.style.setProperty(
-            "--preview-position-y",
-            `${yAtual}%`
-        );
-
-        preview.style.setProperty(
-            "--preview-blur",
-            `${blurAtual}px`
-        );
-
-        preview.style.setProperty(
-            "--preview-zoom",
-            escalaAtual
+        /*
+           O preview usa o mesmo cálculo da imagem final.
+           Assim o slider mostra exatamente o enquadramento
+           que aparecerá na ficha.
+        */
+        aplicarEnquadramentoImagemFeature(
+            preview,
+            preview.parentElement,
+            {
+                x: xAtual,
+                y: yAtual,
+                zoom:
+                    zoomPercentAtual,
+                blur:
+                    blurAtual,
+                prefix:
+                    "preview"
+            }
         );
 
 
@@ -15167,28 +15389,6 @@ const zoomPercent =
             ) - 1
         ) * 100;
 
-imageContainer.style.setProperty(
-    "--feature-zoom",
-    Math.max(
-        0.05,
-        1 +
-        zoomPercent / 100
-    )
-);
-
-imageContainer.style.setProperty(
-    "--feature-position-x",
-    `${Number(
-        feature.imageX ?? 50
-    )}%`
-);
-
-imageContainer.style.setProperty(
-    "--feature-position-y",
-    `${Number(
-        feature.imageY ?? 50
-    )}%`
-);
 
     const img =
         document.createElement(
@@ -15207,6 +15407,37 @@ imageContainer.style.setProperty(
 
     details.appendChild(
         imageContainer
+    );
+
+
+    aplicarEnquadramentoImagemFeature(
+        img,
+        imageContainer,
+        {
+            x:
+                Number(
+                    feature.imageX ??
+                    50
+                ),
+
+            y:
+                Number(
+                    feature.imageY ??
+                    50
+                ),
+
+            zoom:
+                zoomPercent,
+
+            blur:
+                Number(
+                    feature.imageBlur ??
+                    0
+                ),
+
+            prefix:
+                "feature"
+        }
     );
 }
 
@@ -15675,4 +15906,77 @@ async function iniciarFicha() {
 
 
 iniciarFicha();
+
+/* Recalcula o "cover base" quando o tamanho da ficha muda. */
+let featureImageResizeTimer = null;
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        clearTimeout(
+            featureImageResizeTimer
+        );
+
+
+        featureImageResizeTimer =
+            setTimeout(
+                () => {
+
+                    document
+                        .querySelectorAll(
+                            ".feature-image img"
+                        )
+                        .forEach(
+                            imagem => {
+
+                                const container =
+                                    imagem.closest(
+                                        ".feature-image"
+                                    );
+
+                                const details =
+                                    imagem.closest(
+                                        "details"
+                                    );
+
+                                if (
+                                    !container ||
+                                    !details
+                                ) {
+                                    return;
+                                }
+
+
+                                /*
+                                   Renderizar novamente é a forma mais segura
+                                   de reaplicar dados persistidos, então
+                                   apenas forçamos o layout atual a se atualizar.
+                                */
+                                const escalaAtual =
+                                    container.style
+                                        .getPropertyValue(
+                                            "--feature-zoom"
+                                        );
+
+                                if (
+                                    escalaAtual
+                                ) {
+                                    container.style
+                                        .setProperty(
+                                            "--feature-zoom",
+                                            escalaAtual
+                                        );
+                                }
+
+                            }
+                        );
+
+                },
+                120
+            );
+
+    }
+);
+
 </script>
