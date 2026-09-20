@@ -26,8 +26,14 @@ details.has-image,
 
   display: block;
 
-  object-fit: cover;
-  object-position: center;
+  object-fit: contain;
+  object-position:
+    var(--feature-position-x, 50%)
+    var(--feature-position-y, 50%);
+
+  transform-origin:
+    var(--feature-position-x, 50%)
+    var(--feature-position-y, 50%);
 
   transform:
     scale(
@@ -2720,7 +2726,14 @@ body.editing
     width: 100%;
     height: 100%;
 
-    object-fit: cover;
+    object-fit: contain;
+    object-position:
+        var(--preview-position-x, 50%)
+        var(--preview-position-y, 50%);
+
+    transform-origin:
+        var(--preview-position-x, 50%)
+        var(--preview-position-y, 50%);
 
     transform:
         scale(
@@ -2742,9 +2755,9 @@ body.editing
     display: grid;
 
     grid-template-columns:
-        55px
+        82px
         1fr
-        55px;
+        64px;
 
     gap: 8px;
 
@@ -3313,6 +3326,11 @@ body.editing
       <strong id="charBackgroundName"></strong>
     </div>
 
+    <div class="info-item">
+      <span class="label">Origem</span>
+      <strong id="charOriginName"></strong>
+    </div>
+
 
     <div class="info-item">
       <span class="label">Proficiência</span>
@@ -3406,6 +3424,16 @@ body.editing
 
       <input
         id="configBackgroundName"
+        class="editable"
+        type="text"
+      >
+    </label>
+
+    <label>
+      <span class="label">Origem</span>
+
+      <input
+        id="configOriginName"
         class="editable"
         type="text"
       >
@@ -3884,6 +3912,32 @@ body.editing
 
         <div
           id="backgroundFeatureList"
+          class="dynamic-feature-list"
+        ></div>
+
+      </div>
+
+    </div>
+
+    <div class="section">
+
+      <div class="section-title">Origem</div>
+
+      <div class="section">
+
+        <div class="feature-editor-header">
+          <button
+            id="addOriginFeature"
+            class="add-button edit-only"
+            type="button"
+            title="Adicionar característica de origem"
+          >
+            +
+          </button>
+        </div>
+
+        <div
+          id="originFeatureList"
           class="dynamic-feature-list"
         ></div>
 
@@ -4386,6 +4440,8 @@ let conteudo = {
     talentos: [],
     classe: [],
     antecedente: [],
+    origem: [],
+    origemNome: "",
     raca: [],
 
     recursos: [],
@@ -4531,6 +4587,8 @@ function criarConteudoPadraoNpc() {
         talentos: [],
         classe: [],
         antecedente: [],
+        origem: [],
+        origemNome: "",
         raca: [],
 
         recursos: [],
@@ -5458,6 +5516,9 @@ const FIELD_MAP = {
     configBackgroundName:
         "antecedente_nome",
 
+    configOriginName:
+        "origem_nome",
+
     configSubtitle:
         "subtitulo",
 
@@ -5512,6 +5573,16 @@ function normalizarConteudo(dados) {
             Array.isArray(dados?.antecedente)
                 ? dados.antecedente
                 : [],
+
+        origem:
+            Array.isArray(dados?.origem)
+                ? dados.origem
+                : [],
+
+        origemNome:
+            typeof dados?.origemNome === "string"
+                ? dados.origemNome
+                : "",
 
         raca:
           Array.isArray(dados?.raca)
@@ -6033,6 +6104,116 @@ async function salvarConteudo() {
     await persistirNpcAtual();
 }
 
+
+/* ============================================================
+   ENQUADRAMENTO REAL DAS IMAGENS DE HABILIDADES
+   0% = cover visual; negativo = zoom out real.
+   ============================================================ */
+function calcularEscalaCoverImagem(
+    imagem,
+    container
+) {
+
+    const iw =
+        Number(imagem?.naturalWidth || 0);
+
+    const ih =
+        Number(imagem?.naturalHeight || 0);
+
+    const cw =
+        Number(container?.clientWidth || 0);
+
+    const ch =
+        Number(container?.clientHeight || 0);
+
+    if (!iw || !ih || !cw || !ch) {
+        return 1;
+    }
+
+    const escalaContain =
+        Math.min(cw / iw, ch / ih);
+
+    const escalaCover =
+        Math.max(cw / iw, ch / ih);
+
+    if (
+        !escalaContain ||
+        !Number.isFinite(escalaContain) ||
+        !Number.isFinite(escalaCover)
+    ) {
+        return 1;
+    }
+
+    return escalaCover / escalaContain;
+}
+
+function aplicarEnquadramentoImagemFeature(
+    imagem,
+    container,
+    {
+        x = 50,
+        y = 50,
+        zoom = 0,
+        blur = 0,
+        prefix = "feature"
+    } = {}
+) {
+
+    if (!imagem || !container) {
+        return;
+    }
+
+    const aplicar = () => {
+        const escalaCover =
+            calcularEscalaCoverImagem(
+                imagem,
+                container
+            );
+
+        const fatorZoom =
+            Math.max(
+                0.05,
+                1 + Number(zoom || 0) / 100
+            );
+
+        const escalaFinal =
+            Math.max(
+                0.05,
+                escalaCover * fatorZoom
+            );
+
+        container.style.setProperty(
+            `--${prefix}-position-x`,
+            `${Number(x ?? 50)}%`
+        );
+
+        container.style.setProperty(
+            `--${prefix}-position-y`,
+            `${Number(y ?? 50)}%`
+        );
+
+        container.style.setProperty(
+            `--${prefix}-zoom`,
+            String(escalaFinal)
+        );
+
+        container.style.setProperty(
+            `--${prefix}-blur`,
+            `${Number(blur || 0)}px`
+        );
+    };
+
+    if (imagem.complete && imagem.naturalWidth) {
+        requestAnimationFrame(aplicar);
+    } else {
+        imagem.addEventListener(
+            "load",
+            () => requestAnimationFrame(aplicar),
+            { once: true }
+        );
+    }
+}
+
 function adicionarCaracteristica(tipo) {
 
     const config =
@@ -6064,6 +6245,10 @@ function adicionarCaracteristica(tipo) {
     imageBlur: 0,
 
     imageZoom: 1,
+
+    imageZoomPercent: 0,
+    imageX: 50,
+    imageY: 50,
 
     effects: [],
 
@@ -6107,6 +6292,7 @@ function contarReferenciasToggle(
 
     [
     "antecedente",
+    "origem",
     "raca",
     "classe",
     "talentos",
@@ -8060,6 +8246,13 @@ function aplicarDadosFicha(dados) {
         .textContent =
         dados.antecedente_nome || "";
 
+    document
+        .getElementById(
+            "charOriginName"
+        )
+        .textContent =
+        dados.origem_nome || "";
+
 
     if (dados.conteudo_dinamico) {
 
@@ -8067,6 +8260,20 @@ function aplicarDadosFicha(dados) {
             normalizarConteudo(
                 dados.conteudo_dinamico
             );
+
+        const configOriginName =
+            document.getElementById(
+                "configOriginName"
+            );
+
+        if (
+            configOriginName &&
+            document.activeElement !==
+                configOriginName
+        ) {
+            configOriginName.value =
+                conteudo.origemNome || "";
+        }
 
         const configThemeColor =
             document.getElementById(
@@ -12356,6 +12563,11 @@ const configBackgroundName =
         "configBackgroundName"
     );
 
+const configOriginName =
+    document.getElementById(
+        "configOriginName"
+    );
+
 
 const configSubtitle =
     document.getElementById(
@@ -12528,6 +12740,16 @@ document
     )
     .textContent =
     configBackgroundName?.value ||
+    "";
+
+document
+    .getElementById(
+        "charOriginName"
+    )
+    .textContent =
+    (configOriginName?.value ??
+     conteudo.origemNome ??
+     "") ||
     "";
 
 
@@ -13187,6 +13409,30 @@ if (configThemeColor) {
 
 configurarEventosRetratoNpc();
 
+const configOriginName =
+    document.getElementById(
+        "configOriginName"
+    );
+
+if (configOriginName) {
+    configOriginName.addEventListener(
+        "input",
+        () => {
+            conteudo.origemNome =
+                configOriginName.value;
+
+            document
+                .getElementById(
+                    "charOriginName"
+                )
+                .textContent =
+                configOriginName.value;
+
+            agendarSalvamentoConteudo();
+        }
+    );
+}
+
 const galleryImageSelect =
     document.getElementById(
         "galleryImageSelect"
@@ -13662,6 +13908,17 @@ const FEATURE_CONFIG = {
             "Nova característica de antecedente"
     },
 
+    origem: {
+        containerId:
+            "originFeatureList",
+
+        buttonId:
+            "addOriginFeature",
+
+        defaultName:
+            "Nova característica de origem"
+    },
+
     raca: {
         containerId:
             "raceFeatureList",
@@ -13706,6 +13963,7 @@ function coletarEfeitosCaracteristicas(
 
     [
     "antecedente",
+    "origem",
     "raca",
     "classe",
     "talentos",
@@ -15035,29 +15293,64 @@ function renderizarCaracteristicas(tipo) {
     </div>
 
 
+    <div class="portrait-editor-header">
+        <span class="portrait-editor-title">
+            Ajuste da imagem
+        </span>
+
+        <button
+            class="portrait-reset-button feature-image-reset"
+            type="button"
+        >
+            Resetar
+        </button>
+    </div>
+
     <label
         class="feature-slider-row"
     >
         <span>
-            Blur
+            Centro X
         </span>
 
         <input
-            class="feature-edit-blur"
+            class="feature-edit-x"
             type="range"
             min="0"
-            max="12"
-            step="0.5"
-            value="0"
+            max="100"
+            step="1"
+            value="50"
         >
 
         <span
-            class="feature-slider-value feature-blur-value"
+            class="feature-slider-value feature-x-value"
         >
-            0px
+            50%
         </span>
     </label>
 
+    <label
+        class="feature-slider-row"
+    >
+        <span>
+            Centro Y
+        </span>
+
+        <input
+            class="feature-edit-y"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value="50"
+        >
+
+        <span
+            class="feature-slider-value feature-y-value"
+        >
+            50%
+        </span>
+    </label>
 
     <label
         class="feature-slider-row"
@@ -15069,16 +15362,39 @@ function renderizarCaracteristicas(tipo) {
         <input
             class="feature-edit-zoom"
             type="range"
-            min="1"
-            max="1.6"
-            step="0.01"
-            value="1"
+            min="-75"
+            max="200"
+            step="1"
+            value="0"
         >
 
         <span
             class="feature-slider-value feature-zoom-value"
         >
-            1.00×
+            0%
+        </span>
+    </label>
+
+    <label
+        class="feature-slider-row"
+    >
+        <span>
+            Blur
+        </span>
+
+        <input
+            class="feature-edit-blur"
+            type="range"
+            min="0"
+            max="20"
+            step="0.5"
+            value="0"
+        >
+
+        <span
+            class="feature-slider-value feature-blur-value"
+        >
+            0px
         </span>
     </label>
 
@@ -15141,6 +15457,16 @@ function renderizarCaracteristicas(tipo) {
                     ".feature-image-preview-img"
                 );
 
+            const x =
+                editor.querySelector(
+                    ".feature-edit-x"
+                );
+
+            const y =
+                editor.querySelector(
+                    ".feature-edit-y"
+                );
+
             const blur =
                 editor.querySelector(
                     ".feature-edit-blur"
@@ -15151,6 +15477,16 @@ function renderizarCaracteristicas(tipo) {
                     ".feature-edit-zoom"
                 );
 
+            const xValue =
+                editor.querySelector(
+                    ".feature-x-value"
+                );
+
+            const yValue =
+                editor.querySelector(
+                    ".feature-y-value"
+                );
+
             const blurValue =
                 editor.querySelector(
                     ".feature-blur-value"
@@ -15159,6 +15495,11 @@ function renderizarCaracteristicas(tipo) {
             const zoomValue =
                 editor.querySelector(
                     ".feature-zoom-value"
+                );
+
+            const resetImage =
+                editor.querySelector(
+                    ".feature-image-reset"
                 );
 
             const open =
@@ -15198,14 +15539,41 @@ function renderizarCaracteristicas(tipo) {
                 feature.image ?? "";
 
 
+            x.value =
+                Number(
+                    feature.imageX ?? 50
+                );
+
+            y.value =
+                Number(
+                    feature.imageY ?? 50
+                );
+
             blur.value =
                 Number(
                     feature.imageBlur ?? 0
                 );
 
+            const zoomPercentInicial =
+                feature.imageZoomPercent !== undefined
+                    ? Number(
+                        feature.imageZoomPercent || 0
+                    )
+                    : (
+                        Number(
+                            feature.imageZoom ?? 1
+                        ) - 1
+                    ) * 100;
+
             zoom.value =
-                Number(
-                    feature.imageZoom ?? 1
+                Math.max(
+                    -75,
+                    Math.min(
+                        200,
+                        Math.round(
+                            zoomPercentInicial
+                        )
+                    )
                 );
 
             open.checked =
@@ -15233,37 +15601,60 @@ function renderizarCaracteristicas(tipo) {
         }
 
 
-        preview.src =
-            src;
+        preview.onload =
+            () => {
+                requestAnimationFrame(
+                    atualizarControlesImagem
+                );
+            };
 
+        if (preview.src !== src) {
+            preview.src = src;
+        }
+
+        const xAtual =
+            Number(
+                x.value || 50
+            );
+
+        const yAtual =
+            Number(
+                y.value || 50
+            );
 
         const blurAtual =
             Number(
                 blur.value || 0
             );
 
-        const zoomAtual =
+        const zoomPercentAtual =
             Number(
-                zoom.value || 1
+                zoom.value || 0
             );
 
-
-        preview.style.setProperty(
-            "--preview-blur",
-            `${blurAtual}px`
+        aplicarEnquadramentoImagemFeature(
+            preview,
+            preview.parentElement,
+            {
+                x: xAtual,
+                y: yAtual,
+                zoom: zoomPercentAtual,
+                blur: blurAtual,
+                prefix: "preview"
+            }
         );
 
-        preview.style.setProperty(
-            "--preview-zoom",
-            zoomAtual
-        );
+        xValue.textContent =
+            `${xAtual}%`;
 
+        yValue.textContent =
+            `${yAtual}%`;
 
         blurValue.textContent =
             `${blurAtual}px`;
 
         zoomValue.textContent =
-            `${zoomAtual.toFixed(2)}×`;
+            `${zoomPercentAtual > 0 ? "+" : ""}${zoomPercentAtual}%`;
     };
 
 atualizarControlesImagem();
@@ -15322,6 +15713,38 @@ atualizarControlesImagem();
               }
           );
 
+          x.addEventListener(
+    "input",
+    () => {
+
+        feature.imageX =
+            Number(
+                x.value || 50
+            );
+
+        atualizarControlesImagem();
+
+        agendarSalvamentoConteudo();
+
+    }
+);
+
+          y.addEventListener(
+    "input",
+    () => {
+
+        feature.imageY =
+            Number(
+                y.value || 50
+            );
+
+        atualizarControlesImagem();
+
+        agendarSalvamentoConteudo();
+
+    }
+);
+
           blur.addEventListener(
     "input",
     () => {
@@ -15343,10 +15766,31 @@ zoom.addEventListener(
     "input",
     () => {
 
-        feature.imageZoom =
+        feature.imageZoomPercent =
             Number(
-                zoom.value || 1
+                zoom.value || 0
             );
+
+        atualizarControlesImagem();
+
+        agendarSalvamentoConteudo();
+
+    }
+);
+
+          resetImage?.addEventListener(
+    "click",
+    () => {
+
+        feature.imageX = 50;
+        feature.imageY = 50;
+        feature.imageZoomPercent = 0;
+        feature.imageBlur = 0;
+
+        x.value = 50;
+        y.value = 50;
+        zoom.value = 0;
+        blur.value = 0;
 
         atualizarControlesImagem();
 
@@ -15440,20 +15884,6 @@ if (feature.image) {
     imageContainer.className =
         "feature-image";
 
-        imageContainer.style.setProperty(
-    "--feature-blur",
-    `${Number(
-        feature.imageBlur ?? 0
-    )}px`
-);
-
-imageContainer.style.setProperty(
-    "--feature-zoom",
-    Number(
-        feature.imageZoom ?? 1
-    )
-);
-
     const img =
         document.createElement(
             "img"
@@ -15471,6 +15901,40 @@ imageContainer.style.setProperty(
 
     details.appendChild(
         imageContainer
+    );
+
+    const zoomPercent =
+        feature.imageZoomPercent !== undefined
+            ? Number(
+                feature.imageZoomPercent || 0
+            )
+            : (
+                Number(
+                    feature.imageZoom ?? 1
+                ) - 1
+            ) * 100;
+
+    aplicarEnquadramentoImagemFeature(
+        img,
+        imageContainer,
+        {
+            x:
+                Number(
+                    feature.imageX ?? 50
+                ),
+            y:
+                Number(
+                    feature.imageY ?? 50
+                ),
+            zoom:
+                zoomPercent,
+            blur:
+                Number(
+                    feature.imageBlur ?? 0
+                ),
+            prefix:
+                "feature"
+        }
     );
 }
 
