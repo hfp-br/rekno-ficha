@@ -3306,6 +3306,11 @@ body.editing
       <strong id="charBackgroundName"></strong>
     </div>
 
+    <div class="info-item">
+      <span class="label">Origem</span>
+      <strong id="charOriginName"></strong>
+    </div>
+
 
     <div class="info-item">
       <span class="label">Proficiência</span>
@@ -3399,6 +3404,16 @@ body.editing
 
       <input
         id="configBackgroundName"
+        class="editable"
+        type="text"
+      >
+    </label>
+
+    <label>
+      <span class="label">Origem</span>
+
+      <input
+        id="configOriginName"
         class="editable"
         type="text"
       >
@@ -3858,6 +3873,33 @@ body.editing
 
         <div
           id="backgroundFeatureList"
+          class="dynamic-feature-list"
+        ></div>
+
+      </div>
+
+    </div>
+
+
+    <div class="section">
+
+      <div class="section-title">Origem</div>
+
+      <div class="section">
+
+        <div class="feature-editor-header">
+          <button
+            id="addOriginFeature"
+            class="add-button edit-only"
+            type="button"
+            title="Adicionar característica de origem"
+          >
+            +
+          </button>
+        </div>
+
+        <div
+          id="originFeatureList"
           class="dynamic-feature-list"
         ></div>
 
@@ -4333,6 +4375,8 @@ let conteudo = {
     talentos: [],
     classe: [],
     antecedente: [],
+    origem: [],
+    origemNome: "",
     raca: [],
 
     recursos: [],
@@ -4416,6 +4460,8 @@ const FICHA_PREVIEW_LOGIN = {
         talentos: [],
         classe: [],
         antecedente: [],
+        origem: [],
+        origemNome: "",
         raca: [],
         recursos: [],
         lembretesCombate: [],
@@ -5024,6 +5070,16 @@ function normalizarConteudo(dados) {
                 ? dados.antecedente
                 : [],
 
+        origem:
+            Array.isArray(dados?.origem)
+                ? dados.origem
+                : [],
+
+        origemNome:
+            typeof dados?.origemNome === "string"
+                ? dados.origemNome
+                : "",
+
         raca:
           Array.isArray(dados?.raca)
               ? dados.raca
@@ -5585,6 +5641,7 @@ function contarReferenciasToggle(
 
     [
     "antecedente",
+    "origem",
     "raca",
     "classe",
     "talentos",
@@ -7626,6 +7683,25 @@ document
             normalizarConteudo(
                 dados.conteudo_dinamico
             );
+
+            const configOriginName =
+    document.getElementById(
+        "configOriginName"
+    );
+
+
+if (
+    configOriginName &&
+    document.activeElement !==
+        configOriginName
+) {
+
+    configOriginName.value =
+        conteudo.origemNome ||
+        "";
+
+}
+
 
             const configThemeColor =
     document.getElementById(
@@ -11922,6 +11998,12 @@ const configBackgroundName =
     );
 
 
+const configOriginName =
+    document.getElementById(
+        "configOriginName"
+    );
+
+
 const configSubtitle =
     document.getElementById(
         "configSubtitle"
@@ -12094,6 +12176,20 @@ document
     .textContent =
     configBackgroundName?.value ||
     "";
+
+
+const originName =
+    configOriginName?.value ??
+    conteudo.origemNome ??
+    "";
+
+
+document
+    .getElementById(
+        "charOriginName"
+    )
+    .textContent =
+    originName;
 
 
 /* =========================
@@ -12708,6 +12804,35 @@ function restaurarPreferenciasFicha() {
 function configurarEventos() {
 configurarEventosRetrato();
 
+const configOriginName =
+    document.getElementById(
+        "configOriginName"
+    );
+
+
+if (configOriginName) {
+
+    configOriginName.addEventListener(
+        "input",
+        () => {
+
+            conteudo.origemNome =
+                configOriginName.value;
+
+            document
+                .getElementById(
+                    "charOriginName"
+                )
+                .textContent =
+                configOriginName.value;
+
+            agendarSalvamentoConteudo();
+
+        }
+    );
+
+}
+
 const configThemeColor =
     document.getElementById(
         "configThemeColor"
@@ -13032,6 +13157,17 @@ const FEATURE_CONFIG = {
             "Nova característica de antecedente"
     },
 
+    origem: {
+        containerId:
+            "originFeatureList",
+
+        buttonId:
+            "addOriginFeature",
+
+        defaultName:
+            "Nova característica de origem"
+    },
+
     raca: {
         containerId:
             "raceFeatureList",
@@ -13076,6 +13212,7 @@ function coletarEfeitosCaracteristicas(
 
     [
     "antecedente",
+    "origem",
     "raca",
     "classe",
     "talentos",
