@@ -27,7 +27,9 @@ details.has-image,
   display: block;
 
   object-fit: cover;
-  object-position: center;
+  object-position:
+    var(--feature-position-x, 50%)
+    var(--feature-position-y, 50%);
 
   transform:
     scale(
@@ -2721,6 +2723,9 @@ body.editing
     height: 100%;
 
     object-fit: cover;
+    object-position:
+        var(--preview-position-x, 50%)
+        var(--preview-position-y, 50%);
 
     transform:
         scale(
@@ -2742,9 +2747,9 @@ body.editing
     display: grid;
 
     grid-template-columns:
-        55px
+        82px
         1fr
-        55px;
+        64px;
 
     gap: 8px;
 
@@ -5597,7 +5602,13 @@ function adicionarCaracteristica(tipo) {
 
     imageBlur: 0,
 
+    // imageZoom é mantido por compatibilidade com fichas antigas.
     imageZoom: 1,
+
+    // Novos controles de enquadramento.
+    imageZoomPercent: 0,
+    imageX: 50,
+    imageY: 50,
 
     effects: [],
 
@@ -14542,18 +14553,88 @@ function renderizarCaracteristicas(tipo) {
     </div>
 
 
-    <label
-        class="feature-slider-row"
-    >
-        <span>
-            Blur
+    <div class="portrait-editor-header">
+        <span class="portrait-editor-title">
+            Ajuste da imagem
         </span>
+
+        <button
+            class="portrait-reset-button feature-image-reset"
+            type="button"
+        >
+            Resetar
+        </button>
+    </div>
+
+
+    <label class="feature-slider-row">
+        <span>Centro X</span>
+
+        <input
+            class="feature-edit-x"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value="50"
+        >
+
+        <span
+            class="feature-slider-value feature-x-value"
+        >
+            50%
+        </span>
+    </label>
+
+
+    <label class="feature-slider-row">
+        <span>Centro Y</span>
+
+        <input
+            class="feature-edit-y"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value="50"
+        >
+
+        <span
+            class="feature-slider-value feature-y-value"
+        >
+            50%
+        </span>
+    </label>
+
+
+    <label class="feature-slider-row">
+        <span>Zoom</span>
+
+        <input
+            class="feature-edit-zoom"
+            type="range"
+            min="-75"
+            max="200"
+            step="1"
+            value="0"
+        >
+
+        <span
+            class="feature-slider-value feature-zoom-value"
+        >
+            0%
+        </span>
+    </label>
+
+
+    <label class="feature-slider-row">
+        <span>Blur</span>
 
         <input
             class="feature-edit-blur"
             type="range"
             min="0"
-            max="12"
+            max="20"
             step="0.5"
             value="0"
         >
@@ -14562,30 +14643,6 @@ function renderizarCaracteristicas(tipo) {
             class="feature-slider-value feature-blur-value"
         >
             0px
-        </span>
-    </label>
-
-
-    <label
-        class="feature-slider-row"
-    >
-        <span>
-            Zoom
-        </span>
-
-        <input
-            class="feature-edit-zoom"
-            type="range"
-            min="1"
-            max="1.6"
-            step="0.01"
-            value="1"
-        >
-
-        <span
-            class="feature-slider-value feature-zoom-value"
-        >
-            1.00×
         </span>
     </label>
 
@@ -14648,6 +14705,16 @@ function renderizarCaracteristicas(tipo) {
                     ".feature-image-preview-img"
                 );
 
+            const x =
+                editor.querySelector(
+                    ".feature-edit-x"
+                );
+
+            const y =
+                editor.querySelector(
+                    ".feature-edit-y"
+                );
+
             const blur =
                 editor.querySelector(
                     ".feature-edit-blur"
@@ -14658,6 +14725,16 @@ function renderizarCaracteristicas(tipo) {
                     ".feature-edit-zoom"
                 );
 
+            const xValue =
+                editor.querySelector(
+                    ".feature-x-value"
+                );
+
+            const yValue =
+                editor.querySelector(
+                    ".feature-y-value"
+                );
+
             const blurValue =
                 editor.querySelector(
                     ".feature-blur-value"
@@ -14666,6 +14743,11 @@ function renderizarCaracteristicas(tipo) {
             const zoomValue =
                 editor.querySelector(
                     ".feature-zoom-value"
+                );
+
+            const resetImage =
+                editor.querySelector(
+                    ".feature-image-reset"
                 );
 
             const open =
@@ -14705,14 +14787,45 @@ function renderizarCaracteristicas(tipo) {
                 feature.image ?? "";
 
 
+            x.value =
+                Number(
+                    feature.imageX ?? 50
+                );
+
+            y.value =
+                Number(
+                    feature.imageY ?? 50
+                );
+
             blur.value =
                 Number(
                     feature.imageBlur ?? 0
                 );
 
+            /*
+               Fichas antigas salvavam imageZoom como multiplicador
+               (1.00 até 1.60). As novas usam percentual, igual ao retrato.
+            */
+            const zoomPercentInicial =
+                feature.imageZoomPercent !== undefined
+                    ? Number(
+                        feature.imageZoomPercent || 0
+                    )
+                    : (
+                        Number(
+                            feature.imageZoom ?? 1
+                        ) - 1
+                    ) * 100;
+
             zoom.value =
-                Number(
-                    feature.imageZoom ?? 1
+                Math.max(
+                    -75,
+                    Math.min(
+                        200,
+                        Math.round(
+                            zoomPercentInicial
+                        )
+                    )
                 );
 
             open.checked =
@@ -14744,16 +14857,43 @@ function renderizarCaracteristicas(tipo) {
             src;
 
 
+        const xAtual =
+            Number(
+                x.value || 50
+            );
+
+        const yAtual =
+            Number(
+                y.value || 50
+            );
+
         const blurAtual =
             Number(
                 blur.value || 0
             );
 
-        const zoomAtual =
+        const zoomPercentAtual =
             Number(
-                zoom.value || 1
+                zoom.value || 0
             );
 
+        const escalaAtual =
+            Math.max(
+                0.05,
+                1 +
+                zoomPercentAtual / 100
+            );
+
+
+        preview.style.setProperty(
+            "--preview-position-x",
+            `${xAtual}%`
+        );
+
+        preview.style.setProperty(
+            "--preview-position-y",
+            `${yAtual}%`
+        );
 
         preview.style.setProperty(
             "--preview-blur",
@@ -14762,15 +14902,21 @@ function renderizarCaracteristicas(tipo) {
 
         preview.style.setProperty(
             "--preview-zoom",
-            zoomAtual
+            escalaAtual
         );
 
+
+        xValue.textContent =
+            `${xAtual}%`;
+
+        yValue.textContent =
+            `${yAtual}%`;
 
         blurValue.textContent =
             `${blurAtual}px`;
 
         zoomValue.textContent =
-            `${zoomAtual.toFixed(2)}×`;
+            `${zoomPercentAtual > 0 ? "+" : ""}${zoomPercentAtual}%`;
     };
 
 atualizarControlesImagem();
@@ -14829,7 +14975,41 @@ atualizarControlesImagem();
               }
           );
 
-          blur.addEventListener(
+x.addEventListener(
+    "input",
+    () => {
+
+        feature.imageX =
+            Number(
+                x.value || 50
+            );
+
+        atualizarControlesImagem();
+
+        agendarSalvamentoConteudo();
+
+    }
+);
+
+
+y.addEventListener(
+    "input",
+    () => {
+
+        feature.imageY =
+            Number(
+                y.value || 50
+            );
+
+        atualizarControlesImagem();
+
+        agendarSalvamentoConteudo();
+
+    }
+);
+
+
+blur.addEventListener(
     "input",
     () => {
 
@@ -14850,10 +15030,32 @@ zoom.addEventListener(
     "input",
     () => {
 
-        feature.imageZoom =
+        feature.imageZoomPercent =
             Number(
-                zoom.value || 1
+                zoom.value || 0
             );
+
+        atualizarControlesImagem();
+
+        agendarSalvamentoConteudo();
+
+    }
+);
+
+
+resetImage?.addEventListener(
+    "click",
+    () => {
+
+        feature.imageX = 50;
+        feature.imageY = 50;
+        feature.imageZoomPercent = 0;
+        feature.imageBlur = 0;
+
+        x.value = 50;
+        y.value = 50;
+        zoom.value = 0;
+        blur.value = 0;
 
         atualizarControlesImagem();
 
@@ -14954,11 +15156,38 @@ if (feature.image) {
     )}px`
 );
 
+const zoomPercent =
+    feature.imageZoomPercent !== undefined
+        ? Number(
+            feature.imageZoomPercent || 0
+        )
+        : (
+            Number(
+                feature.imageZoom ?? 1
+            ) - 1
+        ) * 100;
+
 imageContainer.style.setProperty(
     "--feature-zoom",
-    Number(
-        feature.imageZoom ?? 1
+    Math.max(
+        0.05,
+        1 +
+        zoomPercent / 100
     )
+);
+
+imageContainer.style.setProperty(
+    "--feature-position-x",
+    `${Number(
+        feature.imageX ?? 50
+    )}%`
+);
+
+imageContainer.style.setProperty(
+    "--feature-position-y",
+    `${Number(
+        feature.imageY ?? 50
+    )}%`
 );
 
     const img =
@@ -15350,10 +15579,36 @@ function createFeatureImages() {
         );
       }
 
-      if (card.dataset.imageZoom) {
+      if (card.dataset.imageZoomPercent) {
+        const zoomPercent =
+          Number(card.dataset.imageZoomPercent || 0);
+
+        container.style.setProperty(
+          "--feature-zoom",
+          Math.max(
+            0.05,
+            1 + zoomPercent / 100
+          )
+        );
+      }
+      else if (card.dataset.imageZoom) {
         container.style.setProperty(
           "--feature-zoom",
           card.dataset.imageZoom
+        );
+      }
+
+      if (card.dataset.imageX) {
+        container.style.setProperty(
+          "--feature-position-x",
+          `${Number(card.dataset.imageX)}%`
+        );
+      }
+
+      if (card.dataset.imageY) {
+        container.style.setProperty(
+          "--feature-position-y",
+          `${Number(card.dataset.imageY)}%`
         );
       }
 
@@ -15363,9 +15618,14 @@ function createFeatureImages() {
       image.src = src;
       image.alt = "";
 
-      image.style.objectPosition =
-        card.dataset.imagePosition ||
-        "center";
+      if (
+        !card.dataset.imageX &&
+        !card.dataset.imageY
+      ) {
+        image.style.objectPosition =
+          card.dataset.imagePosition ||
+          "center";
+      }
 
       container.appendChild(image);
       card.prepend(container);
