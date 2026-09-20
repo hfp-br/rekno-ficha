@@ -1297,6 +1297,9 @@ body.editing
 
     border: 1px solid rgba(112,82,51,.25);
     border-radius: 9px;
+
+    min-width: 0;
+    max-width: 100%;
   }
 
   summary {
@@ -1309,6 +1312,19 @@ body.editing
   details .details-body {
     padding: 0 14px 14px;
     line-height: 1.55;
+
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    height: auto;
+    max-height: none;
+
+    overflow: visible;
   }
 
   details p {
@@ -2905,7 +2921,18 @@ body.editing
 
 
 .dynamic-feature-description {
-    white-space: pre-line;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    height: auto;
+    max-height: none;
+
+    overflow: visible;
 }
 
 
@@ -2952,10 +2979,17 @@ body.editing
 
 .feature-editor textarea {
     min-height: 100px;
+    height: auto;
+    max-height: none;
 
     border: 1px solid var(--line);
 
     resize: vertical;
+
+    overflow-y: hidden;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: pre-wrap;
 }
 
 
@@ -15197,6 +15231,41 @@ renderizarFonteEfeito(
     return wrapper;
 }
 
+
+function ajustarAlturaTextarea(textarea) {
+    if (!textarea) {
+        return;
+    }
+
+    textarea.style.height = "auto";
+
+    textarea.style.height =
+        `${Math.max(
+            textarea.scrollHeight,
+            100
+        )}px`;
+}
+
+
+function configurarTextareaAutoExpansivel(textarea) {
+    if (!textarea) {
+        return;
+    }
+
+    ajustarAlturaTextarea(
+        textarea
+    );
+
+    textarea.addEventListener(
+        "input",
+        () =>
+            ajustarAlturaTextarea(
+                textarea
+            )
+    );
+}
+
+
 function renderizarCaracteristicas(tipo) {
 
     const config =
@@ -15441,6 +15510,10 @@ function renderizarCaracteristicas(tipo) {
                 editor.querySelector(
                     ".feature-edit-description"
                 );
+
+            configurarTextareaAutoExpansivel(
+                description
+            );
 
             const image =
                 editor.querySelector(
