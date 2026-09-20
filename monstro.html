@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monstro — La Magie</title>
+
+<style>
+:root{
+  --paper:#f3e6bd;
+  --paper-2:#ead49a;
+  --ink:#2f2417;
+  --muted:#725e42;
+  --red:#8f2f2a;
+  --red-dark:#64211e;
+  --line:rgba(108,74,38,.28);
+  --panel:rgba(255,252,239,.56);
+  --shadow:0 14px 42px rgba(49,31,15,.24);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  padding:26px;
+  color:var(--ink);
+  font-family:Georgia,"Times New Roman",serif;
+  background:
+    radial-gradient(circle at 18% 15%,rgba(255,255,255,.2),transparent 26%),
+    linear-gradient(145deg,#c7a66b,#8c6942);
+}
+
+button,input,textarea,select{font:inherit}
+
+button{
+  cursor:pointer;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:#fff9e8;
+  color:var(--ink);
+  padding:8px 11px;
+}
+
+button:hover{border-color:var(--red)}
+
+.top-actions{
+  width:min(940px,100%);
+  margin:0 auto 12px;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+}
+
+.left-actions,.right-actions{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.mode-switch{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:7px 10px;
+  background:rgba(255,249,232,.92);
+  border:1px solid var(--line);
+  border-radius:9px;
+}
+
+.statblock{
+  width:min(940px,100%);
+  margin:auto;
+  position:relative;
+  overflow:hidden;
+  padding:18px 22px 24px;
+  background:
+    linear-gradient(rgba(255,255,255,.14),rgba(255,255,255,.02)),
+    repeating-linear-gradient(
+      8deg,
+      rgba(100,64,30,.025) 0,
+      rgba(100,64,30,.025) 1px,
+      transparent 1px,
+      transparent 5px
+    ),
+    var(--paper);
+  border:1px solid #60401e;
+  box-shadow:var(--shadow);
+}
+
+.statblock::before,
+.statblock::after{
+  content:"";
+  display:block;
+  height:7px;
+  margin:-13px -17px 13px;
+  background:
+    linear-gradient(90deg,#4e2817,#9a4b27,#4e2817);
+}
+
+.statblock::after{
+  margin:22px -17px -18px;
+}
+
+.header{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 250px;
+  gap:20px;
+  align-items:start;
+}
+
+.name{
+  margin:0;
+  color:var(--red-dark);
+  text-transform:uppercase;
+  letter-spacing:.025em;
+  font-size:clamp(30px,5vw,48px);
+  line-height:.95;
+}
+
+.creature-line{
+  margin-top:5px;
+  font-style:italic;
+  color:var(--muted);
+}
+
+.portrait{
+  position:relative;
+  height:160px;
+  overflow:hidden;
+  border:1px solid rgba(94,58,27,.32);
+  border-radius:8px;
+  background:rgba(255,255,255,.22);
+}
+
+.portrait img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:contain;
+  object-position:
+    var(--portrait-x,50%)
+    var(--portrait-y,35%);
+  transform-origin:
+    var(--portrait-x,50%)
+    var(--portrait-y,35%);
+  transform:scale(var(--portrait-scale,1));
+  filter:blur(var(--portrait-blur,0px));
+}
+
+.red-rule{
+  height:3px;
+  border:0;
+  margin:12px 0 8px;
+  background:linear-gradient(90deg,var(--red),var(--red-dark));
+}
+
+.core-line{
+  display:flex;
+  gap:6px;
+  align-items:baseline;
+  margin:4px 0;
+  line-height:1.35;
+}
+
+.core-line strong{
+  color:var(--red-dark);
+}
+
+.abilities{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:5px;
+  margin:10px 0;
+  padding:8px 0;
+  border-top:1px solid var(--red);
+  border-bottom:1px solid var(--red);
+}
+
+.ability{
+  text-align:center;
+}
+
+.ability-name{
+  display:block;
+  color:var(--red-dark);
+  font-weight:bold;
+  font-size:12px;
+}
+
+.ability-value{
+  display:block;
+  margin-top:3px;
+  font-size:15px;
+}
+
+.info-lines{
+  display:grid;
+  gap:4px;
+  margin:8px 0;
+}
+
+.info-line strong{
+  color:var(--red-dark);
+}
+
+.section{
+  margin-top:17px;
+}
+
+.section-title{
+  margin:0 0 8px;
+  padding-bottom:3px;
+  color:var(--red-dark);
+  border-bottom:2px solid var(--red);
+  text-transform:uppercase;
+  font-size:22px;
+  letter-spacing:.02em;
+}
+
+.entry{
+  margin:8px 0 12px;
+  line-height:1.46;
+}
+
+.entry-name{
+  font-weight:bold;
+  font-style:italic;
+}
+
+.entry-description{
+  white-space:pre-line;
+}
+
+.empty{
+  color:var(--muted);
+  font-style:italic;
+  font-size:13px;
+}
+
+.edit-panel{
+  display:none;
+  width:min(940px,100%);
+  margin:12px auto 0;
+  padding:16px;
+  border:1px solid rgba(86,53,25,.38);
+  border-radius:12px;
+  background:rgba(255,248,226,.96);
+  box-shadow:0 10px 28px rgba(45,28,13,.18);
+}
+
+body.editing .edit-panel{
+  display:block;
+}
+
+.edit-title{
+  margin:0 0 12px;
+  color:var(--red-dark);
+  text-transform:uppercase;
+}
+
+.editor-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+
+.editor-grid .wide{
+  grid-column:1/-1;
+}
+
+.field{
+  display:grid;
+  gap:4px;
+}
+
+.field > span,
+.mini-label{
+  color:var(--muted);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+}
+
+input,textarea,select{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:7px;
+  background:rgba(255,255,255,.55);
+  color:var(--ink);
+  padding:8px 9px;
+  outline:none;
+}
+
+textarea{
+  min-height:86px;
+  resize:vertical;
+}
+
+input:focus,textarea:focus,select:focus{
+  border-color:var(--red);
+}
+
+.attribute-editor{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:8px;
+}
+
+.attribute-editor label{
+  display:grid;
+  gap:4px;
+  text-align:center;
+}
+
+.attribute-editor input{
+  text-align:center;
+}
+
+.image-editor{
+  display:grid;
+  gap:8px;
+  margin-top:8px;
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:rgba(255,255,255,.22);
+}
+
+.slider-row{
+  display:grid;
+  grid-template-columns:70px 1fr 55px;
+  gap:8px;
+  align-items:center;
+}
+
+.slider-row output{
+  color:var(--muted);
+  font-size:11px;
+  text-align:right;
+}
+
+.dynamic-editor{
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid var(--line);
+}
+
+.dynamic-header{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  margin-bottom:8px;
+}
+
+.dynamic-header strong{
+  color:var(--red-dark);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  font-size:13px;
+}
+
+.dynamic-row{
+  display:grid;
+  grid-template-columns:minmax(150px,.65fr) minmax(0,1.8fr) 36px;
+  gap:8px;
+  align-items:start;
+  margin-bottom:8px;
+}
+
+.dynamic-row textarea{
+  min-height:70px;
+}
+
+.delete{
+  color:#fff5e9;
+  background:#8f493d;
+  border-color:#71372f;
+}
+
+.save-status{
+  color:var(--muted);
+  font-size:11px;
+}
+
+.hp-current{
+  display:inline-flex;
+  gap:4px;
+  align-items:center;
+}
+
+.hp-current input{
+  width:70px;
+  padding:2px 4px;
+  border:0;
+  border-bottom:1px solid var(--red);
+  border-radius:0;
+  background:transparent;
+  text-align:center;
+  font-weight:bold;
+}
+
+body:not(.editing) .edit-only-inline{
+  display:none;
+}
+
+@media(max-width:760px){
+  body{padding:12px}
+  .header{grid-template-columns:1fr}
+  .portrait{height:210px}
+  .abilities{grid-template-columns:repeat(3,1fr)}
+  .editor-grid{grid-template-columns:1fr}
+  .attribute-editor{grid-template-columns:repeat(3,1fr)}
+}
+
+@media(max-width:470px){
+  .abilities,.attribute-editor{grid-template-columns:repeat(2,1fr)}
+  .dynamic-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<div class="top-actions">
+  <div class="left-actions">
+    <button id="backBtn" type="button">← Monstros</button>
+    <span id="saveStatus" class="save-status">Salvo</span>
+  </div>
+
+  <div class="right-actions">
+    <label class="mode-switch">
+      <input id="editMode" type="checkbox">
+      <span>Editar ficha</span>
+    </label>
+  </div>
+</div>
+
+<main class="statblock">
+  <div class="header">
+    <div>
+      <h1 id="viewName" class="name">Monstro</h1>
+      <div id="viewCreatureLine" class="creature-line"></div>
+    </div>
+
+    <div id="portraitBox" class="portrait">
+      <img id="portraitImage" alt="">
+    </div>
+  </div>
+
+  <hr class="red-rule">
+
+  <div class="core-line">
+    <strong>Classe de Armadura</strong>
+    <span id="viewAC"></span>
+  </div>
+
+  <div class="core-line">
+    <strong>Pontos de Vida</strong>
+    <span class="hp-current">
+      <input id="viewHpCurrent" type="number" min="0">
+      <span>/</span>
+      <span id="viewHpMax"></span>
+    </span>
+    <span id="viewHitDice"></span>
+  </div>
+
+  <div class="core-line">
+    <strong>Deslocamento</strong>
+    <span id="viewMovement"></span>
+  </div>
+
+  <div id="abilities" class="abilities"></div>
+
+  <div class="info-lines">
+    <div class="info-line" id="savingThrowsLine">
+      <strong>Testes de Resistência</strong>
+      <span id="viewSavingThrows"></span>
+    </div>
+
+    <div class="info-line" id="skillsLine">
+      <strong>Perícias</strong>
+      <span id="viewSkills"></span>
+    </div>
+
+    <div class="info-line" id="vulnerabilitiesLine">
+      <strong>Vulnerabilidades a Dano</strong>
+      <span id="viewVulnerabilities"></span>
+    </div>
+
+    <div class="info-line" id="resistancesLine">
+      <strong>Resistências a Dano</strong>
+      <span id="viewResistances"></span>
+    </div>
+
+    <div class="info-line" id="damageImmunitiesLine">
+      <strong>Imunidades a Dano</strong>
+      <span id="viewDamageImmunities"></span>
+    </div>
+
+    <div class="info-line" id="conditionImmunitiesLine">
+      <strong>Imunidades a Condição</strong>
+      <span id="viewConditionImmunities"></span>
+    </div>
+
+    <div class="info-line">
+      <strong>Sentidos</strong>
+      <span id="viewSenses"></span>
+    </div>
+
+    <div class="info-line">
+      <strong>Idiomas</strong>
+      <span id="viewLanguages"></span>
+    </div>
+
+    <div class="info-line">
+      <strong>Desafio</strong>
+      <span id="viewChallenge"></span>
+    </div>
+  </div>
+
+  <hr class="red-rule">
+
+  <section id="traitsSection" class="section">
+    <div id="traitsList"></div>
+  </section>
+
+  <section id="actionsSection" class="section">
+    <h2 class="section-title">Ações</h2>
+    <div id="actionsList"></div>
+  </section>
+
+  <section id="bonusActionsSection" class="section">
+    <h2 class="section-title">Ações Bônus</h2>
+    <div id="bonusActionsList"></div>
+  </section>
+
+  <section id="reactionsSection" class="section">
+    <h2 class="section-title">Reações</h2>
+    <div id="reactionsList"></div>
+  </section>
+
+  <section id="legendarySection" class="section">
+    <h2 class="section-title">Ações Lendárias</h2>
+    <div id="legendaryList"></div>
+  </section>
+
+  <section id="notesSection" class="section">
+    <h2 class="section-title">Observações</h2>
+    <div id="viewNotes" class="entry-description"></div>
+  </section>
+</main>
+
+<section class="edit-panel">
+  <h2 class="edit-title">Editar monstro</h2>
+
+  <div class="editor-grid">
+    <label class="field">
+      <span>Nome</span>
+      <input id="nameInput" type="text">
+    </label>
+
+    <label class="field">
+      <span>ND</span>
+      <input id="challengeInput" type="text" placeholder="1/4, 1, 5...">
+    </label>
+
+    <label class="field">
+      <span>Tamanho</span>
+      <input id="sizeInput" type="text" placeholder="Médio">
+    </label>
+
+    <label class="field">
+      <span>Tipo</span>
+      <input id="typeInput" type="text" placeholder="Monstruosidade">
+    </label>
+
+    <label class="field">
+      <span>Subtipo / tags</span>
+      <input id="subtypeInput" type="text" placeholder="metamorfo, demônio...">
+    </label>
+
+    <label class="field">
+      <span>Tendência</span>
+      <input id="alignmentInput" type="text" placeholder="Neutro">
+    </label>
+
+    <label class="field">
+      <span>CA</span>
+      <input id="acInput" type="number">
+    </label>
+
+    <label class="field">
+      <span>Descrição da CA</span>
+      <input id="acDescriptionInput" type="text" placeholder="armadura natural">
+    </label>
+
+    <label class="field">
+      <span>PV Máximo</span>
+      <input id="hpMaxInput" type="number">
+    </label>
+
+    <label class="field">
+      <span>Dados de Vida</span>
+      <input id="hitDiceInput" type="text" placeholder="8d10 + 24">
+    </label>
+
+    <label class="field wide">
+      <span>Deslocamento</span>
+      <input id="movementInput" type="text" placeholder="9 m, voo 18 m, natação 9 m">
+    </label>
+
+    <div class="wide">
+      <div class="mini-label" style="margin-bottom:6px">Atributos</div>
+      <div class="attribute-editor">
+        <label><span>FOR</span><input id="strInput" type="number"></label>
+        <label><span>DES</span><input id="dexInput" type="number"></label>
+        <label><span>CON</span><input id="conInput" type="number"></label>
+        <label><span>INT</span><input id="intInput" type="number"></label>
+        <label><span>SAB</span><input id="wisInput" type="number"></label>
+        <label><span>CAR</span><input id="chaInput" type="number"></label>
+      </div>
+    </div>
+
+    <label class="field wide">
+      <span>Testes de Resistência</span>
+      <input id="savingThrowsInput" type="text" placeholder="DES +5, SAB +4">
+    </label>
+
+    <label class="field wide">
+      <span>Perícias</span>
+      <input id="skillsInput" type="text" placeholder="Percepção +4, Furtividade +6">
+    </label>
+
+    <label class="field wide">
+      <span>Vulnerabilidades a Dano</span>
+      <input id="vulnerabilitiesInput" type="text">
+    </label>
+
+    <label class="field wide">
+      <span>Resistências a Dano</span>
+      <input id="resistancesInput" type="text">
+    </label>
+
+    <label class="field wide">
+      <span>Imunidades a Dano</span>
+      <input id="damageImmunitiesInput" type="text">
+    </label>
+
+    <label class="field wide">
+      <span>Imunidades a Condição</span>
+      <input id="conditionImmunitiesInput" type="text">
+    </label>
+
+    <label class="field wide">
+      <span>Sentidos</span>
+      <input id="sensesInput" type="text" placeholder="visão no escuro 18 m, Percepção passiva 12">
+    </label>
+
+    <label class="field wide">
+      <span>Idiomas</span>
+      <input id="languagesInput" type="text" placeholder="Comum, Dracônico">
+    </label>
+
+    <label class="field">
+      <span>XP</span>
+      <input id="xpInput" type="number" min="0">
+    </label>
+
+    <label class="field">
+      <span>Bônus de Proficiência</span>
+      <input id="profInput" type="number">
+    </label>
+
+    <label class="field wide">
+      <span>URL do retrato</span>
+      <input id="portraitUrlInput" type="text">
+    </label>
+
+    <div class="wide image-editor">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+        <strong class="mini-label">Ajuste do retrato</strong>
+        <button id="resetPortraitBtn" type="button">Resetar</button>
+      </div>
+
+      <label class="slider-row">
+        <span>Centro X</span>
+        <input id="portraitXInput" type="range" min="0" max="100" step="1">
+        <output id="portraitXValue"></output>
+      </label>
+
+      <label class="slider-row">
+        <span>Centro Y</span>
+        <input id="portraitYInput" type="range" min="0" max="100" step="1">
+        <output id="portraitYValue"></output>
+      </label>
+
+      <label class="slider-row">
+        <span>Zoom</span>
+        <input id="portraitZoomInput" type="range" min="-75" max="200" step="1">
+        <output id="portraitZoomValue"></output>
+      </label>
+
+      <label class="slider-row">
+        <span>Blur</span>
+        <input id="portraitBlurInput" type="range" min="0" max="20" step="0.5">
+        <output id="portraitBlurValue"></output>
+      </label>
+    </div>
+
+    <label class="field wide">
+      <span>Observações</span>
+      <textarea id="notesInput"></textarea>
+    </label>
+  </div>
+
+  <div id="dynamicEditors"></div>
+</section>
+
+<script>
+const DB_NAME = "la-magie-monstros";
+const DB_VERSION = 1;
+const STORE_MONSTROS = "monstros";
+const STORE_FOLDERS = "pastas";
+
+let db = null;
+let monstroAtual = null;
+let saveTimer = null;
+
+const params = new URLSearchParams(location.search);
+const MONSTER_ID = params.get("id");
+
+const $ = id => document.getElementById(id);
+
+function abrirBanco(){
+  return new Promise((resolve,reject)=>{
+    const request = indexedDB.open(DB_NAME,DB_VERSION);
+
+    request.onupgradeneeded = event => {
+      const database = event.target.result;
+
+      if(!database.objectStoreNames.contains(STORE_FOLDERS)){
+        const folders = database.createObjectStore(
+          STORE_FOLDERS,
+          {keyPath:"id"}
+        );
+        folders.createIndex("nome","nome",{unique:false});
+      }
+
+      if(!database.objectStoreNames.contains(STORE_MONSTROS)){
+        const monsters = database.createObjectStore(
+          STORE_MONSTROS,
+          {keyPath:"id"}
+        );
+        monsters.createIndex("pastaId","pastaId",{unique:false});
+        monsters.createIndex("nome","nome",{unique:false});
+        monsters.createIndex("atualizadoEm","atualizadoEm",{unique:false});
+      }
+    };
+
+    request.onsuccess = () => {
+      db = request.result;
+      resolve(db);
+    };
+
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function store(mode="readonly"){
+  return db
+    .transaction(STORE_MONSTROS,mode)
+    .objectStore(STORE_MONSTROS);
+}
+
+function requestPromise(request){
+  return new Promise((resolve,reject)=>{
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function buscarMonstro(id){
+  return requestPromise(
+    store().get(id)
+  );
+}
+
+async function gravarMonstro(monstro){
+  return requestPromise(
+    store("readwrite").put(monstro)
+  );
+}
+
+function criarId(){
+  return crypto.randomUUID();
+}
+
+function num(valor, fallback=0){
+  const n = Number(valor);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function mod(score){
+  return Math.floor((num(score,10)-10)/2);
+}
+
+function fmt(value){
+  return value >= 0 ? `+${value}` : `${value}`;
+}
+
+function limitar(valor,min,max){
+  return Math.max(min,Math.min(max,num(valor,min)));
+}
+
+function arraySeguro(valor){
+  return Array.isArray(valor) ? valor : [];
+}
+
+function normalizarEntrada(item, nomePadrao){
+  return {
+    id:item?.id || criarId(),
+    nome:String(item?.nome || item?.name || nomePadrao || ""),
+    descricao:String(item?.descricao || item?.description || "")
+  };
+}
+
+function normalizarFicha(ficha={}, monstro={}){
+  /*
+    Também entende parte da ficha antiga de NPC/player,
+    para não quebrar monstros já criados antes desta versão.
+  */
+  return {
+    nome_personagem:
+      ficha.nome_personagem ??
+      monstro.nome ??
+      "Monstro",
+
+    tamanho:
+      ficha.tamanho ??
+      "Médio",
+
+    tipo:
+      ficha.tipo ??
+      "Monstruosidade",
+
+    subtipo:
+      ficha.subtipo ??
+      "",
+
+    tendencia:
+      ficha.tendencia ??
+      "Neutro",
+
+    desafio:
+      String(
+        ficha.desafio ??
+        ficha.nivel ??
+        "1"
+      ),
+
+    xp:
+      num(ficha.xp,0),
+
+    bonus_proficiencia:
+      num(
+        ficha.bonus_proficiencia,
+        2
+      ),
+
+    ca:
+      num(
+        ficha.ca ??
+        ficha.ca_manual,
+        10
+      ),
+
+    ca_descricao:
+      String(
+        ficha.ca_descricao ??
+        ""
+      ),
+
+    vida_atual:
+      num(
+        ficha.vida_atual,
+        ficha.vida_maxima ?? 10
+      ),
+
+    vida_maxima:
+      num(
+        ficha.vida_maxima,
+        ficha.vida_atual ?? 10
+      ),
+
+    dados_vida:
+      String(
+        ficha.dados_vida ??
+        ""
+      ),
+
+    deslocamento:
+      String(
+        ficha.deslocamento ??
+        "9 m"
+      ),
+
+    forca:num(ficha.forca,10),
+    destreza:num(ficha.destreza,10),
+    constituicao:num(ficha.constituicao,10),
+    inteligencia:num(ficha.inteligencia,10),
+    sabedoria:num(ficha.sabedoria,10),
+    carisma:num(ficha.carisma,10),
+
+    testes_resistencia:
+      String(
+        ficha.testes_resistencia ??
+        ""
+      ),
+
+    pericias:
+      String(
+        ficha.pericias ??
+        ""
+      ),
+
+    vulnerabilidades:
+      String(
+        ficha.vulnerabilidades ??
+        ""
+      ),
+
+    resistencias:
+      String(
+        ficha.resistencias ??
+        ""
+      ),
+
+    imunidades_dano:
+      String(
+        ficha.imunidades_dano ??
+        ""
+      ),
+
+    imunidades_condicao:
+      String(
+        ficha.imunidades_condicao ??
+        ""
+      ),
+
+    sentidos:
+      String(
+        ficha.sentidos ??
+        "Percepção passiva 10"
+      ),
+
+    idiomas:
+      String(
+        ficha.idiomas ??
+        "—"
+      ),
+
+    retrato_url:
+      String(
+        ficha.retrato_url ??
+        monstro.retrato ??
+        ""
+      ),
+
+    retrato_x:
+      limitar(ficha.retrato_x ?? 50,0,100),
+
+    retrato_y:
+      limitar(ficha.retrato_y ?? 35,0,100),
+
+    retrato_zoom:
+      limitar(ficha.retrato_zoom ?? 0,-75,200),
+
+    retrato_blur:
+      limitar(ficha.retrato_blur ?? 0,0,20),
+
+    caracteristicas:
+      arraySeguro(ficha.caracteristicas)
+        .map(item =>
+          normalizarEntrada(
+            item,
+            "Nova característica"
+          )
+        ),
+
+    acoes:
+      arraySeguro(ficha.acoes)
+        .map(item =>
+          normalizarEntrada(
+            item,
+            "Nova ação"
+          )
+        ),
+
+    acoes_bonus:
+      arraySeguro(ficha.acoes_bonus)
+        .map(item =>
+          normalizarEntrada(
+            item,
+            "Nova ação bônus"
+          )
+        ),
+
+    reacoes:
+      arraySeguro(ficha.reacoes)
+        .map(item =>
+          normalizarEntrada(
+            item,
+            "Nova reação"
+          )
+        ),
+
+    acoes_lendarias:
+      arraySeguro(ficha.acoes_lendarias)
+        .map(item =>
+          normalizarEntrada(
+            item,
+            "Nova ação lendária"
+          )
+        ),
+
+    observacoes:
+      String(
+        ficha.observacoes ??
+        ficha.notas ??
+        ""
+      )
+  };
+}
+
+function escalaRetratoPercentual(zoom){
+  return Math.max(
+    .05,
+    1 + num(zoom,0)/100
+  );
+}
+
+function calcularEscalaCover(imagem,container){
+  const iw = imagem?.naturalWidth || 0;
+  const ih = imagem?.naturalHeight || 0;
+  const cw = container?.clientWidth || 0;
+  const ch = container?.clientHeight || 0;
+
+  if(!iw || !ih || !cw || !ch){
+    return 1;
+  }
+
+  const contain =
+    Math.min(cw/iw,ch/ih);
+
+  const cover =
+    Math.max(cw/iw,ch/ih);
+
+  return cover/contain;
+}
+
+function aplicarRetrato(){
+  const ficha = monstroAtual?.ficha;
+  const img = $("portraitImage");
+  const box = $("portraitBox");
+
+  if(!ficha || !img || !box){
+    return;
+  }
+
+  img.src = ficha.retrato_url || "";
+  img.alt = ficha.nome_personagem || "";
+
+  box.style.setProperty(
+    "--portrait-x",
+    `${ficha.retrato_x}%`
+  );
+
+  box.style.setProperty(
+    "--portrait-y",
+    `${ficha.retrato_y}%`
+  );
+
+  box.style.setProperty(
+    "--portrait-blur",
+    `${ficha.retrato_blur}px`
+  );
+
+  const aplicarEscala = () => {
+    const base =
+      calcularEscalaCover(
+        img,
+        box
+      );
+
+    const escala =
+      Math.max(
+        .05,
+        base *
+        escalaRetratoPercentual(
+          ficha.retrato_zoom
+        )
+      );
+
+    box.style.setProperty(
+      "--portrait-scale",
+      String(escala)
+    );
+  };
+
+  if(img.complete && img.naturalWidth){
+    requestAnimationFrame(aplicarEscala);
+  }else{
+    img.addEventListener(
+      "load",
+      () => requestAnimationFrame(aplicarEscala),
+      {once:true}
+    );
+  }
+
+  $("portraitXValue").textContent =
+    `${ficha.retrato_x}%`;
+
+  $("portraitYValue").textContent =
+    `${ficha.retrato_y}%`;
+
+  $("portraitZoomValue").textContent =
+    `${ficha.retrato_zoom > 0 ? "+" : ""}${ficha.retrato_zoom}%`;
+
+  $("portraitBlurValue").textContent =
+    `${ficha.retrato_blur}px`;
+}
+
+function criaturaLinha(ficha){
+  const tags = [
+    ficha.tamanho,
+    ficha.tipo +
+      (ficha.subtipo
+        ? ` (${ficha.subtipo})`
+        : ""),
+    ficha.tendencia
+  ].filter(Boolean);
+
+  return tags.join(", ");
+}
+
+const ATTRIBUTE_DEFS = [
+  ["FOR","forca"],
+  ["DES","destreza"],
+  ["CON","constituicao"],
+  ["INT","inteligencia"],
+  ["SAB","sabedoria"],
+  ["CAR","carisma"]
+];
+
+function renderAtributos(){
+  const container = $("abilities");
+  const f = monstroAtual.ficha;
+
+  container.innerHTML = "";
+
+  ATTRIBUTE_DEFS.forEach(
+    ([sigla,chave]) => {
+      const score = num(f[chave],10);
+
+      const div =
+        document.createElement("div");
+
+      div.className = "ability";
+
+      div.innerHTML = `
+        <span class="ability-name">${sigla}</span>
+        <span class="ability-value">
+          ${score} (${fmt(mod(score))})
+        </span>
+      `;
+
+      container.appendChild(div);
+    }
+  );
+}
+
+function renderLinhaOpcional(
+  rowId,
+  valueId,
+  valor
+){
+  const row = $(rowId);
+  const target = $(valueId);
+
+  if(!row || !target){
+    return;
+  }
+
+  const mostrar =
+    String(valor || "").trim() !== "";
+
+  row.style.display =
+    mostrar ? "" : "none";
+
+  target.textContent =
+    mostrar ? valor : "";
+}
+
+function renderEntradas(
+  sectionId,
+  listId,
+  itens,
+  mostrarTitulo=true
+){
+  const section = $(sectionId);
+  const list = $(listId);
+
+  if(!section || !list){
+    return;
+  }
+
+  list.innerHTML = "";
+
+  if(itens.length === 0){
+    section.style.display = "none";
+    return;
+  }
+
+  section.style.display = "";
+
+  itens.forEach(item => {
+    const div =
+      document.createElement("div");
+
+    div.className = "entry";
+
+    const name =
+      document.createElement("span");
+
+    name.className = "entry-name";
+    name.textContent =
+      `${item.nome}. `;
+
+    const desc =
+      document.createElement("span");
+
+    desc.className =
+      "entry-description";
+
+    desc.textContent =
+      item.descricao || "";
+
+    div.append(name,desc);
+    list.appendChild(div);
+  });
+}
+
+function renderFicha(){
+  if(!monstroAtual){
+    return;
+  }
+
+  const f = monstroAtual.ficha;
+
+  document.title =
+    `${f.nome_personagem} — Monstro`;
+
+  $("viewName").textContent =
+    f.nome_personagem || "Monstro";
+
+  $("viewCreatureLine").textContent =
+    criaturaLinha(f);
+
+  $("viewAC").textContent =
+    `${f.ca}${f.ca_descricao ? ` (${f.ca_descricao})` : ""}`;
+
+  $("viewHpCurrent").value =
+    f.vida_atual;
+
+  $("viewHpMax").textContent =
+    f.vida_maxima;
+
+  $("viewHitDice").textContent =
+    f.dados_vida
+      ? ` (${f.dados_vida})`
+      : "";
+
+  $("viewMovement").textContent =
+    f.deslocamento || "—";
+
+  renderAtributos();
+
+  renderLinhaOpcional(
+    "savingThrowsLine",
+    "viewSavingThrows",
+    f.testes_resistencia
+  );
+
+  renderLinhaOpcional(
+    "skillsLine",
+    "viewSkills",
+    f.pericias
+  );
+
+  renderLinhaOpcional(
+    "vulnerabilitiesLine",
+    "viewVulnerabilities",
+    f.vulnerabilidades
+  );
+
+  renderLinhaOpcional(
+    "resistancesLine",
+    "viewResistances",
+    f.resistencias
+  );
+
+  renderLinhaOpcional(
+    "damageImmunitiesLine",
+    "viewDamageImmunities",
+    f.imunidades_dano
+  );
+
+  renderLinhaOpcional(
+    "conditionImmunitiesLine",
+    "viewConditionImmunities",
+    f.imunidades_condicao
+  );
+
+  $("viewSenses").textContent =
+    f.sentidos || "—";
+
+  $("viewLanguages").textContent =
+    f.idiomas || "—";
+
+  $("viewChallenge").textContent =
+    `${f.desafio || "—"}${
+      f.xp > 0
+        ? ` (${f.xp.toLocaleString("pt-BR")} XP)`
+        : ""
+    }`;
+
+  renderEntradas(
+    "traitsSection",
+    "traitsList",
+    f.caracteristicas
+  );
+
+  renderEntradas(
+    "actionsSection",
+    "actionsList",
+    f.acoes
+  );
+
+  renderEntradas(
+    "bonusActionsSection",
+    "bonusActionsList",
+    f.acoes_bonus
+  );
+
+  renderEntradas(
+    "reactionsSection",
+    "reactionsList",
+    f.reacoes
+  );
+
+  renderEntradas(
+    "legendarySection",
+    "legendaryList",
+    f.acoes_lendarias
+  );
+
+  $("notesSection").style.display =
+    f.observacoes.trim()
+      ? ""
+      : "none";
+
+  $("viewNotes").textContent =
+    f.observacoes || "";
+
+  aplicarRetrato();
+}
+
+const FIELD_BINDINGS = {
+  nameInput:"nome_personagem",
+  challengeInput:"desafio",
+  sizeInput:"tamanho",
+  typeInput:"tipo",
+  subtypeInput:"subtipo",
+  alignmentInput:"tendencia",
+  acInput:"ca",
+  acDescriptionInput:"ca_descricao",
+  hpMaxInput:"vida_maxima",
+  hitDiceInput:"dados_vida",
+  movementInput:"deslocamento",
+  strInput:"forca",
+  dexInput:"destreza",
+  conInput:"constituicao",
+  intInput:"inteligencia",
+  wisInput:"sabedoria",
+  chaInput:"carisma",
+  savingThrowsInput:"testes_resistencia",
+  skillsInput:"pericias",
+  vulnerabilitiesInput:"vulnerabilidades",
+  resistancesInput:"resistencias",
+  damageImmunitiesInput:"imunidades_dano",
+  conditionImmunitiesInput:"imunidades_condicao",
+  sensesInput:"sentidos",
+  languagesInput:"idiomas",
+  xpInput:"xp",
+  profInput:"bonus_proficiencia",
+  portraitUrlInput:"retrato_url",
+  notesInput:"observacoes"
+};
+
+const NUMERIC_FIELDS = new Set([
+  "ca",
+  "vida_maxima",
+  "forca",
+  "destreza",
+  "constituicao",
+  "inteligencia",
+  "sabedoria",
+  "carisma",
+  "xp",
+  "bonus_proficiencia"
+]);
+
+function preencherEditor(){
+  const f = monstroAtual.ficha;
+
+  Object.entries(FIELD_BINDINGS)
+    .forEach(([id,chave])=>{
+      const input = $(id);
+      if(input){
+        input.value =
+          f[chave] ?? "";
+      }
+    });
+
+  $("portraitXInput").value =
+    f.retrato_x;
+
+  $("portraitYInput").value =
+    f.retrato_y;
+
+  $("portraitZoomInput").value =
+    f.retrato_zoom;
+
+  $("portraitBlurInput").value =
+    f.retrato_blur;
+
+  renderDynamicEditors();
+  aplicarRetrato();
+}
+
+function marcarSalvando(){
+  $("saveStatus").textContent =
+    "Salvando…";
+}
+
+function marcarSalvo(){
+  $("saveStatus").textContent =
+    "Salvo";
+}
+
+async function salvarAgora(){
+  if(!monstroAtual){
+    return;
+  }
+
+  monstroAtual.nome =
+    monstroAtual.ficha
+      .nome_personagem ||
+    "Monstro";
+
+  monstroAtual.retrato =
+    monstroAtual.ficha
+      .retrato_url ||
+    "";
+
+  monstroAtual.atualizadoEm =
+    new Date().toISOString();
+
+  await gravarMonstro(
+    monstroAtual
+  );
+
+  marcarSalvo();
+}
+
+function agendarSalvar(){
+  marcarSalvando();
+
+  clearTimeout(saveTimer);
+
+  saveTimer =
+    setTimeout(
+      salvarAgora,
+      280
+    );
+}
+
+function bindCampos(){
+  Object.entries(FIELD_BINDINGS)
+    .forEach(([id,chave])=>{
+      const input = $(id);
+
+      if(!input){
+        return;
+      }
+
+      input.addEventListener(
+        "input",
+        ()=>{
+          monstroAtual.ficha[chave] =
+            NUMERIC_FIELDS.has(chave)
+              ? num(input.value,0)
+              : input.value;
+
+          if(chave === "vida_maxima"){
+            monstroAtual.ficha.vida_atual =
+              Math.min(
+                monstroAtual.ficha.vida_atual,
+                monstroAtual.ficha.vida_maxima
+              );
+          }
+
+          renderFicha();
+          agendarSalvar();
+        }
+      );
+    });
+
+  $("viewHpCurrent")
+    .addEventListener(
+      "input",
+      ()=>{
+        monstroAtual.ficha.vida_atual =
+          Math.max(
+            0,
+            num(
+              $("viewHpCurrent").value,
+              0
+            )
+          );
+
+        agendarSalvar();
+      }
+    );
+
+  const sliders = [
+    ["portraitXInput","retrato_x",0,100],
+    ["portraitYInput","retrato_y",0,100],
+    ["portraitZoomInput","retrato_zoom",-75,200],
+    ["portraitBlurInput","retrato_blur",0,20]
+  ];
+
+  sliders.forEach(
+    ([id,chave,min,max])=>{
+      $(id).addEventListener(
+        "input",
+        ()=>{
+          monstroAtual.ficha[chave] =
+            limitar(
+              $(id).value,
+              min,
+              max
+            );
+
+          aplicarRetrato();
+          agendarSalvar();
+        }
+      );
+    }
+  );
+
+  $("resetPortraitBtn")
+    .addEventListener(
+      "click",
+      ()=>{
+        const f =
+          monstroAtual.ficha;
+
+        f.retrato_x = 50;
+        f.retrato_y = 35;
+        f.retrato_zoom = 0;
+        f.retrato_blur = 0;
+
+        preencherEditor();
+        renderFicha();
+        agendarSalvar();
+      }
+    );
+}
+
+const DYNAMIC_TYPES = [
+  {
+    key:"caracteristicas",
+    title:"Características",
+    singular:"característica"
+  },
+  {
+    key:"acoes",
+    title:"Ações",
+    singular:"ação"
+  },
+  {
+    key:"acoes_bonus",
+    title:"Ações Bônus",
+    singular:"ação bônus"
+  },
+  {
+    key:"reacoes",
+    title:"Reações",
+    singular:"reação"
+  },
+  {
+    key:"acoes_lendarias",
+    title:"Ações Lendárias",
+    singular:"ação lendária"
+  }
+];
+
+function renderDynamicEditors(){
+  const root =
+    $("dynamicEditors");
+
+  root.innerHTML = "";
+
+  DYNAMIC_TYPES.forEach(def=>{
+    const block =
+      document.createElement("div");
+
+    block.className =
+      "dynamic-editor";
+
+    const header =
+      document.createElement("div");
+
+    header.className =
+      "dynamic-header";
+
+    const title =
+      document.createElement("strong");
+
+    title.textContent =
+      def.title;
+
+    const add =
+      document.createElement("button");
+
+    add.type = "button";
+    add.textContent =
+      `+ ${def.singular}`;
+
+    add.addEventListener(
+      "click",
+      ()=>{
+        monstroAtual.ficha[def.key]
+          .push({
+            id:criarId(),
+            nome:`Nova ${def.singular}`,
+            descricao:""
+          });
+
+        renderDynamicEditors();
+        renderFicha();
+        agendarSalvar();
+      }
+    );
+
+    header.append(title,add);
+    block.appendChild(header);
+
+    monstroAtual.ficha[def.key]
+      .forEach(item=>{
+        const row =
+          document.createElement("div");
+
+        row.className =
+          "dynamic-row";
+
+        const name =
+          document.createElement("input");
+
+        name.type = "text";
+        name.value = item.nome;
+        name.placeholder = "Nome";
+
+        const desc =
+          document.createElement("textarea");
+
+        desc.value =
+          item.descricao;
+
+        desc.placeholder =
+          "Descrição da habilidade...";
+
+        const del =
+          document.createElement("button");
+
+        del.type = "button";
+        del.className = "delete";
+        del.textContent = "×";
+        del.title = "Excluir";
+
+        name.addEventListener(
+          "input",
+          ()=>{
+            item.nome =
+              name.value;
+
+            renderFicha();
+            agendarSalvar();
+          }
+        );
+
+        desc.addEventListener(
+          "input",
+          ()=>{
+            item.descricao =
+              desc.value;
+
+            renderFicha();
+            agendarSalvar();
+          }
+        );
+
+        del.addEventListener(
+          "click",
+          ()=>{
+            monstroAtual.ficha[def.key] =
+              monstroAtual.ficha[def.key]
+                .filter(
+                  other =>
+                    other.id !== item.id
+                );
+
+            renderDynamicEditors();
+            renderFicha();
+            agendarSalvar();
+          }
+        );
+
+        row.append(name,desc,del);
+        block.appendChild(row);
+      });
+
+    root.appendChild(block);
+  });
+}
+
+function bindUi(){
+  $("backBtn").addEventListener(
+    "click",
+    ()=>{
+      location.href =
+        "monstros.html";
+    }
+  );
+
+  $("editMode").addEventListener(
+    "change",
+    ()=>{
+      document.body.classList.toggle(
+        "editing",
+        $("editMode").checked
+      );
+    }
+  );
+}
+
+async function iniciar(){
+  if(!MONSTER_ID){
+    document.body.innerHTML =
+      "<p style='padding:30px'>Monstro não informado na URL.</p>";
+    return;
+  }
+
+  try{
+    await abrirBanco();
+
+    monstroAtual =
+      await buscarMonstro(
+        MONSTER_ID
+      );
+
+    if(!monstroAtual){
+      document.body.innerHTML =
+        "<p style='padding:30px'>Este monstro não existe neste navegador.</p>";
+      return;
+    }
+
+    monstroAtual.ficha =
+      normalizarFicha(
+        monstroAtual.ficha,
+        monstroAtual
+      );
+
+    bindUi();
+    bindCampos();
+    preencherEditor();
+    renderFicha();
+
+    /*
+      Salva uma vez para migrar registros antigos para o
+      formato simplificado da ficha de monstro.
+    */
+    await salvarAgora();
+  }
+  catch(error){
+    console.error(error);
+
+    document.body.innerHTML =
+      `<pre style="padding:30px;white-space:pre-wrap">Erro ao abrir a ficha:\n${error.message}</pre>`;
+  }
+}
+
+iniciar();
+</script>
+</body>
+</html>
