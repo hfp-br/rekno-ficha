@@ -869,12 +869,12 @@ body.editing
   --portrait-scale-x: 1;
   --portrait-scale-y: 1;
 
-  --portrait-fade-x: 20%;
-  --portrait-fade-y: 25%;
+  --portrait-fade-x: 10%;
+  --portrait-fade-y: 14%;
 
-  --portrait-fade-intensity: .35;
+  --portrait-fade-intensity: .85;
 
-  --portrait-fade-softness: 8%;
+  --portrait-fade-softness: 5%;
 }
 
 
@@ -3402,11 +3402,11 @@ body.editing
     --portrait-blur: 0px;
     --portrait-zoom: 1.08;
 
-    --portrait-fade-x: 36%;
-    --portrait-fade-y: 40%;
+    --portrait-fade-x: 10%;
+    --portrait-fade-y: 14%;
 
-    --portrait-fade-intensity: 0.1;
-    --portrait-fade-softness:20%;
+    --portrait-fade-intensity: 0.85;
+    --portrait-fade-softness:5%;
   "
 >
   <img
@@ -3594,6 +3594,30 @@ body.editing
         <span class="label">Blur</span>
         <input id="configPortraitBlur" type="range" min="0" max="20" step="0.5" value="0">
         <span id="configPortraitBlurValue" class="portrait-slider-value">0px</span>
+      </div>
+
+      <div class="portrait-slider-row">
+        <span class="label">Borda X</span>
+        <input id="configPortraitFadeX" type="range" min="0" max="35" step="1" value="10">
+        <span id="configPortraitFadeXValue" class="portrait-slider-value">10%</span>
+      </div>
+
+      <div class="portrait-slider-row">
+        <span class="label">Borda Y</span>
+        <input id="configPortraitFadeY" type="range" min="0" max="35" step="1" value="14">
+        <span id="configPortraitFadeYValue" class="portrait-slider-value">14%</span>
+      </div>
+
+      <div class="portrait-slider-row">
+        <span class="label">Intensidade</span>
+        <input id="configPortraitFadeIntensity" type="range" min="0" max="100" step="1" value="85">
+        <span id="configPortraitFadeIntensityValue" class="portrait-slider-value">85%</span>
+      </div>
+
+      <div class="portrait-slider-row">
+        <span class="label">Suavidade</span>
+        <input id="configPortraitFadeSoftness" type="range" min="0" max="25" step="1" value="5">
+        <span id="configPortraitFadeSoftnessValue" class="portrait-slider-value">5%</span>
       </div>
     </div>
 
@@ -4955,7 +4979,15 @@ function normalizarEstruturaNpc(npc = {}) {
         portraitBoxWidth:
             limitar(Number(imagem?.portraitBoxWidth ?? 100), 25, 200),
         portraitBoxHeight:
-            limitar(Number(imagem?.portraitBoxHeight ?? 100), 25, 200)
+            limitar(Number(imagem?.portraitBoxHeight ?? 100), 25, 200),
+        portraitFadeX:
+            limitar(Number(imagem?.portraitFadeX ?? 10), 0, 35),
+        portraitFadeY:
+            limitar(Number(imagem?.portraitFadeY ?? 14), 0, 35),
+        portraitFadeIntensity:
+            limitar(Number(imagem?.portraitFadeIntensity ?? 85), 0, 100),
+        portraitFadeSoftness:
+            limitar(Number(imagem?.portraitFadeSoftness ?? 5), 0, 25)
     }));
 
     if (
@@ -5115,6 +5147,30 @@ function normalizarAjusteImagemNpc(imagem) {
         200
     );
 
+    imagem.portraitFadeX = limitar(
+        Number(imagem.portraitFadeX ?? 10),
+        0,
+        35
+    );
+
+    imagem.portraitFadeY = limitar(
+        Number(imagem.portraitFadeY ?? 14),
+        0,
+        35
+    );
+
+    imagem.portraitFadeIntensity = limitar(
+        Number(imagem.portraitFadeIntensity ?? 85),
+        0,
+        100
+    );
+
+    imagem.portraitFadeSoftness = limitar(
+        Number(imagem.portraitFadeSoftness ?? 5),
+        0,
+        25
+    );
+
     return imagem;
 }
 
@@ -5183,7 +5239,11 @@ function aplicarAjusteRetratoNpc() {
             portraitScaleX: 100,
             portraitScaleY: 100,
             portraitBoxWidth: 100,
-            portraitBoxHeight: 100
+            portraitBoxHeight: 100,
+            portraitFadeX: 10,
+            portraitFadeY: 14,
+            portraitFadeIntensity: 85,
+            portraitFadeSoftness: 5
         };
 
     const container =
@@ -5231,6 +5291,26 @@ function aplicarAjusteRetratoNpc() {
             String(ajuste.portraitScaleY / 100)
         );
 
+        container.style.setProperty(
+            "--portrait-fade-x",
+            `${ajuste.portraitFadeX}%`
+        );
+
+        container.style.setProperty(
+            "--portrait-fade-y",
+            `${ajuste.portraitFadeY}%`
+        );
+
+        container.style.setProperty(
+            "--portrait-fade-intensity",
+            String(ajuste.portraitFadeIntensity / 100)
+        );
+
+        container.style.setProperty(
+            "--portrait-fade-softness",
+            `${ajuste.portraitFadeSoftness}%`
+        );
+
         aplicarTamanhoContainerRetratoNpc(
             container,
             ajuste
@@ -5258,7 +5338,15 @@ function aplicarAjusteRetratoNpc() {
         configPortraitBoxWidth:
             ajuste.portraitBoxWidth,
         configPortraitBoxHeight:
-            ajuste.portraitBoxHeight
+            ajuste.portraitBoxHeight,
+        configPortraitFadeX:
+            ajuste.portraitFadeX,
+        configPortraitFadeY:
+            ajuste.portraitFadeY,
+        configPortraitFadeIntensity:
+            ajuste.portraitFadeIntensity,
+        configPortraitFadeSoftness:
+            ajuste.portraitFadeSoftness
     };
 
     Object.entries(campos).forEach(
@@ -5315,6 +5403,26 @@ function aplicarAjusteRetratoNpc() {
             "configPortraitBoxHeightValue"
         );
 
+    const fadeXValue =
+        document.getElementById(
+            "configPortraitFadeXValue"
+        );
+
+    const fadeYValue =
+        document.getElementById(
+            "configPortraitFadeYValue"
+        );
+
+    const fadeIntensityValue =
+        document.getElementById(
+            "configPortraitFadeIntensityValue"
+        );
+
+    const fadeSoftnessValue =
+        document.getElementById(
+            "configPortraitFadeSoftnessValue"
+        );
+
     if (xValue) {
         xValue.textContent =
             `${ajuste.portraitX}%`;
@@ -5364,6 +5472,34 @@ function aplicarAjusteRetratoNpc() {
                 ajuste.portraitBoxHeight
             );
     }
+
+    if (fadeXValue) {
+        fadeXValue.textContent =
+            formatarPercentualRetrato(
+                ajuste.portraitFadeX
+            );
+    }
+
+    if (fadeYValue) {
+        fadeYValue.textContent =
+            formatarPercentualRetrato(
+                ajuste.portraitFadeY
+            );
+    }
+
+    if (fadeIntensityValue) {
+        fadeIntensityValue.textContent =
+            formatarPercentualRetrato(
+                ajuste.portraitFadeIntensity
+            );
+    }
+
+    if (fadeSoftnessValue) {
+        fadeSoftnessValue.textContent =
+            formatarPercentualRetrato(
+                ajuste.portraitFadeSoftness
+            );
+    }
 }
 
 function configurarEventosRetratoNpc() {
@@ -5375,7 +5511,11 @@ function configurarEventosRetratoNpc() {
         "configPortraitScaleX",
         "configPortraitScaleY",
         "configPortraitBoxWidth",
-        "configPortraitBoxHeight"
+        "configPortraitBoxHeight",
+        "configPortraitFadeX",
+        "configPortraitFadeY",
+        "configPortraitFadeIntensity",
+        "configPortraitFadeSoftness"
     ];
 
     ids.forEach(id => {
@@ -5424,6 +5564,18 @@ function configurarEventosRetratoNpc() {
                 else if (id === "configPortraitBoxHeight") {
                     imagem.portraitBoxHeight = Number(input.value);
                 }
+                else if (id === "configPortraitFadeX") {
+                    imagem.portraitFadeX = Number(input.value);
+                }
+                else if (id === "configPortraitFadeY") {
+                    imagem.portraitFadeY = Number(input.value);
+                }
+                else if (id === "configPortraitFadeIntensity") {
+                    imagem.portraitFadeIntensity = Number(input.value);
+                }
+                else if (id === "configPortraitFadeSoftness") {
+                    imagem.portraitFadeSoftness = Number(input.value);
+                }
 
                 normalizarAjusteImagemNpc(
                     imagem
@@ -5459,6 +5611,10 @@ function configurarEventosRetratoNpc() {
                 imagem.portraitScaleY = 100;
                 imagem.portraitBoxWidth = 100;
                 imagem.portraitBoxHeight = 100;
+                imagem.portraitFadeX = 10;
+                imagem.portraitFadeY = 14;
+                imagem.portraitFadeIntensity = 85;
+                imagem.portraitFadeSoftness = 5;
 
                 aplicarAjusteRetratoNpc();
                 agendarPersistenciaNpcRetrato();
