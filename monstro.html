@@ -128,7 +128,9 @@ button:hover{border-color:var(--red)}
 
 .portrait{
   position:relative;
+  width:250px;
   height:160px;
+  justify-self:end;
   overflow:hidden;
   border:1px solid rgba(94,58,27,.32);
   border-radius:8px;
@@ -146,7 +148,11 @@ button:hover{border-color:var(--red)}
   transform-origin:
     var(--portrait-x,50%)
     var(--portrait-y,35%);
-  transform:scale(var(--portrait-scale,1));
+  transform:
+    scale(
+      var(--portrait-scale-x,1),
+      var(--portrait-scale-y,1)
+    );
   filter:blur(var(--portrait-blur,0px));
 }
 
@@ -705,6 +711,30 @@ body:not(.editing) .edit-only-inline{
       </label>
 
       <label class="slider-row">
+        <span>Imagem X</span>
+        <input id="portraitScaleXInput" type="range" min="25" max="300" step="1">
+        <output id="portraitScaleXValue"></output>
+      </label>
+
+      <label class="slider-row">
+        <span>Imagem Y</span>
+        <input id="portraitScaleYInput" type="range" min="25" max="300" step="1">
+        <output id="portraitScaleYValue"></output>
+      </label>
+
+      <label class="slider-row">
+        <span>Caixa X</span>
+        <input id="portraitBoxWidthInput" type="range" min="25" max="200" step="1">
+        <output id="portraitBoxWidthValue"></output>
+      </label>
+
+      <label class="slider-row">
+        <span>Caixa Y</span>
+        <input id="portraitBoxHeightInput" type="range" min="25" max="200" step="1">
+        <output id="portraitBoxHeightValue"></output>
+      </label>
+
+      <label class="slider-row">
         <span>Blur</span>
         <input id="portraitBlurInput" type="range" min="0" max="20" step="0.5">
         <output id="portraitBlurValue"></output>
@@ -982,6 +1012,18 @@ function normalizarFicha(ficha={}, monstro={}){
     retrato_blur:
       limitar(ficha.retrato_blur ?? 0,0,20),
 
+    retrato_scale_x:
+      limitar(ficha.retrato_scale_x ?? 100,25,300),
+
+    retrato_scale_y:
+      limitar(ficha.retrato_scale_y ?? 100,25,300),
+
+    retrato_box_width:
+      limitar(ficha.retrato_box_width ?? 100,25,200),
+
+    retrato_box_height:
+      limitar(ficha.retrato_box_height ?? 100,25,200),
+
     caracteristicas:
       arraySeguro(ficha.caracteristicas)
         .map(item =>
@@ -1043,6 +1085,28 @@ function escalaRetratoPercentual(zoom){
   );
 }
 
+function formatarPercentual(valor){
+  return `${num(valor,0)}%`;
+}
+
+function aplicarTamanhoContainerRetrato(box,ficha){
+  if(!box){
+    return;
+  }
+
+  if(!box.dataset.baseWidth || !box.dataset.baseHeight){
+    const rect = box.getBoundingClientRect();
+    box.dataset.baseWidth = String(rect.width || box.clientWidth || 250);
+    box.dataset.baseHeight = String(rect.height || box.clientHeight || 160);
+  }
+
+  const baseWidth = num(box.dataset.baseWidth,250);
+  const baseHeight = num(box.dataset.baseHeight,160);
+
+  box.style.width = `${Math.max(24, baseWidth * ficha.retrato_box_width / 100)}px`;
+  box.style.height = `${Math.max(24, baseHeight * ficha.retrato_box_height / 100)}px`;
+}
+
 function calcularEscalaCover(imagem,container){
   const iw = imagem?.naturalWidth || 0;
   const ih = imagem?.naturalHeight || 0;
@@ -1089,6 +1153,11 @@ function aplicarRetrato(){
     `${ficha.retrato_blur}px`
   );
 
+  aplicarTamanhoContainerRetrato(
+    box,
+    ficha
+  );
+
   const aplicarEscala = () => {
     const base =
       calcularEscalaCover(
@@ -1096,7 +1165,7 @@ function aplicarRetrato(){
         box
       );
 
-    const escala =
+    const escalaBase =
       Math.max(
         .05,
         base *
@@ -1106,8 +1175,23 @@ function aplicarRetrato(){
       );
 
     box.style.setProperty(
-      "--portrait-scale",
-      String(escala)
+      "--portrait-scale-x",
+      String(
+        Math.max(
+          .05,
+          escalaBase * ficha.retrato_scale_x / 100
+        )
+      )
+    );
+
+    box.style.setProperty(
+      "--portrait-scale-y",
+      String(
+        Math.max(
+          .05,
+          escalaBase * ficha.retrato_scale_y / 100
+        )
+      )
     );
   };
 
@@ -1132,6 +1216,18 @@ function aplicarRetrato(){
 
   $("portraitBlurValue").textContent =
     `${ficha.retrato_blur}px`;
+
+  $("portraitScaleXValue").textContent =
+    formatarPercentual(ficha.retrato_scale_x);
+
+  $("portraitScaleYValue").textContent =
+    formatarPercentual(ficha.retrato_scale_y);
+
+  $("portraitBoxWidthValue").textContent =
+    formatarPercentual(ficha.retrato_box_width);
+
+  $("portraitBoxHeightValue").textContent =
+    formatarPercentual(ficha.retrato_box_height);
 }
 
 function criaturaLinha(ficha){
@@ -1448,6 +1544,18 @@ function preencherEditor(){
   $("portraitBlurInput").value =
     f.retrato_blur;
 
+  $("portraitScaleXInput").value =
+    f.retrato_scale_x;
+
+  $("portraitScaleYInput").value =
+    f.retrato_scale_y;
+
+  $("portraitBoxWidthInput").value =
+    f.retrato_box_width;
+
+  $("portraitBoxHeightInput").value =
+    f.retrato_box_height;
+
   renderDynamicEditors();
   aplicarRetrato();
 }
@@ -1551,7 +1659,11 @@ function bindCampos(){
     ["portraitXInput","retrato_x",0,100],
     ["portraitYInput","retrato_y",0,100],
     ["portraitZoomInput","retrato_zoom",-75,200],
-    ["portraitBlurInput","retrato_blur",0,20]
+    ["portraitBlurInput","retrato_blur",0,20],
+    ["portraitScaleXInput","retrato_scale_x",25,300],
+    ["portraitScaleYInput","retrato_scale_y",25,300],
+    ["portraitBoxWidthInput","retrato_box_width",25,200],
+    ["portraitBoxHeightInput","retrato_box_height",25,200]
   ];
 
   sliders.forEach(
@@ -1584,6 +1696,10 @@ function bindCampos(){
         f.retrato_y = 35;
         f.retrato_zoom = 0;
         f.retrato_blur = 0;
+        f.retrato_scale_x = 100;
+        f.retrato_scale_y = 100;
+        f.retrato_box_width = 100;
+        f.retrato_box_height = 100;
 
         preencherEditor();
         renderFicha();

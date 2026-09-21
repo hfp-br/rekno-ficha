@@ -856,6 +856,9 @@ body.editing
   height: 100%;
   min-height: 148px;
 
+  justify-self: center;
+  align-self: start;
+
   overflow: hidden;
   isolation: isolate;
 
@@ -863,6 +866,8 @@ body.editing
 
   --portrait-blur: 0px;
   --portrait-zoom: 1.08;
+  --portrait-scale-x: 1;
+  --portrait-scale-y: 1;
 
   --portrait-fade-x: 20%;
   --portrait-fade-y: 25%;
@@ -887,7 +892,11 @@ body.editing
     var(--portrait-position-x, 50%)
     var(--portrait-position-y, 30%);
 
-  transform: scale(var(--portrait-zoom));
+  transform:
+    scale(
+      calc(var(--portrait-zoom) * var(--portrait-scale-x, 1)),
+      calc(var(--portrait-zoom) * var(--portrait-scale-y, 1))
+    );
 
   filter:
     blur(var(--portrait-blur))
@@ -3558,6 +3567,30 @@ body.editing
       </div>
 
       <div class="portrait-slider-row">
+        <span class="label">Imagem X</span>
+        <input id="configPortraitScaleX" type="range" min="25" max="300" step="1" value="100">
+        <span id="configPortraitScaleXValue" class="portrait-slider-value">100%</span>
+      </div>
+
+      <div class="portrait-slider-row">
+        <span class="label">Imagem Y</span>
+        <input id="configPortraitScaleY" type="range" min="25" max="300" step="1" value="100">
+        <span id="configPortraitScaleYValue" class="portrait-slider-value">100%</span>
+      </div>
+
+      <div class="portrait-slider-row">
+        <span class="label">Caixa X</span>
+        <input id="configPortraitBoxWidth" type="range" min="25" max="200" step="1" value="100">
+        <span id="configPortraitBoxWidthValue" class="portrait-slider-value">100%</span>
+      </div>
+
+      <div class="portrait-slider-row">
+        <span class="label">Caixa Y</span>
+        <input id="configPortraitBoxHeight" type="range" min="25" max="200" step="1" value="100">
+        <span id="configPortraitBoxHeightValue" class="portrait-slider-value">100%</span>
+      </div>
+
+      <div class="portrait-slider-row">
         <span class="label">Blur</span>
         <input id="configPortraitBlur" type="range" min="0" max="20" step="0.5" value="0">
         <span id="configPortraitBlurValue" class="portrait-slider-value">0px</span>
@@ -4914,7 +4947,15 @@ function normalizarEstruturaNpc(npc = {}) {
         portraitZoom:
             limitar(Number(imagem?.portraitZoom ?? 8), -75, 200),
         portraitBlur:
-            limitar(Number(imagem?.portraitBlur ?? 0), 0, 20)
+            limitar(Number(imagem?.portraitBlur ?? 0), 0, 20),
+        portraitScaleX:
+            limitar(Number(imagem?.portraitScaleX ?? 100), 25, 300),
+        portraitScaleY:
+            limitar(Number(imagem?.portraitScaleY ?? 100), 25, 300),
+        portraitBoxWidth:
+            limitar(Number(imagem?.portraitBoxWidth ?? 100), 25, 200),
+        portraitBoxHeight:
+            limitar(Number(imagem?.portraitBoxHeight ?? 100), 25, 200)
     }));
 
     if (
@@ -5050,6 +5091,30 @@ function normalizarAjusteImagemNpc(imagem) {
         20
     );
 
+    imagem.portraitScaleX = limitar(
+        Number(imagem.portraitScaleX ?? 100),
+        25,
+        300
+    );
+
+    imagem.portraitScaleY = limitar(
+        Number(imagem.portraitScaleY ?? 100),
+        25,
+        300
+    );
+
+    imagem.portraitBoxWidth = limitar(
+        Number(imagem.portraitBoxWidth ?? 100),
+        25,
+        200
+    );
+
+    imagem.portraitBoxHeight = limitar(
+        Number(imagem.portraitBoxHeight ?? 100),
+        25,
+        200
+    );
+
     return imagem;
 }
 
@@ -5065,6 +5130,42 @@ function formatarZoomRetrato(valor) {
     return `${numero > 0 ? "+" : ""}${numero}%`;
 }
 
+function formatarPercentualRetrato(valor) {
+    return `${Number(valor || 0)}%`;
+}
+
+function aplicarTamanhoContainerRetratoNpc(container, ajuste) {
+    if (!container) {
+        return;
+    }
+
+    if (!container.dataset.baseWidth || !container.dataset.baseHeight) {
+        const rect = container.getBoundingClientRect();
+        const computed = getComputedStyle(container);
+
+        container.dataset.baseWidth = String(
+            rect.width || container.clientWidth || 0
+        );
+
+        container.dataset.baseHeight = String(
+            rect.height || container.clientHeight || parseFloat(computed.minHeight) || 148
+        );
+    }
+
+    const baseWidth = Number(container.dataset.baseWidth || 0);
+    const baseHeight = Number(container.dataset.baseHeight || 148);
+
+    if (baseWidth) {
+        container.style.width = `${Math.max(24, baseWidth * ajuste.portraitBoxWidth / 100)}px`;
+    }
+
+    if (baseHeight) {
+        const altura = Math.max(24, baseHeight * ajuste.portraitBoxHeight / 100);
+        container.style.height = `${altura}px`;
+        container.style.minHeight = `${altura}px`;
+    }
+}
+
 function aplicarAjusteRetratoNpc() {
     const imagemAtual =
         normalizarAjusteImagemNpc(
@@ -5078,7 +5179,11 @@ function aplicarAjusteRetratoNpc() {
             portraitX: 50,
             portraitY: 30,
             portraitZoom: 8,
-            portraitBlur: 0
+            portraitBlur: 0,
+            portraitScaleX: 100,
+            portraitScaleY: 100,
+            portraitBoxWidth: 100,
+            portraitBoxHeight: 100
         };
 
     const container =
@@ -5115,6 +5220,21 @@ function aplicarAjusteRetratoNpc() {
             "--portrait-blur",
             `${ajuste.portraitBlur}px`
         );
+
+        container.style.setProperty(
+            "--portrait-scale-x",
+            String(ajuste.portraitScaleX / 100)
+        );
+
+        container.style.setProperty(
+            "--portrait-scale-y",
+            String(ajuste.portraitScaleY / 100)
+        );
+
+        aplicarTamanhoContainerRetratoNpc(
+            container,
+            ajuste
+        );
     }
 
     if (imagem) {
@@ -5130,7 +5250,15 @@ function aplicarAjusteRetratoNpc() {
         configPortraitZoom:
             ajuste.portraitZoom,
         configPortraitBlur:
-            ajuste.portraitBlur
+            ajuste.portraitBlur,
+        configPortraitScaleX:
+            ajuste.portraitScaleX,
+        configPortraitScaleY:
+            ajuste.portraitScaleY,
+        configPortraitBoxWidth:
+            ajuste.portraitBoxWidth,
+        configPortraitBoxHeight:
+            ajuste.portraitBoxHeight
     };
 
     Object.entries(campos).forEach(
@@ -5167,6 +5295,26 @@ function aplicarAjusteRetratoNpc() {
             "configPortraitBlurValue"
         );
 
+    const scaleXValue =
+        document.getElementById(
+            "configPortraitScaleXValue"
+        );
+
+    const scaleYValue =
+        document.getElementById(
+            "configPortraitScaleYValue"
+        );
+
+    const boxWidthValue =
+        document.getElementById(
+            "configPortraitBoxWidthValue"
+        );
+
+    const boxHeightValue =
+        document.getElementById(
+            "configPortraitBoxHeightValue"
+        );
+
     if (xValue) {
         xValue.textContent =
             `${ajuste.portraitX}%`;
@@ -5188,6 +5336,34 @@ function aplicarAjusteRetratoNpc() {
         blurValue.textContent =
             `${ajuste.portraitBlur}px`;
     }
+
+    if (scaleXValue) {
+        scaleXValue.textContent =
+            formatarPercentualRetrato(
+                ajuste.portraitScaleX
+            );
+    }
+
+    if (scaleYValue) {
+        scaleYValue.textContent =
+            formatarPercentualRetrato(
+                ajuste.portraitScaleY
+            );
+    }
+
+    if (boxWidthValue) {
+        boxWidthValue.textContent =
+            formatarPercentualRetrato(
+                ajuste.portraitBoxWidth
+            );
+    }
+
+    if (boxHeightValue) {
+        boxHeightValue.textContent =
+            formatarPercentualRetrato(
+                ajuste.portraitBoxHeight
+            );
+    }
 }
 
 function configurarEventosRetratoNpc() {
@@ -5195,7 +5371,11 @@ function configurarEventosRetratoNpc() {
         "configPortraitX",
         "configPortraitY",
         "configPortraitZoom",
-        "configPortraitBlur"
+        "configPortraitBlur",
+        "configPortraitScaleX",
+        "configPortraitScaleY",
+        "configPortraitBoxWidth",
+        "configPortraitBoxHeight"
     ];
 
     ids.forEach(id => {
@@ -5232,6 +5412,18 @@ function configurarEventosRetratoNpc() {
                 else if (id === "configPortraitBlur") {
                     imagem.portraitBlur = Number(input.value);
                 }
+                else if (id === "configPortraitScaleX") {
+                    imagem.portraitScaleX = Number(input.value);
+                }
+                else if (id === "configPortraitScaleY") {
+                    imagem.portraitScaleY = Number(input.value);
+                }
+                else if (id === "configPortraitBoxWidth") {
+                    imagem.portraitBoxWidth = Number(input.value);
+                }
+                else if (id === "configPortraitBoxHeight") {
+                    imagem.portraitBoxHeight = Number(input.value);
+                }
 
                 normalizarAjusteImagemNpc(
                     imagem
@@ -5263,6 +5455,10 @@ function configurarEventosRetratoNpc() {
                 imagem.portraitY = 30;
                 imagem.portraitZoom = 8;
                 imagem.portraitBlur = 0;
+                imagem.portraitScaleX = 100;
+                imagem.portraitScaleY = 100;
+                imagem.portraitBoxWidth = 100;
+                imagem.portraitBoxHeight = 100;
 
                 aplicarAjusteRetratoNpc();
                 agendarPersistenciaNpcRetrato();
