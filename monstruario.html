@@ -575,21 +575,85 @@ dialog::backdrop{
     grid-column:1/-1;
   }
 }
+
+/* ============================================================
+   LOGIN DO MESTRE / SUPABASE
+   ============================================================ */
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: none;
+  place-items: center;
+  padding: 20px;
+  background: rgba(35,24,14,.62);
+  backdrop-filter: blur(4px);
+}
+.login-overlay.show { display: grid; }
+.login-card {
+  width: min(420px, 100%);
+  padding: 22px;
+  border: 1px solid rgba(79,52,28,.42);
+  border-radius: 14px;
+  background: var(--sand-0);
+  color: var(--ink);
+  box-shadow: 0 25px 70px rgba(40,25,10,.38);
+}
+.login-card h2 { margin: 0 0 7px; }
+.login-card p { margin: 0 0 16px; color: var(--muted); line-height: 1.45; }
+.login-card form { display: grid; gap: 10px; }
+.login-card input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255,255,255,.58);
+  color: inherit;
+}
+.login-card button {
+  padding: 10px 12px;
+  border: 1px solid var(--sand-5);
+  border-radius: 8px;
+  background: var(--sand-4);
+  color: var(--sand-0);
+  cursor: pointer;
+}
+.login-error {
+  min-height: 18px;
+  color: var(--danger);
+  font-size: 12px;
+}
+
 </style>
 </head>
 
 <body>
+
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-card">
+    <h2>Acesso do mestre</h2>
+    <p>Entre com o usuário do mestre para carregar os monstros sincronizados.</p>
+    <form id="masterLoginForm">
+      <input id="masterLoginUsername" type="text" autocomplete="username" placeholder="Nome de usuário" required>
+      <input id="masterLoginPassword" type="password" autocomplete="current-password" placeholder="Senha" required>
+      <button type="submit">Entrar</button>
+      <div id="masterLoginError" class="login-error"></div>
+    </form>
+  </div>
+</div>
+
 <div class="app">
 
   <header class="topbar">
     <div class="brand">
       <h1>La Magie — Monstros</h1>
-      <small>Biblioteca local do mestre • IndexedDB</small>
+      <small>Biblioteca privada do mestre • Supabase</small>
     </div>
 
     <div class="top-actions">
       <button id="exportAllBtn">Exportar tudo</button>
       <button id="importBtn">Importar backup</button>
+      <button id="logoutBtn">Sair</button>
       <button id="newNpcBtn" class="primary">+ Novo Monstro</button>
     </div>
   </header>
@@ -605,8 +669,8 @@ dialog::backdrop{
       <div id="folderList" class="folder-list"></div>
 
       <div class="sidebar-footer">
-        Os Monstros ficam salvos somente neste navegador.<br><br>
-        Faça backups periódicos em <strong>Exportar tudo</strong>.
+        Os Monstros ficam sincronizados no Supabase.<br><br>
+        <strong>Exportar tudo</strong> continua disponível como backup manual.
       </div>
 
       <div class="backup-config">
@@ -629,17 +693,17 @@ dialog::backdrop{
         <div class="storage-info-title">Armazenamento</div>
 
         <div class="storage-line">
-          <span>Dados dos monstros</span>
+          <span>Dados carregados (JSON)</span>
           <strong id="dbLogicalSize">Calculando…</strong>
         </div>
 
         <div class="storage-line">
-          <span>Uso deste site</span>
+          <span>Status</span>
           <strong id="siteStorageUsage">Calculando…</strong>
         </div>
 
         <div class="storage-line">
-          <span>Limite disponível</span>
+          <span>Armazenamento</span>
           <strong id="siteStorageQuota">Calculando…</strong>
         </div>
 
@@ -785,111 +849,243 @@ dialog::backdrop{
 <div id="toast" class="toast"></div>
 
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
 /* ============================================================
-   INDEXEDDB
+   SUPABASE / BIBLIOTECA PRIVADA DO MESTRE
    ============================================================ */
 
-const DB_NAME = "la-magie-monstros";
-const DB_VERSION = 1;
+const SUPABASE_URL = "https://deugjkzscsbmpahlrlpr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_WZiiRJhBAqPU_Ea3aEgamg_17v0qKXS";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const STORE_FOLDERS = "pastas";
 const STORE_MONSTROS = "monstros";
 
-let db = null;
+let currentUser = null;
+let realtimeMonsterListChannel = null;
+let realtimeMonsterFolderChannel = null;
+let remoteReloadTimer = null;
 
-function abrirBanco() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-    request.onupgradeneeded = event => {
-      const database = event.target.result;
-
-      if (!database.objectStoreNames.contains(STORE_FOLDERS)) {
-        const folders = database.createObjectStore(
-          STORE_FOLDERS,
-          { keyPath: "id" }
-        );
-
-        folders.createIndex(
-          "nome",
-          "nome",
-          { unique: false }
-        );
-      }
-
-      if (!database.objectStoreNames.contains(STORE_MONSTROS)) {
-        const npcs = database.createObjectStore(
-          STORE_MONSTROS,
-          { keyPath: "id" }
-        );
-
-        npcs.createIndex(
-          "pastaId",
-          "pastaId",
-          { unique: false }
-        );
-
-        npcs.createIndex(
-          "nome",
-          "nome",
-          { unique: false }
-        );
-
-        npcs.createIndex(
-          "atualizadoEm",
-          "atualizadoEm",
-          { unique: false }
-        );
-      }
-    };
-
-    request.onsuccess = () => {
-      db = request.result;
-      resolve(db);
-    };
-
-    request.onerror = () => {
-      reject(request.error);
-    };
-  });
+function mostrarLogin(mensagem = "") {
+  const overlay = document.getElementById("loginOverlay");
+  const error = document.getElementById("masterLoginError");
+  if (error) error.textContent = mensagem;
+  overlay?.classList.add("show");
 }
 
-function store(name, mode = "readonly") {
-  return db
-    .transaction(name, mode)
-    .objectStore(name);
+function esconderLogin() {
+  document.getElementById("loginOverlay")?.classList.remove("show");
 }
 
-function requestPromise(request) {
-  return new Promise((resolve, reject) => {
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
+async function abrirBanco() {
+  const { data, error } = await sb.auth.getSession();
+  if (error) throw error;
+
+  currentUser = data.session?.user || null;
+  if (!currentUser) {
+    mostrarLogin();
+    return false;
+  }
+
+  esconderLogin();
+  return true;
+}
+
+function pastaDaLinha(row) {
+  return {
+    id: row.id,
+    nome: row.nome,
+    criadoEm: row.criado_em,
+    atualizadoEm: row.atualizado_em
+  };
+}
+
+function monstroDaLinha(row) {
+  const dados = row?.dados && typeof row.dados === "object"
+    ? structuredClone(row.dados)
+    : {};
+
+  return {
+    ...dados,
+    id: row.id,
+    pastaId: row.pasta_id || null,
+    nome: row.nome || dados.nome || "Monstro sem nome",
+    retrato: row.retrato || dados.retrato || "",
+    criadoEm: row.criado_em || dados.criadoEm || null,
+    atualizadoEm: row.atualizado_em || dados.atualizadoEm || null
+  };
 }
 
 async function dbGetAll(storeName) {
-  return requestPromise(
-    store(storeName).getAll()
-  );
+  if (!currentUser) return [];
+
+  if (storeName === STORE_FOLDERS) {
+    const { data, error } = await sb
+      .from("monstro_pastas")
+      .select("*")
+      .eq("owner_id", currentUser.id);
+
+    if (error) throw error;
+    return (data || []).map(pastaDaLinha);
+  }
+
+  if (storeName === STORE_MONSTROS) {
+    const { data, error } = await sb
+      .from("monstros")
+      .select("*")
+      .eq("owner_id", currentUser.id);
+
+    if (error) throw error;
+    return (data || []).map(monstroDaLinha);
+  }
+
+  throw new Error(`Store desconhecida: ${storeName}`);
 }
 
 async function dbPut(storeName, value) {
-  return requestPromise(
-    store(storeName, "readwrite").put(value)
-  );
+  if (!currentUser) {
+    throw new Error("Sessão do mestre não encontrada.");
+  }
+
+  if (storeName === STORE_FOLDERS) {
+    const agora = value.atualizadoEm || new Date().toISOString();
+
+    const payload = {
+      id: value.id,
+      owner_id: currentUser.id,
+      nome: value.nome,
+      criado_em: value.criadoEm || agora,
+      atualizado_em: agora
+    };
+
+    const { error } = await sb
+      .from("monstro_pastas")
+      .upsert(payload, { onConflict: "id" });
+
+    if (error) throw error;
+    return value;
+  }
+
+  if (storeName === STORE_MONSTROS) {
+    const agora = value.atualizadoEm || new Date().toISOString();
+
+    const payload = {
+      id: value.id,
+      owner_id: currentUser.id,
+      pasta_id: value.pastaId || null,
+      nome: value.nome || value.ficha?.nome_personagem || "Monstro sem nome",
+      retrato: value.retrato || value.ficha?.retrato_url || "",
+      desafio: String(value.ficha?.desafio ?? "1"),
+      dados: structuredClone(value),
+      criado_em: value.criadoEm || agora,
+      atualizado_em: agora
+    };
+
+    const { error } = await sb
+      .from("monstros")
+      .upsert(payload, { onConflict: "id" });
+
+    if (error) throw error;
+    return value;
+  }
+
+  throw new Error(`Store desconhecida: ${storeName}`);
 }
 
 async function dbDelete(storeName, id) {
-  return requestPromise(
-    store(storeName, "readwrite").delete(id)
-  );
+  if (!currentUser) {
+    throw new Error("Sessão do mestre não encontrada.");
+  }
+
+  const tabela = storeName === STORE_FOLDERS
+    ? "monstro_pastas"
+    : storeName === STORE_MONSTROS
+      ? "monstros"
+      : null;
+
+  if (!tabela) {
+    throw new Error(`Store desconhecida: ${storeName}`);
+  }
+
+  const { error } = await sb
+    .from(tabela)
+    .delete()
+    .eq("id", id)
+    .eq("owner_id", currentUser.id);
+
+  if (error) throw error;
 }
 
 async function dbClear(storeName) {
-  return requestPromise(
-    store(storeName, "readwrite").clear()
+  if (!currentUser) {
+    throw new Error("Sessão do mestre não encontrada.");
+  }
+
+  const tabela = storeName === STORE_FOLDERS
+    ? "monstro_pastas"
+    : storeName === STORE_MONSTROS
+      ? "monstros"
+      : null;
+
+  if (!tabela) {
+    throw new Error(`Store desconhecida: ${storeName}`);
+  }
+
+  const { error } = await sb
+    .from(tabela)
+    .delete()
+    .eq("owner_id", currentUser.id);
+
+  if (error) throw error;
+}
+
+function agendarRecarregamentoRemoto() {
+  clearTimeout(remoteReloadTimer);
+
+  remoteReloadTimer = setTimeout(
+    () => recarregarDados().catch(console.error),
+    180
   );
+}
+
+async function iniciarRealtimeBiblioteca() {
+  if (!currentUser) return;
+
+  if (realtimeMonsterListChannel) {
+    await sb.removeChannel(realtimeMonsterListChannel);
+  }
+
+  if (realtimeMonsterFolderChannel) {
+    await sb.removeChannel(realtimeMonsterFolderChannel);
+  }
+
+  realtimeMonsterListChannel = sb
+    .channel(`monstros-list-${currentUser.id}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "monstros"
+      },
+      agendarRecarregamentoRemoto
+    )
+    .subscribe();
+
+  realtimeMonsterFolderChannel = sb
+    .channel(`monstro-folders-${currentUser.id}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "monstro_pastas"
+      },
+      agendarRecarregamentoRemoto
+    )
+    .subscribe();
 }
 
 
@@ -1347,7 +1543,7 @@ async function atualizarTamanhoArmazenamento() {
   }
   catch (error) {
     console.error(
-      "Erro ao calcular tamanho do banco:",
+      "Erro ao calcular tamanho dos dados:",
       error
     );
 
@@ -1357,55 +1553,16 @@ async function atualizarTamanhoArmazenamento() {
     }
   }
 
-  try {
-    if (
-      navigator.storage &&
-      navigator.storage.estimate
-    ) {
-      const estimativa =
-        await navigator.storage.estimate();
-
-      if (siteStorageUsage) {
-        siteStorageUsage.textContent =
-          formatarBytes(
-            estimativa.usage || 0
-          );
-      }
-
-      if (siteStorageQuota) {
-        siteStorageQuota.textContent =
-          formatarBytes(
-            estimativa.quota || 0
-          );
-      }
-    }
-    else {
-      if (siteStorageUsage) {
-        siteStorageUsage.textContent =
-          "Não suportado";
-      }
-
-      if (siteStorageQuota) {
-        siteStorageQuota.textContent =
-          "Não suportado";
-      }
-    }
+  if (siteStorageUsage) {
+    siteStorageUsage.textContent =
+      currentUser
+        ? "Conectado"
+        : "Desconectado";
   }
-  catch (error) {
-    console.warn(
-      "Não foi possível estimar o armazenamento do site:",
-      error
-    );
 
-    if (siteStorageUsage) {
-      siteStorageUsage.textContent =
-        "Indisponível";
-    }
-
-    if (siteStorageQuota) {
-      siteStorageQuota.textContent =
-        "Indisponível";
-    }
+  if (siteStorageQuota) {
+    siteStorageQuota.textContent =
+      "Supabase";
   }
 }
 
@@ -2326,20 +2483,96 @@ document
 
 async function iniciar() {
   try {
-    await abrirBanco();
+    const autenticado = await abrirBanco();
+    if (!autenticado) return;
+
     await recarregarDados();
     atualizarUiBackupAutomatico();
     atualizarTamanhoArmazenamento();
+    await iniciarRealtimeBiblioteca();
   }
   catch (error) {
     console.error(error);
 
     alert(
-      "Não foi possível abrir o banco local de Monstros.\n\n" +
+      "Não foi possível carregar a biblioteca de Monstros.\n\n" +
       error.message
     );
   }
 }
+
+const masterLoginForm =
+  document.getElementById("masterLoginForm");
+
+masterLoginForm?.addEventListener(
+  "submit",
+  async event => {
+    event.preventDefault();
+
+    const username =
+      document
+        .getElementById("masterLoginUsername")
+        ?.value
+        .trim()
+        .toLowerCase() || "";
+
+    const password =
+      document
+        .getElementById("masterLoginPassword")
+        ?.value || "";
+
+    const errorBox =
+      document.getElementById("masterLoginError");
+
+    if (!username || !password) {
+      if (errorBox) {
+        errorBox.textContent =
+          "Preencha usuário e senha.";
+      }
+      return;
+    }
+
+    if (errorBox) {
+      errorBox.textContent = "Entrando...";
+    }
+
+    const emailInterno =
+      `${username}@mestre.rpg`;
+
+    const { data, error } =
+      await sb.auth.signInWithPassword({
+        email: emailInterno,
+        password
+      });
+
+    if (error) {
+      if (errorBox) {
+        errorBox.textContent =
+          "Usuário ou senha inválidos.";
+      }
+      return;
+    }
+
+    currentUser = data.user;
+    esconderLogin();
+
+    if (errorBox) {
+      errorBox.textContent = "";
+    }
+
+    await iniciar();
+  }
+);
+
+document
+  .getElementById("logoutBtn")
+  ?.addEventListener(
+    "click",
+    async () => {
+      await sb.auth.signOut();
+      location.reload();
+    }
+  );
 
 iniciar();
 </script>
