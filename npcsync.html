@@ -1189,6 +1189,77 @@ body.editing
     font-weight: bold;
   }
 
+/* ==========================================================
+   DETALHAMENTO DOS ATRIBUTOS
+   ========================================================== */
+.attribute-score-value {
+  position: relative;
+  display: inline-block;
+  min-width: 64px;
+  cursor: help;
+  outline: none;
+}
+
+.attribute-score-display {
+  display: inline-block;
+  min-width: 64px;
+  padding: 1px 2px 5px;
+  border-bottom: 1px solid var(--sand-3);
+  text-align: center;
+  font-size: 23px;
+  line-height: normal;
+}
+
+.attribute-score-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  min-width: 250px;
+  max-width: 340px;
+  padding: 11px 13px;
+  background: #392b1e;
+  color: #f6edd7;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 8px;
+  box-shadow: 0 8px 22px rgba(40,25,10,.28);
+  text-align: left;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 1.5;
+  white-space: pre-line;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 5px);
+  transition:
+    opacity .15s ease,
+    transform .15s ease,
+    visibility .15s ease;
+  pointer-events: none;
+  z-index: 3000;
+}
+
+.attribute-score-value:hover .attribute-score-tooltip,
+.attribute-score-value:focus .attribute-score-tooltip,
+.attribute-score-value:focus-within .attribute-score-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+body:not(.editing) .attribute-score-value > input.stat {
+  display: none;
+}
+
+body.editing .attribute-score-display,
+body.editing .attribute-score-tooltip {
+  display: none;
+}
+
+body.editing .attribute-score-value {
+  cursor: default;
+}
+
+
   /* ---------- SKILLS ---------- */
 
   .skill-value {
@@ -3957,37 +4028,61 @@ body.editing
 
         <div class="attribute">
           <span class="attribute-name">FOR</span>
-          <input id="str" class="save stat" type="number" value="14">
+          <span class="attribute-score-value" tabindex="0">
+            <input id="str" class="save stat" type="number" value="14">
+            <span id="strScoreDisplay" class="attribute-score-display">14</span>
+            <span id="strScoreTooltip" class="attribute-score-tooltip"></span>
+          </span>
           <span id="strMod" class="attribute-mod">+2</span>
         </div>
 
         <div class="attribute">
           <span class="attribute-name">DES</span>
-          <input id="dex" class="save stat" type="number" value="18">
+          <span class="attribute-score-value" tabindex="0">
+            <input id="dex" class="save stat" type="number" value="18">
+            <span id="dexScoreDisplay" class="attribute-score-display">18</span>
+            <span id="dexScoreTooltip" class="attribute-score-tooltip"></span>
+          </span>
           <span id="dexMod" class="attribute-mod">+4</span>
         </div>
 
         <div class="attribute">
           <span class="attribute-name">CON</span>
-          <input id="con" class="save stat" type="number" value="16">
+          <span class="attribute-score-value" tabindex="0">
+            <input id="con" class="save stat" type="number" value="16">
+            <span id="conScoreDisplay" class="attribute-score-display">16</span>
+            <span id="conScoreTooltip" class="attribute-score-tooltip"></span>
+          </span>
           <span id="conMod" class="attribute-mod">+3</span>
         </div>
 
         <div class="attribute">
           <span class="attribute-name">INT</span>
-          <input id="int" class="save stat" type="number" value="10">
+          <span class="attribute-score-value" tabindex="0">
+            <input id="int" class="save stat" type="number" value="10">
+            <span id="intScoreDisplay" class="attribute-score-display">10</span>
+            <span id="intScoreTooltip" class="attribute-score-tooltip"></span>
+          </span>
           <span id="intMod" class="attribute-mod">+0</span>
         </div>
 
         <div class="attribute">
           <span class="attribute-name">SAB</span>
-          <input id="wis" class="save stat" type="number" value="16">
+          <span class="attribute-score-value" tabindex="0">
+            <input id="wis" class="save stat" type="number" value="16">
+            <span id="wisScoreDisplay" class="attribute-score-display">16</span>
+            <span id="wisScoreTooltip" class="attribute-score-tooltip"></span>
+          </span>
           <span id="wisMod" class="attribute-mod">+3</span>
         </div>
 
         <div class="attribute">
           <span class="attribute-name">CAR</span>
-          <input id="cha" class="save stat" type="number" value="10">
+          <span class="attribute-score-value" tabindex="0">
+            <input id="cha" class="save stat" type="number" value="10">
+            <span id="chaScoreDisplay" class="attribute-score-display">10</span>
+            <span id="chaScoreTooltip" class="attribute-score-tooltip"></span>
+          </span>
           <span id="chaMod" class="attribute-mod">+0</span>
         </div>
 
@@ -9203,6 +9298,121 @@ function getAttributeScore(
 }
 
 
+function getAttributeEffects(
+    stat
+) {
+
+    return getFeatureEffects(
+        "attribute"
+    ).filter(
+        effect =>
+            effect.stat === stat
+    );
+}
+
+
+function getAttributeBreakdown(
+    stat
+) {
+
+    const base =
+        num(stat);
+
+    const effects =
+        getAttributeEffects(
+            stat
+        );
+
+    const aumento =
+        effects.reduce(
+            (total, effect) =>
+                total +
+                Number(
+                    effect.bonus || 0
+                ),
+            0
+        );
+
+    const total =
+        base + aumento;
+
+    const lines = [
+        nomeAtributos[stat] || statNames[stat] || stat,
+        "",
+        `Base: ${base}`
+    ];
+
+    if (effects.length > 0) {
+        lines.push("");
+        lines.push("Habilidades:");
+
+        effects.forEach(effect => {
+            let line =
+                `• ${effect.source || "Característica"}: ${fmt(Number(effect.bonus || 0))}`;
+
+            if (effect.text) {
+                line += ` — ${effect.text}`;
+            }
+
+            lines.push(line);
+        });
+    }
+
+    lines.push("");
+    lines.push("────────────");
+    lines.push(`Valor final: ${total}`);
+    lines.push(`Modificador: ${fmt(mod(total))}`);
+
+    return {
+        base,
+        effects,
+        aumento,
+        total,
+        tooltip: lines.join("\\n")
+    };
+}
+
+
+function renderAttributeScores() {
+
+    [
+        "str",
+        "dex",
+        "con",
+        "int",
+        "wis",
+        "cha"
+    ].forEach(stat => {
+
+        const breakdown =
+            getAttributeBreakdown(
+                stat
+            );
+
+        const display =
+            document.getElementById(
+                `${stat}ScoreDisplay`
+            );
+
+        const tooltip =
+            document.getElementById(
+                `${stat}ScoreTooltip`
+            );
+
+        if (display) {
+            display.textContent =
+                breakdown.total;
+        }
+
+        if (tooltip) {
+            tooltip.textContent =
+                breakdown.tooltip;
+        }
+
+    });
+}
+
+
 function getMods() {
 
     return {
@@ -13334,6 +13544,9 @@ document
     document.getElementById("wisMod").textContent = fmt(mods.wis);
     document.getElementById("chaMod").textContent = fmt(mods.cha);
 
+    // mostra o valor bruto final e explica de onde ele veio
+    renderAttributeScores();
+
     /* proficiência */
 
     document.getElementById("profBonusTop").textContent = fmt(pb);
@@ -13515,12 +13728,23 @@ const spellAttack =
 
     /* carga */
 
-    const kg =
+    const kgBase =
     getAttributeScore(
         "str"
     ) *
     15 *
     0.453592;
+
+    const kgExtra =
+        somarEfeitos(
+            "carryCapacity"
+        );
+
+    const kg =
+        Math.max(
+            0,
+            kgBase + kgExtra
+        );
 
     document.getElementById("carryCapacity").textContent =
       `${kg.toFixed(1)} kg`;
@@ -13734,6 +13958,8 @@ setEditMode(
           renderizarAcoesCombate();
 
           renderizarTogglesCombate();
+
+          updateSheet();
       }
   );
 }
@@ -14747,6 +14973,10 @@ renderizarFonteEfeito(
                   [
     "movement",
     "Movimento"
+],
+                  [
+    "carryCapacity",
+    "Peso carregável"
 ]
               ].forEach(
                 ([value, label]) => {
@@ -15285,7 +15515,10 @@ renderizarFonteEfeito(
                             "number";
 
                         bonus.placeholder =
-                            "Bônus";
+                            "Valor bruto +";
+
+                        bonus.title =
+                            "Aumento no valor bruto do atributo";
 
                         bonus.value =
                             Number(
@@ -15469,6 +15702,57 @@ renderizarFonteEfeito(
     );
 }
 
+                    /*====================
+                    PESO CARREGÁVEL
+                    ======================*/
+                    else if (
+    effect.type ===
+    "carryCapacity"
+) {
+
+    const bonus =
+        document.createElement(
+            "input"
+        );
+
+    bonus.type =
+        "number";
+
+    bonus.step =
+        "0.1";
+
+    bonus.placeholder =
+        "Carga +kg";
+
+    bonus.title =
+        "Quilos adicionais de capacidade de carga";
+
+    bonus.value =
+        Number(
+            effect.bonus || 0
+        );
+
+    bonus.addEventListener(
+        "input",
+        () => {
+
+            effect.bonus =
+                Number(
+                    bonus.value || 0
+                );
+
+            agendarSalvamentoConteudo();
+
+            updateSheet();
+
+        }
+    );
+
+    fields.appendChild(
+        bonus
+    );
+}
+
                   };
 
 
@@ -15593,6 +15877,18 @@ renderizarFonteEfeito(
                     else if (
                         effect.type ===
                         "movement"
+                    ) {
+
+                        effect.bonus =
+                            Number(
+                                effect.bonus || 0
+                            );
+
+                    }
+
+                    else if (
+                        effect.type ===
+                        "carryCapacity"
                     ) {
 
                         effect.bonus =
