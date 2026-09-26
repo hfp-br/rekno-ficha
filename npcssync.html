@@ -633,9 +633,9 @@ dialog::backdrop{
 <div id="loginOverlay" class="login-overlay">
   <div class="login-card">
     <h2>Acesso do mestre</h2>
-    <p>Entre com a conta do mestre para carregar os NPCs sincronizados.</p>
+    <p>Entre com o usuário do mestre para carregar os NPCs sincronizados.</p>
     <form id="masterLoginForm">
-      <input id="masterLoginEmail" type="email" autocomplete="username" placeholder="E-mail" required>
+      <input id="masterLoginUsername" type="text" autocomplete="username" placeholder="Nome de usuário" required>
       <input id="masterLoginPassword" type="password" autocomplete="current-password" placeholder="Senha" required>
       <button type="submit">Entrar</button>
       <div id="masterLoginError" class="login-error"></div>
@@ -2512,14 +2512,31 @@ const masterLoginForm = document.getElementById("masterLoginForm");
 masterLoginForm?.addEventListener("submit", async event => {
   event.preventDefault();
 
-  const email = document.getElementById("masterLoginEmail")?.value.trim() || "";
-  const password = document.getElementById("masterLoginPassword")?.value || "";
-  const errorBox = document.getElementById("masterLoginError");
+  const username =
+    document.getElementById("masterLoginUsername")?.value.trim().toLowerCase() || "";
+
+  const password =
+    document.getElementById("masterLoginPassword")?.value || "";
+
+  const errorBox =
+    document.getElementById("masterLoginError");
+
+  if (!username || !password) {
+    if (errorBox) errorBox.textContent = "Preencha usuário e senha.";
+    return;
+  }
+
   if (errorBox) errorBox.textContent = "Entrando...";
 
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  // o usuário vê apenas o nome; o Supabase recebe um e-mail interno
+  const emailInterno = `${username}@mestre.rpg`;
+
+  const { data, error } = await sb.auth.signInWithPassword({
+    email: emailInterno,
+    password
+  });
   if (error) {
-    if (errorBox) errorBox.textContent = "Login inválido ou não autorizado.";
+    if (errorBox) errorBox.textContent = "Usuário ou senha inválidos.";
     return;
   }
 
