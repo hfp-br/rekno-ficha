@@ -330,6 +330,66 @@ input:focus,select:focus{
   font-size:11px;
 }
 
+
+/* ============================================================
+   AVISO DE LIMITE DO BANCO SUPABASE
+   ============================================================ */
+.database-warning{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:12px 18px;
+  border-bottom:1px solid rgba(143,73,61,.42);
+  background:rgba(143,73,61,.13);
+  color:var(--ink);
+}
+
+.database-warning.hidden{
+  display:none!important;
+}
+
+.database-warning-copy{
+  min-width:0;
+  line-height:1.4;
+  font-size:13px;
+}
+
+.database-warning-copy strong{
+  color:var(--danger);
+}
+
+.database-warning button{
+  flex:0 0 auto;
+  background:var(--danger);
+  border-color:#71372f;
+  color:#fff8e8;
+}
+
+.database-warning-dialog .modal-body{
+  line-height:1.55;
+}
+
+.database-warning-dialog .database-warning-detail{
+  margin:0;
+  color:var(--muted);
+}
+
+.database-warning-dialog .database-warning-number{
+  color:var(--danger);
+  font-weight:bold;
+}
+
+@media(max-width:650px){
+  .database-warning{
+    align-items:stretch;
+    flex-direction:column;
+  }
+  .database-warning button{
+    width:100%;
+  }
+}
+
 .content{
   min-width:0;
   padding:20px;
@@ -658,6 +718,14 @@ dialog::backdrop{
     </div>
   </header>
 
+  <div id="databaseWarning" class="database-warning hidden" role="alert">
+    <div class="database-warning-copy">
+      <strong>⚠ Banco de dados quase cheio.</strong>
+      <span id="databaseWarningText"></span>
+    </div>
+    <button id="databaseWarningExportBtn" type="button">Exportar monstros agora</button>
+  </div>
+
   <div class="layout">
 
     <aside class="sidebar">
@@ -698,12 +766,12 @@ dialog::backdrop{
         </div>
 
         <div class="storage-line">
-          <span>Status</span>
+          <span>Banco Supabase</span>
           <strong id="siteStorageUsage">Calculando…</strong>
         </div>
 
         <div class="storage-line">
-          <span>Armazenamento</span>
+          <span>Espaço restante</span>
           <strong id="siteStorageQuota">Calculando…</strong>
         </div>
 
@@ -845,6 +913,23 @@ dialog::backdrop{
 </dialog>
 
 
+<dialog id="databaseWarningDialog" class="database-warning-dialog">
+  <div class="modal-head">
+    <h3>⚠ Banco de dados quase cheio</h3>
+  </div>
+
+  <div class="modal-body">
+    <p id="databaseWarningDialogText" class="database-warning-detail"></p>
+    <p class="database-warning-detail">Faça um backup dos monstros antes que o banco fique sem espaço para novas alterações.</p>
+  </div>
+
+  <div class="modal-actions">
+    <button id="databaseWarningDialogLaterBtn" type="button">Depois</button>
+    <button id="databaseWarningDialogExportBtn" class="primary" type="button">Exportar monstros agora</button>
+  </div>
+</dialog>
+
+
 <input id="importFileInput" type="file" accept="application/json,.json" class="hidden">
 <div id="toast" class="toast"></div>
 
@@ -862,6 +947,12 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const STORE_FOLDERS = "pastas";
 const STORE_MONSTROS = "monstros";
+
+/* limite do plano Free usado por este projeto */
+const DATABASE_LIMIT_BYTES = 500 * 1024 * 1024;
+const DATABASE_WARNING_REMAINING_BYTES = 10 * 1024 * 1024;
+const DATABASE_WARNING_SESSION_KEY = "la-magie-database-size-warning-shown";
+
 
 let currentUser = null;
 let realtimeMonsterListChannel = null;
@@ -1449,6 +1540,98 @@ async function registrarFichaCriadaParaBackup() {
 
 
 
+
+
+async function obterTamanhoProjetoSupabase() {
+  const { data, error } = await sb.rpc(
+    "get_project_database_size_bytes"
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  const bytes = Number(data);
+
+  if (!Number.isFinite(bytes) || bytes < 0) {
+    throw new Error("O Supabase retornou um tamanho de banco inválido.");
+  }
+
+  return bytes;
+}
+
+function verificarAvisoLimiteBanco(bytesUsados) {
+  const aviso = document.getElementById("databaseWarning");
+  const avisoTexto = document.getElementById("databaseWarningText");
+  const dialog = document.getElementById("databaseWarningDialog");
+  const dialogTexto = document.getElementById("databaseWarningDialogText");
+
+  const restante = Math.max(
+    0,
+    DATABASE_LIMIT_BYTES - Number(bytesUsados || 0)
+  );
+
+  const pertoDoLimite =
+    restante <= DATABASE_WARNING_REMAINING_BYTES;
+
+  if (!pertoDoLimite) {
+    aviso?.classList.add("hidden");
+
+    try {
+      sessionStorage.removeItem(
+        DATABASE_WARNING_SESSION_KEY
+      );
+    }
+    catch (_) {}
+
+    return false;
+  }
+
+  const texto =
+    `O banco está com ${formatarBytes(bytesUsados)} usados de ` +
+    `${formatarBytes(DATABASE_LIMIT_BYTES)} e restam cerca de ` +
+    `${formatarBytes(restante)}. NPCs e monstros compartilham esse limite.`;
+
+  if (avisoTexto) {
+    avisoTexto.textContent = texto;
+  }
+
+  if (dialogTexto) {
+    dialogTexto.textContent = texto;
+  }
+
+  aviso?.classList.remove("hidden");
+
+  let jaMostrou = false;
+
+  try {
+    jaMostrou =
+      sessionStorage.getItem(
+        DATABASE_WARNING_SESSION_KEY
+      ) === "1";
+  }
+  catch (_) {}
+
+  if (
+    !jaMostrou &&
+    dialog &&
+    !dialog.open
+  ) {
+    dialog.showModal();
+
+    try {
+      sessionStorage.setItem(
+        DATABASE_WARNING_SESSION_KEY,
+        "1"
+      );
+    }
+    catch (_) {}
+  }
+
+  return true;
+}
+
+
 /* ============================================================
    TAMANHO DO ARMAZENAMENTO
    ============================================================ */
@@ -1543,7 +1726,7 @@ async function atualizarTamanhoArmazenamento() {
   }
   catch (error) {
     console.error(
-      "Erro ao calcular tamanho dos dados:",
+      "Erro ao calcular tamanho dos dados carregados:",
       error
     );
 
@@ -1553,16 +1736,44 @@ async function atualizarTamanhoArmazenamento() {
     }
   }
 
-  if (siteStorageUsage) {
-    siteStorageUsage.textContent =
-      currentUser
-        ? "Conectado"
-        : "Desconectado";
-  }
+  try {
+    const bytesUsados =
+      await obterTamanhoProjetoSupabase();
 
-  if (siteStorageQuota) {
-    siteStorageQuota.textContent =
-      "Supabase";
+    const bytesRestantes = Math.max(
+      0,
+      DATABASE_LIMIT_BYTES - bytesUsados
+    );
+
+    if (siteStorageUsage) {
+      siteStorageUsage.textContent =
+        `${formatarBytes(bytesUsados)} / ${formatarBytes(DATABASE_LIMIT_BYTES)}`;
+    }
+
+    if (siteStorageQuota) {
+      siteStorageQuota.textContent =
+        formatarBytes(bytesRestantes);
+    }
+
+    verificarAvisoLimiteBanco(
+      bytesUsados
+    );
+  }
+  catch (error) {
+    console.error(
+      "Erro ao consultar tamanho do banco Supabase:",
+      error
+    );
+
+    if (siteStorageUsage) {
+      siteStorageUsage.textContent =
+        currentUser ? "Indisponível" : "Desconectado";
+    }
+
+    if (siteStorageQuota) {
+      siteStorageQuota.textContent =
+        "—";
+    }
   }
 }
 
@@ -2425,6 +2636,46 @@ if (autoBackupInterval) {
     }
   );
 }
+
+
+
+document
+  .getElementById("databaseWarningExportBtn")
+  ?.addEventListener(
+    "click",
+    () => {
+      document
+        .getElementById("exportAllBtn")
+        ?.click();
+    }
+  );
+
+document
+  .getElementById("databaseWarningDialogExportBtn")
+  ?.addEventListener(
+    "click",
+    () => {
+      document
+        .getElementById("exportAllBtn")
+        ?.click();
+
+      document
+        .getElementById("databaseWarningDialog")
+        ?.close();
+    }
+  );
+
+document
+  .getElementById("databaseWarningDialogLaterBtn")
+  ?.addEventListener(
+    "click",
+    () => {
+      document
+        .getElementById("databaseWarningDialog")
+        ?.close();
+    }
+  );
+
 
 refreshStorageBtn?.addEventListener(
   "click",
