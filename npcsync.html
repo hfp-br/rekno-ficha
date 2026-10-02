@@ -11018,14 +11018,23 @@ function renderizarEditorProgressaoSlots() {
   const attributeBonus =
     mods[stat];
 
-  const halfLevel =
-    halfLevelBonus(level);
-
-  const trainingBonus =
+  /*
+     A tabela de progressão já contém a metade do nível.
+     Ex.: nível 20 treinado = +16 (+10 do nível +6 do treino).
+  */
+  const progressionBonus =
     skillProgressionBonus(
       level,
       trained
     );
+
+  const halfLevel =
+    halfLevelBonus(level);
+
+  const trainingOnlyBonus =
+    trained
+      ? progressionBonus - halfLevel
+      : 0;
 
   const effects =
     getSkillEffects(name);
@@ -11042,8 +11051,7 @@ function renderizarEditorProgressaoSlots() {
 
   const total =
     attributeBonus +
-    halfLevel +
-    trainingBonus +
+    progressionBonus +
     abilityBonus;
 
 
@@ -11059,7 +11067,9 @@ const attributeScore =
     ``,
     `${statNames[stat]} ${attributeScore}: ${fmt(attributeBonus)}`,
     `½ nível (${level}): ${fmt(halfLevel)}`,
-    `${trained ? "Treinada" : "Não treinada"}: ${fmt(trainingBonus)}`
+    trained
+      ? `Treinamento: ${fmt(trainingOnlyBonus)} (progressão total ${fmt(progressionBonus)})`
+      : `Não treinada: progressão ${fmt(progressionBonus)}`
   ];
 
   if (effects.length > 0) {
@@ -13039,15 +13049,12 @@ async function excluirAtaque(id) {
       .checked;
 
 
-  /* metade do nível */
+  /*
+     A tabela de progressão já inclui a metade do nível,
+     então ela entra apenas uma vez no acerto.
+  */
 
-  const halfLevel =
-    halfLevelBonus(level);
-
-
-  /* bônus da tabela de progressão */
-
-  const trainingBonus =
+  const progressionBonus =
     skillProgressionBonus(
       level,
       trained
@@ -13069,8 +13076,7 @@ async function excluirAtaque(id) {
 
   return (
     mods[stat] +
-    halfLevel +
-    trainingBonus +
+    progressionBonus +
     abilityBonus
   );
 }
