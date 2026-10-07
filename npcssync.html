@@ -685,6 +685,72 @@ dialog::backdrop{
   font-size: 12px;
 }
 
+
+
+/* ============================================================
+   PAINEL DO MESTRE — ABAS, CALENDÁRIO E CONVERSOR
+   ============================================================ */
+.master-tabs{display:flex;gap:8px;flex-wrap:wrap;padding:10px 20px;border-bottom:1px solid var(--line);background:rgba(255,248,228,.48)}
+.master-tab{background:transparent}.master-tab.active{background:var(--sand-4);color:var(--sand-0);border-color:var(--sand-5)}
+.master-view.hidden{display:none!important}
+.utility-view{padding:20px}.utility-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+.utility-card{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:16px;box-shadow:0 7px 18px rgba(60,40,20,.08)}
+.utility-card h2{margin:0 0 12px}.muted{color:var(--muted)}
+.calendar-toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}.calendar-toolbar .center{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.calendar-toolbar select,.calendar-toolbar input{width:auto;min-width:140px}
+.calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}.calendar-weekdays div{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:center;padding:6px}.calendar-day{min-height:110px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.32);padding:7px;cursor:pointer;overflow:hidden;transition:.14s ease}.calendar-day:hover{background:rgba(112,82,51,.07);border-color:rgba(112,82,51,.50);transform:translateY(-1px)}.calendar-day.calendar-empty{visibility:hidden;min-height:110px;display:block}.calendar-day.today{outline:2px solid var(--sand-4)}.calendar-day-number{font-weight:bold;margin-bottom:5px}.calendar-event{font-size:11px;padding:5px 7px;margin-top:4px;border-radius:7px;background:rgba(112,82,51,.12);border-left:3px solid var(--sand-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.calendar-event-more{color:var(--muted);border-left-color:transparent;background:rgba(112,82,51,.06)}.calendar-season{font-size:12px;color:var(--muted);margin-top:-6px;margin-bottom:12px}.calendar-lore{margin-top:14px;padding:12px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);line-height:1.45;background:rgba(255,255,255,.18)}
+
+/* painel de eventos do calendário */
+#calendarDayDialog{width:min(720px,calc(100% - 24px));max-height:min(82vh,760px);overflow:hidden}
+.calendar-day-dialog-body{padding:16px;display:grid;gap:14px;max-height:calc(82vh - 126px);overflow:auto}
+.calendar-day-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.26)}
+.calendar-day-summary strong{font-size:16px}.calendar-day-summary small{display:block;color:var(--muted);margin-top:3px}
+.calendar-event-list{display:grid;gap:9px}
+.calendar-event-card{border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.28);overflow:hidden;transition:.15s ease}
+.calendar-event-card:hover{border-color:rgba(112,82,51,.52)}
+.calendar-event-head{width:100%;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 13px;border:0;border-radius:0;background:transparent;text-align:left;transform:none!important}
+.calendar-event-head:hover{background:rgba(112,82,51,.06);transform:none}
+.calendar-event-title{font-weight:bold;font-size:15px;line-height:1.25;overflow-wrap:anywhere}
+.calendar-event-toggle{color:var(--muted);font-size:15px;transition:.15s ease}
+.calendar-event-card.expanded .calendar-event-toggle{transform:rotate(180deg)}
+.calendar-event-details{display:none;padding:0 13px 13px;border-top:1px solid rgba(104,75,43,.16)}
+.calendar-event-card.expanded .calendar-event-details{display:block}
+.calendar-event-description{margin:11px 0 13px;white-space:pre-wrap;line-height:1.5;color:var(--ink);overflow-wrap:anywhere}
+.calendar-event-description.muted{color:var(--muted);font-style:italic}
+.calendar-event-actions{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap}
+.calendar-event-actions button{padding:7px 10px;font-size:12px}
+.calendar-no-events{padding:24px 14px;text-align:center;border:1px dashed var(--line);border-radius:11px;color:var(--muted);background:rgba(255,255,255,.15)}
+.calendar-event-form{display:none;padding:14px;border:1px solid var(--line);border-radius:11px;background:rgba(234,216,173,.18)}
+.calendar-event-form.show{display:grid;gap:11px}
+.calendar-event-form textarea{width:100%;min-height:110px;resize:vertical;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.52);color:var(--ink);padding:9px 10px;outline:none;font:inherit}
+.calendar-event-form textarea:focus{border-color:var(--sand-4);box-shadow:0 0 0 3px rgba(112,82,51,.08)}
+.calendar-event-form-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.calendar-delete-confirm{display:none;margin-top:9px;padding:10px;border:1px solid rgba(143,73,61,.28);border-radius:9px;background:rgba(143,73,61,.08)}
+.calendar-delete-confirm.show{display:block}.calendar-delete-confirm p{margin:0 0 9px;line-height:1.4}.calendar-delete-confirm-actions{display:flex;justify-content:flex-end;gap:7px}
+/* conversor de moedas */
+.currency-card{padding:0;overflow:hidden}
+.currency-hero{padding:20px 20px 18px;background:linear-gradient(145deg,rgba(234,216,173,.34),rgba(255,255,255,.28));border-bottom:1px solid var(--line)}
+.currency-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:17px}
+.currency-title-wrap h2{margin:0 0 5px}.currency-title-wrap p{margin:0;color:var(--muted);font-size:13px;line-height:1.45}
+.currency-emblem{width:52px;height:52px;flex:0 0 52px;display:grid;place-items:center;border-radius:50%;border:1px solid rgba(112,82,51,.36);background:radial-gradient(circle at 35% 30%,#fff8df,var(--sand-1));box-shadow:inset 0 0 0 4px rgba(255,255,255,.24),0 5px 14px rgba(60,40,20,.12);font-weight:bold;font-size:18px;color:var(--sand-5)}
+.currency-input-panel{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:12px;padding:14px;border:1px solid rgba(112,82,51,.24);border-radius:13px;background:rgba(255,255,255,.34)}
+.currency-field{display:grid;gap:6px}.currency-field label{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:bold}
+.currency-field input,.currency-field select{height:48px;background:rgba(255,255,255,.62);font-size:17px}.currency-field input{font-size:22px;font-weight:bold;font-variant-numeric:tabular-nums}
+.currency-quick-values{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.currency-quick-values button{padding:6px 9px;font-size:11px;border-radius:99px;background:rgba(255,255,255,.36)}
+.currency-body{padding:18px 20px 20px}.currency-results-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:11px}.currency-results-head strong{font-size:14px}.currency-results-head span{font-size:11px;color:var(--muted)}
+.currency-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.currency-result{position:relative;min-height:108px;padding:13px 13px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.30);overflow:hidden;transition:.15s ease}
+.currency-result:hover{transform:translateY(-1px);border-color:rgba(112,82,51,.50);box-shadow:0 5px 13px rgba(60,40,20,.07)}
+.currency-result.source{background:rgba(112,82,51,.10);border-color:rgba(112,82,51,.48);box-shadow:inset 0 0 0 1px rgba(112,82,51,.08)}
+.currency-result.source::after{content:'origem';position:absolute;right:9px;top:9px;padding:2px 6px;border-radius:99px;background:var(--sand-4);color:var(--sand-0);font-size:9px;text-transform:uppercase;letter-spacing:.07em}
+.currency-code{display:flex;align-items:center;gap:8px;padding-right:48px}.currency-coin{width:30px;height:30px;display:grid;place-items:center;flex:0 0 30px;border-radius:50%;border:1px solid rgba(112,82,51,.30);background:linear-gradient(145deg,rgba(255,255,255,.75),rgba(234,216,173,.48));font-weight:bold;font-size:10px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.18)}
+.currency-code-text b{display:block;font-size:13px}.currency-code-text small{display:block;color:var(--muted);font-size:10px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.currency-result strong{display:block;margin-top:14px;font-size:20px;line-height:1.05;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.currency-result .currency-eq{display:block;margin-top:5px;color:var(--muted);font-size:10px}
+.currency-note{margin-top:13px;padding:11px 12px;border:1px dashed rgba(112,82,51,.28);border-radius:10px;background:rgba(234,216,173,.12);color:var(--muted);font-size:11px;line-height:1.5}
+.currency-note strong{color:var(--ink)}
+@media(max-width:850px){.currency-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.currency-input-panel{grid-template-columns:1fr}.calendar-weekdays,.calendar-grid{gap:3px}.calendar-day{min-height:88px;padding:5px}.master-tabs{padding:8px 12px}.currency-hero-top{align-items:center}.currency-grid{grid-template-columns:1fr}.currency-body,.currency-hero{padding-left:14px;padding-right:14px}}
+
 </style>
 </head>
 
@@ -719,6 +785,12 @@ dialog::backdrop{
     </div>
   </header>
 
+  <nav class="master-tabs" aria-label="Ferramentas do mestre">
+    <button class="master-tab active" data-master-tab="npcs">NPCs</button>
+    <button class="master-tab" data-master-tab="calendar">Calendário</button>
+    <button class="master-tab" data-master-tab="currency">Conversor de moedas</button>
+  </nav>
+
   <div id="databaseWarning" class="database-warning hidden" role="alert">
     <div class="database-warning-copy">
       <strong>⚠ Banco de dados quase cheio.</strong>
@@ -727,6 +799,7 @@ dialog::backdrop{
     <button id="databaseWarningExportBtn" type="button">Exportar NPCs agora</button>
   </div>
 
+  <section id="viewNpcs" class="master-view">
   <div class="layout">
 
     <aside class="sidebar">
@@ -816,6 +889,112 @@ dialog::backdrop{
 
     </main>
   </div>
+  </section>
+
+  <section id="viewCalendar" class="master-view hidden utility-view">
+    <div class="utility-grid">
+      <div class="utility-card">
+        <div class="calendar-toolbar">
+          <button id="calendarPrevBtn" type="button">← Mês anterior</button>
+          <div class="center">
+            <select id="calendarMonthSelect"></select>
+            <input id="calendarYearInput" type="number" step="1" value="1" aria-label="Ano da campanha">
+          </div>
+          <button id="calendarNextBtn" type="button">Próximo mês →</button>
+        </div>
+        <h2 id="calendarTitle">Calendário de Arton</h2>
+        <div id="calendarSeason" class="calendar-season"></div>
+        <div class="calendar-weekdays" id="calendarWeekdays"></div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+        <div id="calendarLore" class="calendar-lore"></div>
+      </div>
+    </div>
+  </section>
+
+  <dialog id="calendarDayDialog">
+    <div class="modal-head">
+      <div>
+        <h3 id="calendarDayDialogTitle">Eventos do dia</h3>
+      </div>
+      <button type="button" class="icon" id="calendarDayDialogClose" aria-label="Fechar">×</button>
+    </div>
+
+    <div class="calendar-day-dialog-body">
+      <div class="calendar-day-summary">
+        <div>
+          <strong id="calendarDaySummaryDate"></strong>
+          <small id="calendarDaySummarySeason"></small>
+        </div>
+        <button id="calendarAddEventBtn" class="primary" type="button">+ Novo evento</button>
+      </div>
+
+      <div id="calendarEventForm" class="calendar-event-form">
+        <input id="calendarEventId" type="hidden">
+        <div class="field">
+          <label for="calendarEventTitleInput">Título</label>
+          <input id="calendarEventTitleInput" maxlength="120" autocomplete="off" placeholder="Ex.: Audiência com o duque">
+        </div>
+        <div class="field">
+          <label for="calendarEventDescriptionInput">Descrição</label>
+          <textarea id="calendarEventDescriptionInput" maxlength="4000" placeholder="Anotações, consequências, pessoas envolvidas..."></textarea>
+        </div>
+        <div class="calendar-event-form-actions">
+          <button id="calendarEventCancelBtn" type="button">Cancelar</button>
+          <button id="calendarEventSaveBtn" class="primary" type="button">Salvar evento</button>
+        </div>
+      </div>
+
+      <div id="calendarEventList" class="calendar-event-list"></div>
+    </div>
+  </dialog>
+
+  <section id="viewCurrency" class="master-view hidden utility-view">
+    <div class="utility-card currency-card">
+      <div class="currency-hero">
+        <div class="currency-hero-top">
+          <div class="currency-title-wrap">
+            <h2>Conversor rápido de moedas</h2>
+            <p>Converta qualquer valor para todas as moedas de uma vez.</p>
+          </div>
+          <div class="currency-emblem" aria-hidden="true">T$</div>
+        </div>
+
+        <div class="currency-input-panel">
+          <div class="currency-field">
+            <label for="currencyAmount">Quantidade</label>
+            <input id="currencyAmount" type="number" step="any" value="1" min="0" aria-label="Quantidade">
+            <div class="currency-quick-values" aria-label="Valores rápidos">
+              <button type="button" data-currency-quick="1">1</button>
+              <button type="button" data-currency-quick="5">5</button>
+              <button type="button" data-currency-quick="10">10</button>
+              <button type="button" data-currency-quick="50">50</button>
+              <button type="button" data-currency-quick="100">100</button>
+            </div>
+          </div>
+          <div class="currency-field">
+            <label for="currencyFrom">Moeda de origem</label>
+            <select id="currencyFrom">
+              <option value="T$">T$ — Tibares</option>
+              <option value="PC">PC — Peças de cobre</option>
+              <option value="PP">PP — Peças de prata</option>
+              <option value="PE">PE — Peças de electro</option>
+              <option value="PO">PO — Peças de ouro</option>
+              <option value="PL">PL — Peças de platina</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="currency-body">
+        <div class="currency-results-head">
+          <strong>Equivalências</strong>
+          <span id="currencySummary">1 T$ em todas as moedas</span>
+        </div>
+        <div id="currencyResults" class="currency-grid"></div>
+        <div class="currency-note"><strong>Referência:</strong> 1 T$ = 10 PC = 1 PP = 0,2 PE = 0,1 PO = 0,01 PL. Também: 1 PE = 5 T$, 1 PO = 10 T$ e 1 PL = 100 T$.</div>
+      </div>
+    </div>
+  </section>
 </div>
 
 
@@ -2696,6 +2875,323 @@ document
 
   });
 
+
+/* ============================================================
+   ABAS / CALENDÁRIO / CONVERSOR LOCAL
+   ============================================================ */
+
+const MASTER_VIEW_KEY = "la-magie-master-active-view";
+const CALENDAR_DB_NAME = "la-magie-master-tools";
+const CALENDAR_DB_VERSION = 1;
+const CALENDAR_STORE_EVENTS = "calendar_events";
+const CALENDAR_STATE_KEY = "la-magie-calendar-state";
+
+const CALENDAR_MONTHS = [
+  { n:1, name:"Caravana", season:"Primavera", lore:"Lembra a grande caravana de refugiados de Lamnor, cuja jornada terminou no começo da primavera." },
+  { n:2, name:"Pomo", season:"Primavera", lore:"Ligado ao período em que as plantações começam a crescer." },
+  { n:3, name:"Keenvia", season:"Primavera", lore:"Vem de Keenn, antigo Deus da Guerra; tradicionalmente época de marchas e campanhas militares." },
+  { n:4, name:"Sirravia", season:"Verão", lore:"Homenageia Sirranamena, a Rainha Barda, considerada uma das primeiras grandes monarcas humanas." },
+  { n:5, name:"Vigília", season:"Verão", lore:"Porque Azgher fica alto no céu de verão, como se estivesse “vigiando” Arton." },
+  { n:6, name:"Prussvia", season:"Verão", lore:"Homenagem à família Pruss, de Roramar Pruss, fundador do Reinado." },
+  { n:7, name:"Ceifa", season:"Outono", lore:"É o começo da época de colheita." },
+  { n:8, name:"Contenda", season:"Outono", lore:"Antigamente era o período dedicado a duelos e resolução de disputas; hoje também é associado a julgamentos." },
+  { n:9, name:"Clausura", season:"Outono", lore:"Época em que as pessoas se recolhem e armazenam comida e lenha para enfrentar o inverno." },
+  { n:10, name:"Pharstyth", season:"Inverno", lore:"Homenagem à mítica arquimaga Pharstyth. É curioso que uma figura vilanesca tenha recebido essa homenagem." },
+  { n:11, name:"Véu", season:"Inverno", lore:"Pelas noites longas de inverno e pela associação com Tenebra, que estaria mais poderosa nesse período." },
+  { n:12, name:"Pyra", season:"Inverno", lore:"Referência a Thyatis, Deus das Segundas Chances, e ao costume de queimar coisas antigas e fazer profecias em piras no fim do ano." }
+];
+
+const WEEKDAYS = ["1º", "2º", "3º", "4º", "5º", "6º", "7º"];
+let calendarState = { year:1, month:1 };
+let calendarEvents = [];
+
+function setMasterView(name){
+  const map = {npcs:"viewNpcs", calendar:"viewCalendar", currency:"viewCurrency"};
+  Object.entries(map).forEach(([key,id]) => document.getElementById(id)?.classList.toggle("hidden", key !== name));
+  document.querySelectorAll(".master-tab").forEach(btn => btn.classList.toggle("active", btn.dataset.masterTab === name));
+  salvarStorageSeguro(MASTER_VIEW_KEY, name);
+  if(name === "calendar") renderCalendar();
+  if(name === "currency") renderCurrency();
+}
+
+document.querySelectorAll(".master-tab").forEach(btn => btn.addEventListener("click", () => setMasterView(btn.dataset.masterTab)));
+
+function openCalendarDb(){
+  return new Promise((resolve,reject) => {
+    const req = indexedDB.open(CALENDAR_DB_NAME, CALENDAR_DB_VERSION);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if(!db.objectStoreNames.contains(CALENDAR_STORE_EVENTS)){
+        const store = db.createObjectStore(CALENDAR_STORE_EVENTS,{keyPath:"id"});
+        store.createIndex("dateKey","dateKey",{unique:false});
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function calendarGetAll(){
+  const db = await openCalendarDb();
+  return new Promise((resolve,reject) => {
+    const tx = db.transaction(CALENDAR_STORE_EVENTS,"readonly");
+    const req = tx.objectStore(CALENDAR_STORE_EVENTS).getAll();
+    req.onsuccess=()=>resolve(req.result||[]); req.onerror=()=>reject(req.error);
+  });
+}
+
+async function calendarPut(value){
+  const db = await openCalendarDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(CALENDAR_STORE_EVENTS,"readwrite");
+    tx.objectStore(CALENDAR_STORE_EVENTS).put(value);
+    tx.oncomplete=()=>resolve(true); tx.onerror=()=>reject(tx.error);
+  });
+}
+
+async function calendarDelete(id){
+  const db = await openCalendarDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(CALENDAR_STORE_EVENTS,"readwrite");
+    tx.objectStore(CALENDAR_STORE_EVENTS).delete(id);
+    tx.oncomplete=()=>resolve(true); tx.onerror=()=>reject(tx.error);
+  });
+}
+
+function saveCalendarState(){ salvarStorageSeguro(CALENDAR_STATE_KEY, JSON.stringify(calendarState)); }
+function loadCalendarState(){
+  try{
+    const raw=lerStorageSeguro(CALENDAR_STATE_KEY,"");
+    if(raw){ const s=JSON.parse(raw); calendarState.year=Number(s.year)||1; calendarState.month=Math.min(12,Math.max(1,Number(s.month)||1)); }
+  }catch(_){ }
+}
+
+function calendarDateKey(year,month,day){ return `${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`; }
+function firstWeekdayIndex(year,month){
+  const totalDaysBefore = (year-1)*360 + (month-1)*30;
+  return ((totalDaysBefore % 7) + 7) % 7;
+}
+
+async function renderCalendar(){
+  const month = CALENDAR_MONTHS[calendarState.month-1];
+  const monthSel=document.getElementById("calendarMonthSelect");
+  const yearInput=document.getElementById("calendarYearInput");
+  if(!monthSel.options.length){ monthSel.innerHTML=CALENDAR_MONTHS.map(m=>`<option value="${m.n}">${String(m.n).padStart(2,"0")} — ${m.name}</option>`).join(""); }
+  monthSel.value=String(calendarState.month); yearInput.value=calendarState.year;
+  document.getElementById("calendarTitle").textContent = `${month.name}, ano ${calendarState.year}`;
+  document.getElementById("calendarSeason").textContent = `${month.season} • 30 dias`;
+  document.getElementById("calendarLore").textContent = month.lore;
+  document.getElementById("calendarWeekdays").innerHTML = WEEKDAYS.map(d=>`<div>${d}</div>`).join("");
+  calendarEvents = await calendarGetAll();
+  const grid=document.getElementById("calendarGrid"); grid.innerHTML="";
+  for(let i=0;i<firstWeekdayIndex(calendarState.year,calendarState.month);i++){ const e=document.createElement("div"); e.className="calendar-day calendar-empty"; grid.appendChild(e); }
+  for(let day=1;day<=30;day++){
+    const key=calendarDateKey(calendarState.year,calendarState.month,day);
+    const events=calendarEvents.filter(e=>e.dateKey===key);
+    const cell=document.createElement("div"); cell.className="calendar-day";
+    cell.innerHTML=`<div class="calendar-day-number">${day}</div>${events.slice(0,3).map(e=>`<div class="calendar-event" title="${escaparHtml(e.description||"")}">${escaparHtml(e.title)}</div>`).join("")}${events.length>3?`<div class="calendar-event calendar-event-more">+${events.length-3} evento(s)</div>`:""}`;
+    cell.addEventListener("click",()=>openCalendarDay(day)); grid.appendChild(cell);
+  }
+}
+
+let calendarSelectedDay = null;
+
+function getSelectedDayEvents(){
+  if(calendarSelectedDay === null) return [];
+  const key = calendarDateKey(calendarState.year,calendarState.month,calendarSelectedDay);
+  return calendarEvents.filter(event => event.dateKey === key);
+}
+
+function resetCalendarEventForm(){
+  document.getElementById("calendarEventId").value = "";
+  document.getElementById("calendarEventTitleInput").value = "";
+  document.getElementById("calendarEventDescriptionInput").value = "";
+  document.getElementById("calendarEventSaveBtn").textContent = "Salvar evento";
+}
+
+function hideCalendarEventForm(){
+  document.getElementById("calendarEventForm")?.classList.remove("show");
+  resetCalendarEventForm();
+}
+
+function showCalendarEventForm(event = null){
+  const form = document.getElementById("calendarEventForm");
+  const titleInput = document.getElementById("calendarEventTitleInput");
+  const descInput = document.getElementById("calendarEventDescriptionInput");
+  const idInput = document.getElementById("calendarEventId");
+  resetCalendarEventForm();
+  if(event){
+    idInput.value = event.id;
+    titleInput.value = event.title || "";
+    descInput.value = event.description || "";
+    document.getElementById("calendarEventSaveBtn").textContent = "Salvar alterações";
+  }
+  form.classList.add("show");
+  setTimeout(()=>titleInput.focus(),0);
+}
+
+function renderCalendarDayDialog(){
+  if(calendarSelectedDay === null) return;
+  const month = CALENDAR_MONTHS[calendarState.month-1];
+  const events = getSelectedDayEvents();
+  document.getElementById("calendarDayDialogTitle").textContent = `Eventos — dia ${calendarSelectedDay}`;
+  document.getElementById("calendarDaySummaryDate").textContent = `${calendarSelectedDay} de ${month.name}, ano ${calendarState.year}`;
+  document.getElementById("calendarDaySummarySeason").textContent = `${month.season} • ${events.length} ${events.length === 1 ? "evento" : "eventos"}`;
+
+  const list = document.getElementById("calendarEventList");
+  list.innerHTML = "";
+
+  if(!events.length){
+    list.innerHTML = `<div class="calendar-no-events"><strong>Nenhum evento neste dia.</strong><br>Use “+ Novo evento” para registrar algo.</div>`;
+    return;
+  }
+
+  events.forEach(event => {
+    const card = document.createElement("article");
+    card.className = "calendar-event-card";
+    const hasDescription = Boolean((event.description || "").trim());
+    card.innerHTML = `
+      <button type="button" class="calendar-event-head">
+        <span class="calendar-event-title">${escaparHtml(event.title)}</span>
+        <span class="calendar-event-toggle">⌄</span>
+      </button>
+      <div class="calendar-event-details">
+        <div class="calendar-event-description ${hasDescription ? "" : "muted"}">${hasDescription ? escaparHtml(event.description) : "Sem descrição."}</div>
+        <div class="calendar-event-actions">
+          <button type="button" data-calendar-action="edit">Editar</button>
+          <button type="button" class="danger" data-calendar-action="delete">Excluir</button>
+        </div>
+        <div class="calendar-delete-confirm">
+          <p>Excluir <strong>${escaparHtml(event.title)}</strong>? Esta ação não pode ser desfeita.</p>
+          <div class="calendar-delete-confirm-actions">
+            <button type="button" data-calendar-action="delete-cancel">Cancelar</button>
+            <button type="button" class="danger" data-calendar-action="delete-confirm">Excluir evento</button>
+          </div>
+        </div>
+      </div>`;
+
+    card.querySelector(".calendar-event-head").addEventListener("click",()=>{
+      card.classList.toggle("expanded");
+    });
+
+    card.querySelector('[data-calendar-action="edit"]').addEventListener("click",()=>showCalendarEventForm(event));
+    card.querySelector('[data-calendar-action="delete"]').addEventListener("click",()=>{
+      card.classList.add("expanded");
+      card.querySelector(".calendar-delete-confirm").classList.add("show");
+    });
+    card.querySelector('[data-calendar-action="delete-cancel"]').addEventListener("click",()=>{
+      card.querySelector(".calendar-delete-confirm").classList.remove("show");
+    });
+    card.querySelector('[data-calendar-action="delete-confirm"]').addEventListener("click",async()=>{
+      await calendarDelete(event.id);
+      calendarEvents = await calendarGetAll();
+      renderCalendarDayDialog();
+      renderCalendar();
+      toast("Evento excluído.");
+    });
+
+    list.appendChild(card);
+  });
+}
+
+async function openCalendarDay(day){
+  calendarSelectedDay = day;
+  calendarEvents = await calendarGetAll();
+  hideCalendarEventForm();
+  renderCalendarDayDialog();
+  const dialog = document.getElementById("calendarDayDialog");
+  if(dialog && !dialog.open) dialog.showModal();
+}
+
+document.getElementById("calendarDayDialogClose")?.addEventListener("click",()=>{
+  hideCalendarEventForm();
+  document.getElementById("calendarDayDialog")?.close();
+});
+
+document.getElementById("calendarAddEventBtn")?.addEventListener("click",()=>showCalendarEventForm());
+document.getElementById("calendarEventCancelBtn")?.addEventListener("click",hideCalendarEventForm);
+
+document.getElementById("calendarEventSaveBtn")?.addEventListener("click",async()=>{
+  if(calendarSelectedDay === null) return;
+  const titleInput = document.getElementById("calendarEventTitleInput");
+  const descInput = document.getElementById("calendarEventDescriptionInput");
+  const idInput = document.getElementById("calendarEventId");
+  const title = titleInput.value.trim();
+  if(!title){
+    titleInput.focus();
+    titleInput.setCustomValidity("Digite um título para o evento.");
+    titleInput.reportValidity();
+    titleInput.setCustomValidity("");
+    return;
+  }
+
+  const existing = idInput.value ? calendarEvents.find(e=>e.id===idInput.value) : null;
+  const event = {
+    ...(existing || {}),
+    id: existing?.id || crypto.randomUUID(),
+    dateKey: calendarDateKey(calendarState.year,calendarState.month,calendarSelectedDay),
+    year: calendarState.year,
+    month: calendarState.month,
+    day: calendarSelectedDay,
+    title,
+    description: descInput.value.trim()
+  };
+
+  await calendarPut(event);
+  calendarEvents = await calendarGetAll();
+  hideCalendarEventForm();
+  renderCalendarDayDialog();
+  renderCalendar();
+  toast(existing ? "Evento atualizado." : "Evento criado.");
+});
+
+document.getElementById("calendarPrevBtn")?.addEventListener("click",()=>{ calendarState.month--; if(calendarState.month<1){calendarState.month=12;calendarState.year--;} saveCalendarState(); renderCalendar(); });
+document.getElementById("calendarNextBtn")?.addEventListener("click",()=>{ calendarState.month++; if(calendarState.month>12){calendarState.month=1;calendarState.year++;} saveCalendarState(); renderCalendar(); });
+document.getElementById("calendarMonthSelect")?.addEventListener("change",e=>{calendarState.month=Number(e.target.value)||1;saveCalendarState();renderCalendar();});
+document.getElementById("calendarYearInput")?.addEventListener("change",e=>{calendarState.year=Number(e.target.value)||1;saveCalendarState();renderCalendar();});
+
+const CURRENCY_IN_TIBARES = {"T$":1,"PC":0.1,"PP":1,"PE":5,"PO":10,"PL":100};
+const CURRENCY_LABELS = {"T$":"Tibares","PC":"Peças de cobre","PP":"Peças de prata","PE":"Peças de electro","PO":"Peças de ouro","PL":"Peças de platina"};
+function formatCurrencyNumber(n){
+  return new Intl.NumberFormat("pt-BR",{maximumFractionDigits:6}).format(n);
+}
+function renderCurrency(){
+  const amount=Math.max(0,Number(document.getElementById("currencyAmount")?.value)||0);
+  const from=document.getElementById("currencyFrom")?.value||"T$";
+  const tibares=amount*CURRENCY_IN_TIBARES[from];
+  const order=["T$","PC","PP","PE","PO","PL"];
+  const summary=document.getElementById("currencySummary");
+  if(summary) summary.textContent=`${formatCurrencyNumber(amount)} ${from} em todas as moedas`;
+  document.getElementById("currencyResults").innerHTML=order.map(code=>{
+    const value=tibares/CURRENCY_IN_TIBARES[code];
+    const unitInTibares=CURRENCY_IN_TIBARES[code];
+    const relation=unitInTibares===1
+      ? `1 ${code} = 1 T$`
+      : `1 ${code} = ${formatCurrencyNumber(unitInTibares)} T$`;
+    return `<div class="currency-result${code===from?' source':''}">
+      <div class="currency-code">
+        <span class="currency-coin">${code}</span>
+        <span class="currency-code-text"><b>${code}</b><small>${CURRENCY_LABELS[code]}</small></span>
+      </div>
+      <strong>${formatCurrencyNumber(value)} ${code}</strong>
+      <span class="currency-eq">${relation}</span>
+    </div>`;
+  }).join("");
+}
+document.getElementById("currencyAmount")?.addEventListener("input",renderCurrency);
+document.getElementById("currencyFrom")?.addEventListener("change",renderCurrency);
+document.querySelectorAll("[data-currency-quick]").forEach(button=>{
+  button.addEventListener("click",()=>{
+    const input=document.getElementById("currencyAmount");
+    if(!input) return;
+    input.value=button.dataset.currencyQuick||"1";
+    renderCurrency();
+  });
+});
+
+loadCalendarState();
+setMasterView(lerStorageSeguro(MASTER_VIEW_KEY,"npcs") || "npcs");
+renderCurrency();
 
 /* ============================================================
    INICIALIZAÇÃO
