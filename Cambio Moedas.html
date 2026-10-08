@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Magie — Conversor de Moedas</title>
+<style>
+:root{
+  --sand-0:#f6edd7;
+  --sand-1:#ead8ad;
+  --sand-2:#cfb47b;
+  --sand-3:#a9824d;
+  --sand-4:#705233;
+  --sand-5:#3d2b1d;
+  --ink:#322619;
+  --muted:#7d684d;
+  --line:rgba(104,75,43,.30);
+  --panel:rgba(255,250,237,.82);
+  --panel-strong:rgba(255,248,228,.95);
+  --shadow:0 14px 40px rgba(50,32,14,.18);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--ink);
+  font-family:Georgia,"Times New Roman",serif;
+  background:
+    radial-gradient(circle at 15% 18%, rgba(255,255,255,.20), transparent 28%),
+    radial-gradient(circle at 82% 70%, rgba(90,60,30,.09), transparent 32%),
+    linear-gradient(155deg,#dcc28d,#b8955f);
+  padding:18px;
+}
+
+button,input,select{font:inherit}
+
+button{
+  border:1px solid var(--line);
+  color:var(--ink);
+  background:var(--panel-strong);
+  border-radius:9px;
+  padding:9px 12px;
+  cursor:pointer;
+  transition:.14s ease;
+}
+
+button:hover{
+  transform:translateY(-1px);
+  border-color:rgba(112,82,51,.55);
+}
+
+input,select{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:rgba(255,255,255,.52);
+  color:var(--ink);
+  padding:9px 10px;
+  outline:none;
+}
+
+input:focus,select:focus{
+  border-color:var(--sand-4);
+  box-shadow:0 0 0 3px rgba(112,82,51,.08);
+}
+
+.app{
+  width:min(1100px,100%);
+  margin:0 auto;
+  background:
+    linear-gradient(rgba(255,255,255,.16),rgba(255,255,255,.05)),
+    repeating-linear-gradient(
+      7deg,
+      rgba(98,65,32,.018) 0px,
+      rgba(98,65,32,.018) 1px,
+      transparent 1px,
+      transparent 5px
+    ),
+    var(--sand-0);
+  border:1px solid rgba(79,52,28,.42);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.topbar{
+  padding:18px 20px;
+  border-bottom:1px solid var(--line);
+  background:rgba(255,248,228,.64);
+}
+
+.topbar h1{
+  margin:0;
+  font-size:28px;
+}
+
+.topbar p{
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.currency-card{
+  padding:0;
+  overflow:hidden;
+}
+
+.currency-hero{
+  padding:20px 20px 18px;
+  background:linear-gradient(145deg,rgba(234,216,173,.34),rgba(255,255,255,.28));
+  border-bottom:1px solid var(--line);
+}
+
+.currency-hero-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:17px;
+}
+
+.currency-title-wrap h2{
+  margin:0 0 5px;
+  font-size:24px;
+}
+
+.currency-title-wrap p{
+  margin:0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.45;
+}
+
+.currency-emblem{
+  width:52px;
+  height:52px;
+  flex:0 0 52px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  border:1px solid rgba(112,82,51,.36);
+  background:radial-gradient(circle at 35% 30%,#fff8df,var(--sand-1));
+  box-shadow:inset 0 0 0 4px rgba(255,255,255,.24),0 5px 14px rgba(60,40,20,.12);
+  font-weight:bold;
+  font-size:18px;
+  color:var(--sand-5);
+}
+
+.currency-input-panel{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 230px;
+  gap:12px;
+  padding:14px;
+  border:1px solid rgba(112,82,51,.24);
+  border-radius:13px;
+  background:rgba(255,255,255,.34);
+}
+
+.currency-field{
+  display:grid;
+  gap:6px;
+}
+
+.currency-field label{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+  color:var(--muted);
+  font-weight:bold;
+}
+
+.currency-field input,
+.currency-field select{
+  height:48px;
+  background:rgba(255,255,255,.62);
+  font-size:17px;
+}
+
+.currency-field input{
+  font-size:22px;
+  font-weight:bold;
+  font-variant-numeric:tabular-nums;
+}
+
+.currency-quick-values{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:9px;
+}
+
+.currency-quick-values button{
+  padding:6px 9px;
+  font-size:11px;
+  border-radius:99px;
+  background:rgba(255,255,255,.36);
+}
+
+.currency-body{
+  padding:18px 20px 20px;
+}
+
+.currency-results-head{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:11px;
+}
+
+.currency-results-head strong{font-size:14px}
+.currency-results-head span{font-size:11px;color:var(--muted)}
+
+.currency-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+
+.currency-result{
+  position:relative;
+  min-height:108px;
+  padding:13px 13px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:rgba(255,255,255,.30);
+  overflow:hidden;
+  transition:.15s ease;
+}
+
+.currency-result:hover{
+  transform:translateY(-1px);
+  border-color:rgba(112,82,51,.50);
+  box-shadow:0 5px 13px rgba(60,40,20,.07);
+}
+
+.currency-result.source{
+  background:rgba(112,82,51,.10);
+  border-color:rgba(112,82,51,.48);
+  box-shadow:inset 0 0 0 1px rgba(112,82,51,.08);
+}
+
+.currency-result.source::after{
+  content:'origem';
+  position:absolute;
+  right:9px;
+  top:9px;
+  padding:2px 6px;
+  border-radius:99px;
+  background:var(--sand-4);
+  color:var(--sand-0);
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+}
+
+.currency-code{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding-right:48px;
+}
+
+.currency-coin{
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  flex:0 0 30px;
+  border-radius:50%;
+  border:1px solid rgba(112,82,51,.30);
+  background:linear-gradient(145deg,rgba(255,255,255,.75),rgba(234,216,173,.48));
+  font-weight:bold;
+  font-size:10px;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.18);
+}
+
+.currency-code-text b{
+  display:block;
+  font-size:13px;
+}
+
+.currency-code-text small{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  margin-top:1px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.currency-result strong{
+  display:block;
+  margin-top:14px;
+  font-size:20px;
+  line-height:1.05;
+  font-variant-numeric:tabular-nums;
+  overflow-wrap:anywhere;
+}
+
+.currency-result .currency-eq{
+  display:block;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.currency-note{
+  margin-top:13px;
+  padding:11px 12px;
+  border:1px dashed rgba(112,82,51,.28);
+  border-radius:10px;
+  background:rgba(234,216,173,.12);
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.5;
+}
+
+.currency-note strong{color:var(--ink)}
+
+.footer-note{
+  padding:0 20px 20px;
+  color:var(--muted);
+  font-size:11px;
+  text-align:center;
+}
+
+@media(max-width:850px){
+  .currency-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:700px){
+  body{padding:10px}
+  .currency-input-panel{grid-template-columns:1fr}
+  .currency-hero-top{align-items:center}
+  .currency-grid{grid-template-columns:1fr}
+  .currency-body,.currency-hero{padding-left:14px;padding-right:14px}
+  .topbar{padding:16px 14px}
+  .topbar h1{font-size:23px}
+}
+
+@media(max-width:420px){
+  .currency-results-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .currency-quick-values button{
+    flex:1;
+  }
+}
+</style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <h1>La Magie — Conversor de Moedas</h1>
+      <p>Conversor rápido para jogadores e mestre.</p>
+    </header>
+
+    <section class="currency-card">
+      <div class="currency-hero">
+        <div class="currency-hero-top">
+          <div class="currency-title-wrap">
+            <h2>Conversor rápido de moedas</h2>
+            <p>Converta qualquer valor para todas as moedas de uma vez.</p>
+          </div>
+          <div class="currency-emblem" aria-hidden="true">T$</div>
+        </div>
+
+        <div class="currency-input-panel">
+          <div class="currency-field">
+            <label for="currencyAmount">Quantidade</label>
+            <input id="currencyAmount" type="number" step="any" value="1" min="0" inputmode="decimal" aria-label="Quantidade">
+            <div class="currency-quick-values" aria-label="Valores rápidos">
+              <button type="button" data-currency-quick="1">1</button>
+              <button type="button" data-currency-quick="5">5</button>
+              <button type="button" data-currency-quick="10">10</button>
+              <button type="button" data-currency-quick="50">50</button>
+              <button type="button" data-currency-quick="100">100</button>
+            </div>
+          </div>
+
+          <div class="currency-field">
+            <label for="currencyFrom">Moeda de origem</label>
+            <select id="currencyFrom">
+              <option value="T$">T$ — Tibares</option>
+              <option value="PC">PC — Peças de cobre</option>
+              <option value="PP">PP — Peças de prata</option>
+              <option value="PE">PE — Peças de electro</option>
+              <option value="PO">PO — Peças de ouro</option>
+              <option value="PL">PL — Peças de platina</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="currency-body">
+        <div class="currency-results-head">
+          <strong>Equivalências</strong>
+          <span id="currencySummary">1 T$ em todas as moedas</span>
+        </div>
+
+        <div id="currencyResults" class="currency-grid"></div>
+
+        <div class="currency-note">
+          <strong>Referência:</strong>
+          1 T$ = 10 PC = 1 PP = 0,2 PE = 0,1 PO = 0,01 PL.
+          Também: 1 PE = 5 T$, 1 PO = 10 T$ e 1 PL = 100 T$.
+        </div>
+      </div>
+
+      <div class="footer-note">Os valores são calculados localmente no navegador.</div>
+    </section>
+  </main>
+
+<script>
+const CURRENCY_IN_TIBARES = {
+  "T$": 1,
+  "PC": 0.1,
+  "PP": 1,
+  "PE": 5,
+  "PO": 10,
+  "PL": 100
+};
+
+const CURRENCY_LABELS = {
+  "T$": "Tibares",
+  "PC": "Peças de cobre",
+  "PP": "Peças de prata",
+  "PE": "Peças de electro",
+  "PO": "Peças de ouro",
+  "PL": "Peças de platina"
+};
+
+function formatCurrencyNumber(n){
+  return new Intl.NumberFormat("pt-BR", {
+    maximumFractionDigits: 6
+  }).format(n);
+}
+
+function renderCurrency(){
+  const amount = Math.max(
+    0,
+    Number(document.getElementById("currencyAmount")?.value) || 0
+  );
+
+  const from =
+    document.getElementById("currencyFrom")?.value || "T$";
+
+  const tibares =
+    amount * CURRENCY_IN_TIBARES[from];
+
+  const order =
+    ["T$","PC","PP","PE","PO","PL"];
+
+  const summary =
+    document.getElementById("currencySummary");
+
+  if(summary){
+    summary.textContent =
+      `${formatCurrencyNumber(amount)} ${from} em todas as moedas`;
+  }
+
+  document.getElementById("currencyResults").innerHTML =
+    order.map(code => {
+      const value =
+        tibares / CURRENCY_IN_TIBARES[code];
+
+      const unitInTibares =
+        CURRENCY_IN_TIBARES[code];
+
+      const relation =
+        unitInTibares === 1
+          ? `1 ${code} = 1 T$`
+          : `1 ${code} = ${formatCurrencyNumber(unitInTibares)} T$`;
+
+      return `
+        <div class="currency-result${code === from ? " source" : ""}">
+          <div class="currency-code">
+            <span class="currency-coin">${code}</span>
+            <span class="currency-code-text">
+              <b>${code}</b>
+              <small>${CURRENCY_LABELS[code]}</small>
+            </span>
+          </div>
+
+          <strong>${formatCurrencyNumber(value)} ${code}</strong>
+          <span class="currency-eq">${relation}</span>
+        </div>
+      `;
+    }).join("");
+}
+
+document
+  .getElementById("currencyAmount")
+  ?.addEventListener("input", renderCurrency);
+
+document
+  .getElementById("currencyFrom")
+  ?.addEventListener("change", renderCurrency);
+
+document
+  .querySelectorAll("[data-currency-quick]")
+  .forEach(button => {
+    button.addEventListener("click", () => {
+      const input =
+        document.getElementById("currencyAmount");
+
+      if(!input) return;
+
+      input.value =
+        button.dataset.currencyQuick || "1";
+
+      renderCurrency();
+    });
+  });
+
+renderCurrency();
+</script>
+</body>
+</html>
